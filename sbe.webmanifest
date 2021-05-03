@@ -1,0 +1,15 @@
+{
+  "background_color": "white",
+  "description": "Static Blog Editor.",
+  "display": "fullscreen",
+  "icons": [
+    {
+      "src": "favicon.ico",
+      "sizes": "32x32",
+      "type": "image/ico"
+    }
+  ],
+  "name": "Static Blog Editor",
+  "short_name": "SBE",
+  "start_url": "sbe.html"
+}

@@ -1,0 +1,83 @@
+<!-- default template -->
+
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="format-detection" content="telephone=no">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-iBBXm8fW90+nuLcSKlbmrPcLa0OT92xO1BIsZ+ywDWZCvqsWgccV3gFoRBv0z+8dLJgyAHIhR35VZc2oM/gI1w==" crossorigin="anonymous" />
+</head>
+<body>
+
+<header class="header">
+<if class="post page allpost">
+<p class="blog-title"></p>
+</if>
+<if class="index">
+<h1 class="blog-title"></h1>
+</if>
+<nav class="page-list"></nav>
+<p class="search"></p>
+</header>
+
+<main>
+
+<if class="post">
+<div class="freespace">Free Space</div>
+</if>
+
+<if class="post">
+<time itemprop="datepublished"></time><time itemprop="modified">• Update </time> by <span class="auther"></span>
+<h1 class="title"></h1>
+<div class="top-image"></div>
+<div class="table-of-contents"><p>contents</p></div>
+</if>
+
+<if class="page">
+<h1 class="title"></h1>
+</if>
+
+<if class="allpost">
+<h1 class="title"></h1>
+<div class="allpost-btns">
+</div>
+</if>
+
+<div class="contents">
+
+<if class="index">
+<h2>Latest Posts</h2>
+</if>
+<if class="index allpost">
+<div class="latest-posts"></div>
+</if>
+
+<if class="post">
+<p class="tags"></p>
+<p class="social"></p>
+</if>
+
+</div>
+
+<if class="post">
+<div class="comment">
+your disqus code
+</div>
+</if>
+
+<if class="post">
+<div class="prev-next"></div>
+<div class="related-post"></div>
+</if>
+
+<if class="index post page">
+<div class="goto-allpost"><a>All Post</a></div>
+</if>
+
+</main>
+
+<footer class="footer"></footer>
+</body>
+</html>
