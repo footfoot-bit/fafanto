@@ -427,9 +427,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const str = this.documentToHTMLstr(doc);
         await this.write(str);
       };
-      static async writeURLToFile(fileHandle,url) {
-        const writable = await fileHandle.createWritable();
-        const response = await fetch(url);
+      async writeURLToFile() {
+        const writable = await this.handle().createWritable();
+        const response = await fetch(this.url);
         await response.body.pipeTo(writable);
       };
     };
@@ -454,13 +454,23 @@ document.addEventListener('DOMContentLoaded', () => {
         this.fileName = 'style.css';
         this.chest = singleChest;
         this.txta = STYL.elements['txta'];
+        this.url = 'default-style.css'
       };
       async save() {
         await this.write(this.txta.value);
       };
     };
+    class Favicon extends HandleFile {
+      constructor(fileName,chest) {
+        super(fileName,chest);
+        this.fileName = 'favicon.svg';
+        this.chest = singleChest;
+        this.url = 'favicon.svg';
+      };
+    };
     const template = new Template();
     const style = new Style();
+    const favicon = new Favicon();
 
     class Config extends HandleFile {
       constructor(fileName,chest) {
@@ -476,10 +486,12 @@ document.addEventListener('DOMContentLoaded', () => {
           CONF.elements[cnf].value = txt;
         }
         const tgs = doc.getElementById('tags');
-        const tags = tgs.querySelectorAll('i')?? '';
-        for (const tag of tags) {
-          tag.setAttribute('data-tag',tag.textContent);
-          POSTG.insertAdjacentHTML('beforeend',tag.outerHTML);
+        if(tgs == true) {
+          const tags = tgs.querySelectorAll('i')?? '';
+          for (const tag of tags) {
+            tag.setAttribute('data-tag',tag.textContent);
+            POSTG.insertAdjacentHTML('beforeend',tag.outerHTML);
+          }
         }
       };
       async save() {
@@ -1098,16 +1110,13 @@ document.addEventListener('DOMContentLoaded', () => {
         list[i][1].addList(today.syear());
         list[i][1].addFolders();
       }
-      //load files
-      const files = [template,style,config];
-      for (const file of files) await file.load();
-      //save nesssesary file
-      if (style.txt() === '') {
-        console.log(style.txt())
-        Handle.writeURLToFile(blgHandle,'default-style.css');
-      }
     })();
-  //picker after run
+    //load files
+    for (const file of [template,style,config]) await file.load();
+    //save files for first step
+    for (const file of [style,favicon]) {
+      if (await file.txt() === '') await file.writeURLToFile();
+    }
     OPEN.classList.add('disable');
     POSTG.textContent = '';
     POSNW.elements['date'].value = today.dateType();
