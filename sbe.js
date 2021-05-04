@@ -109,8 +109,12 @@ document.addEventListener('DOMContentLoaded', () => {
 //Text Editor
   //original code from https://www.annytab.com/create-html-editor-with-pure-javascript/
   class Editor {
-    constructor(form) {
-      this.ta = form.elements['txta'];
+    constructor() {
+      const section = H2SE.dataset.section;
+      this.ta = document.getElementById(section).elements['txta'];
+      let path = '../../'
+      if (section === 'page') path = '../';
+      this.path = path;
     };
     addTag(btnTxt) {
       if (btnTxt === "p") this.surroundSelectedText('<p>','</p>\n');
@@ -163,8 +167,6 @@ document.addEventListener('DOMContentLoaded', () => {
       this.ta.focus();
     };
   };
-  const postEditor = new Editor(POST);
-  const pageEditor = new Editor(PAGE);
 //Mutation Observer
   obsSection = () => {
     SAVE.removeAttribute('data-file');
@@ -258,13 +260,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
   document.getElementById('post-panel').onclick = (e) => {
-    if (e.target.tagName === 'I') postEditor.addTag(e.target.textContent);
+    if (e.target.tagName === 'I') new Editor().addTag(e.target.textContent);
   };
   document.getElementById('page-panel').onclick = (e) => {
-    if (e.target.tagName === 'I') pageEditor.addTag(e.target.textContent);
+    if (e.target.tagName === 'I') new Editor().addTag(e.target.textContent);
   };
   (() => {
-    //toggle view of right elements
+    //toggle switch of right elements
     const boxrs = document.querySelectorAll('.box-right');
     for (const boxr of boxrs) {
       boxr.onclick = (e) => {
@@ -917,15 +919,13 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     };
     class AList extends Editor {
-      async addA() {
+      addA() {
         LINKS.classList.toggle('hide');
         IMAGS.classList.add('hide');
-        let path = '../../';
-        if (H2SE.dataset.section === 'page') path = '../';
         LINKS.querySelector('div').onclick = (e) => {
           if (e.target.tagName === 'P') {
             const folderName = LINKS.elements['flds'].value;
-            this.insertText(`<a href="${path}post/${folderName}/${e.target.dataset.name}" target="_blank">${e.target.dataset.title}</a>`);
+            this.insertText(`<a href="${this.path}post/${folderName}/${e.target.dataset.name}" target="_blank">${e.target.dataset.title}</a>`);
           }
         }
       };
@@ -944,15 +944,13 @@ document.addEventListener('DOMContentLoaded', () => {
       };
     };
     class ImgList extends Editor {
-      async addImg() {
+      addImg() {
         IMAGS.classList.toggle('hide');
         LINKS.classList.add('hide');
-        let path = '../../';
-        if (H2SE.dataset.section === 'page') path = '../';
         IMAGS.querySelector('div').onclick = (e) => {
           if (e.target.tagName === 'IMG') {
             const folderName = IMAGS.elements['flds'].value;
-            this.insertText(`<img src="${path}media/${folderName}/${e.target.title}" alt="" />\n`);
+            this.insertText(`<img src="${this.path}media/${folderName}/${e.target.title}" alt="" />\n`);
           }
         }
       };
@@ -1061,7 +1059,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     ( async () => {
     //Post, Page
-      const data = [[POSLI,POSBO,POSNW,'post',Post,POST,postEditor],[PAGLI,PAGBO,PAGNW,'page',Page,PAGE,pageEditor]];
+      const data = [[POSLI,POSBO,POSNW,'post',Post,POST],[PAGLI,PAGBO,PAGNW,'page',Page,PAGE]];
       for (let i = 0; i < 2; i++) {
         //click edit/close button
         data[i][0].onclick = async (e) => {
@@ -1092,7 +1090,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         //click editor panel
         document.getElementById(`${data[i][3]}-panel`).onclick = (e) => {
-          if (e.target.tagName === 'I') data[i][6].addTag(e.target.textContent);
+          if (e.target.tagName === 'I') new Editor().addTag(e.target.textContent);
           else if (e.target.title === 'link') new AList(data[i][5]).addA();
           else if (e.target.title === 'img') new ImgList(data[i][5]).addImg();
           else if (e.target.tagName === 'U') new Custom(data[i][5]).addCustomTag(e.target.title);
