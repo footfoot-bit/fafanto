@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }).then((css) => {
     STYL.elements['txta'].value = css;
   });
-  //all file handle in array
+  //all file handle into array
   listAll = async (dir) => {
     const files = [];
     for await (const entry of dir.values()) {
@@ -259,20 +259,19 @@ document.addEventListener('DOMContentLoaded', () => {
       e.target.setAttribute('class','on');
     }
   };
-  document.getElementById('post-panel').onclick = (e) => {
-    if (e.target.tagName === 'I') new Editor().addTag(e.target.textContent);
-  };
-  document.getElementById('page-panel').onclick = (e) => {
-    if (e.target.tagName === 'I') new Editor().addTag(e.target.textContent);
-  };
+  //add common tag
+  for (const panel of ['post-panel','page-panel']) {
+    document.getElementById(panel).onclick = (e) => {
+      if (e.target.tagName === 'I') new Editor().addTag(e.target.textContent);
+    };
+  }
+  //toggle view of right elements
+  for (const boxr of document.querySelectorAll('.box-right')) {
+    boxr.onclick = (e) => {
+      if (e.target.tagName === 'LEGEND') e.target.nextElementSibling.classList.toggle('hide');
+    };
+  }
   (() => {
-    //toggle switch of right elements
-    const boxrs = document.querySelectorAll('.box-right');
-    for (const boxr of boxrs) {
-      boxr.onclick = (e) => {
-        if (e.target.tagName === 'LEGEND') e.target.nextElementSibling.classList.toggle('hide');
-      };
-    }
     //adjust size
     const w = document.querySelector('.box-left').offsetWidth;
     const elems = [POSLI,POSNW,PAGLI,PAGNW,document.querySelector('.postcap'),document.querySelector('.pagecap'),CONF.querySelector('fieldset')];
@@ -297,6 +296,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const mapHandle = await blgHandle.getFileHandle('allpost.html',{create:true});
     const sitHandle = await blgHandle.getFileHandle('sitemap.xml',{create:true});
     const icoHandle = await blgHandle.getFileHandle('favicon.svg',{create:true});
+    const mjsHandle = await blgHandle.getFileHandle('main.js',{create:true});
     const posHandle = await blgHandle.getDirectoryHandle('post',{create:true});
     const pagHandle = await blgHandle.getDirectoryHandle('page',{create:true});
     const medHandle = await blgHandle.getDirectoryHandle('media',{create:true});
@@ -304,7 +304,7 @@ document.addEventListener('DOMContentLoaded', () => {
     await medHandle.getDirectoryHandle(today.syear(),{create:true});
     //store file and folder handles
     let singleChest = [];
-    singleChest.push(tmpHandle,cfgHandle,idxHandle,styHandle,mapHandle,sitHandle,icoHandle);
+    singleChest.push(tmpHandle,cfgHandle,idxHandle,styHandle,mapHandle,sitHandle,icoHandle,mjsHandle);
     let postChest = await listAll(posHandle);
     let pageChest = await listAll(pagHandle);
     let mediaChest = await listAll(medHandle);
@@ -373,7 +373,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const ico = doc.head.querySelector('[rel="icon"]');
         const href = ico.getAttribute('href');
         ico.setAttribute('href',`${this.path}${href}`);
-        const headTags = [`<meta name="date" content="${today.ymd()}">\n`,`<link rel="stylesheet" href="${this.path}style.css">\n`,`\n<title>${CNFBT.value}</title>\n`];
+        const headTags = [`<meta name="date" content="${today.ymd()}">\n`,`<link rel="stylesheet" href="${this.path}style.css">\n`,`<script src="${this.path}main.js"></script>`,`\n<title>${CNFBT.value}</title>\n`];
         for (const hTag of headTags) doc.head.insertAdjacentHTML('afterbegin',hTag);
         doc.querySelector('.blog-title').innerHTML = `<a href="${this.path}index.html">${CNFBT.value}</a>`;
         const txt =  doc.querySelector('.search').innerHTML;
@@ -407,6 +407,7 @@ document.addEventListener('DOMContentLoaded', () => {
       async preview() {
         const doc = await this.makeHTML();
         doc.head.querySelector(`[href="${this.path}style.css"]`).setAttribute('href','blog/style.css');
+        doc.head.querySelector(`[src="${this.path}main.js"]`).setAttribute('src','blog/main.js');
         const imgs = doc.querySelectorAll('img');
         for (const img of imgs) {
           const src = img.getAttribute('src');
@@ -470,9 +471,18 @@ document.addEventListener('DOMContentLoaded', () => {
         this.url = 'favicon.svg';
       };
     };
+    class MainJS extends HandleFile {
+      constructor(fileName,chest) {
+        super(fileName,chest);
+        this.fileName = 'main.js';
+        this.chest = singleChest;
+        this.url = 'default-main.js'
+      };
+    };
     const template = new Template();
     const style = new Style();
     const favicon = new Favicon();
+    const mainjs = new MainJS();
 
     class Config extends HandleFile {
       constructor(fileName,chest) {
@@ -572,51 +582,51 @@ document.addEventListener('DOMContentLoaded', () => {
           img.setAttribute('src',presrc);
           img.setAttribute('loading','lazy');
         }
-        const js = `<script>
-document.addEventListener('DOMContentLoaded', () => {
-  const LATPO = document.querySelector('.latest-posts');
-  const POSTS = LATPO.querySelectorAll('div');
-  const POSBT = document.querySelector('.allpost-btns');
-  const BTNPS = POSBT.querySelectorAll('p');
-  viewSwitch = (e) => {
-    e.target.classList.toggle('on');
-    for (const post of POSTS) post.classList.add('hide');
-    const flds = BTNPS[0].querySelectorAll('.on');
-    const tags = BTNPS[1].querySelectorAll('.on');
-    for (const fld of flds) {
-      const fldName = fld.dataset.btn;
-      for (const tag of tags) {
-        const tagName = tag.dataset.btn;
-        const acts = LATPO.querySelectorAll(\`.\${tagName}.\${fldName}\`);
-        for (const act of acts) act.classList.remove('hide');
-      }
-    }
-  };
-  POSBT.onclick = (e) => {
-    if (e.target.tagName === 'U') viewSwitch(e);
-    else if (e.target.tagName === 'SPAN') viewSwitch(e);
-    else if (e.target.className === 'allclear-btn') {
-      for (const post of POSTS) post.classList.add('hide');
-      const ons = BTNPS[1].querySelectorAll('.on');
-      for (const on of ons) on.classList.remove('on');
-    }
-    else if (e.target.className === 'allview-btn') {
-      const flds = BTNPS[0].querySelectorAll('.on');
-      const spans = BTNPS[1].querySelectorAll('span');
-      for (const fld of flds) {
-        const fldName = fld.dataset.btn;
-        for (const span of spans) {
-          span.classList.add('on');
-          const tagName = span.dataset.btn;
-          const acts = LATPO.querySelectorAll(\`.\${tagName}.\${fldName}\`);
-          for (const act of acts) act.classList.remove('hide');
-        }
-      }
-    }
-  };
-});
-</script>\n`;
-        doc.head.insertAdjacentHTML('beforeend',js);
+//         const js = `<script>
+// document.addEventListener('DOMContentLoaded', () => {
+//   const LATPO = document.querySelector('.latest-posts');
+//   const POSTS = LATPO.querySelectorAll('div');
+//   const POSBT = document.querySelector('.allpost-btns');
+//   const BTNPS = POSBT.querySelectorAll('p');
+//   viewSwitch = (e) => {
+//     e.target.classList.toggle('on');
+//     for (const post of POSTS) post.classList.add('hide');
+//     const flds = BTNPS[0].querySelectorAll('.on');
+//     const tags = BTNPS[1].querySelectorAll('.on');
+//     for (const fld of flds) {
+//       const fldName = fld.dataset.btn;
+//       for (const tag of tags) {
+//         const tagName = tag.dataset.btn;
+//         const acts = LATPO.querySelectorAll(\`.\${tagName}.\${fldName}\`);
+//         for (const act of acts) act.classList.remove('hide');
+//       }
+//     }
+//   };
+//   POSBT.onclick = (e) => {
+//     if (e.target.tagName === 'U') viewSwitch(e);
+//     else if (e.target.tagName === 'SPAN') viewSwitch(e);
+//     else if (e.target.className === 'allclear-btn') {
+//       for (const post of POSTS) post.classList.add('hide');
+//       const ons = BTNPS[1].querySelectorAll('.on');
+//       for (const on of ons) on.classList.remove('on');
+//     }
+//     else if (e.target.className === 'allview-btn') {
+//       const flds = BTNPS[0].querySelectorAll('.on');
+//       const spans = BTNPS[1].querySelectorAll('span');
+//       for (const fld of flds) {
+//         const fldName = fld.dataset.btn;
+//         for (const span of spans) {
+//           span.classList.add('on');
+//           const tagName = span.dataset.btn;
+//           const acts = LATPO.querySelectorAll(\`.\${tagName}.\${fldName}\`);
+//           for (const act of acts) act.classList.remove('hide');
+//         }
+//       }
+//     }
+//   };
+// });
+// </script>\n`;
+//         doc.head.insertAdjacentHTML('beforeend',js);
         return doc;
       };
     };
@@ -1112,7 +1122,7 @@ document.addEventListener('DOMContentLoaded', () => {
     //load files
     for (const file of [template,style,config]) await file.load();
     //save files for first step
-    for (const file of [style,favicon]) {
+    for (const file of [style,favicon,mainjs]) {
       if (await file.txt() === '') await file.writeURLToFile();
     }
     OPEN.classList.add('disable');
