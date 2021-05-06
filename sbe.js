@@ -293,10 +293,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const blgHandle = await dirHandle.getDirectoryHandle('blog',{create:true});
     const idxHandle = await blgHandle.getFileHandle('index.html',{create:true});
     const styHandle = await blgHandle.getFileHandle('style.css',{create:true});
-    const mapHandle = await blgHandle.getFileHandle('allpost.html',{create:true});
+    const allHandle = await blgHandle.getFileHandle('allpost.html',{create:true});
     const sitHandle = await blgHandle.getFileHandle('sitemap.xml',{create:true});
     const icoHandle = await blgHandle.getFileHandle('favicon.svg',{create:true});
     const mjsHandle = await blgHandle.getFileHandle('main.js',{create:true});
+    const ajsHandle = await blgHandle.getFileHandle('allpost.js',{create:true});
     const posHandle = await blgHandle.getDirectoryHandle('post',{create:true});
     const pagHandle = await blgHandle.getDirectoryHandle('page',{create:true});
     const medHandle = await blgHandle.getDirectoryHandle('media',{create:true});
@@ -304,7 +305,7 @@ document.addEventListener('DOMContentLoaded', () => {
     await medHandle.getDirectoryHandle(today.syear(),{create:true});
     //store file and folder handles
     let singleChest = [];
-    singleChest.push(tmpHandle,cfgHandle,idxHandle,styHandle,mapHandle,sitHandle,icoHandle,mjsHandle);
+    singleChest.push(tmpHandle,cfgHandle,idxHandle,styHandle,allHandle,sitHandle,icoHandle,mjsHandle,ajsHandle);
     let postChest = await listAll(posHandle);
     let pageChest = await listAll(pagHandle);
     let mediaChest = await listAll(medHandle);
@@ -479,10 +480,19 @@ document.addEventListener('DOMContentLoaded', () => {
         this.url = 'default-main.js'
       };
     };
+    class AllpostJS extends HandleFile {
+      constructor(fileName,chest) {
+        super(fileName,chest);
+        this.fileName = 'allpost.js';
+        this.chest = singleChest;
+        this.url = 'default-allpost.js'
+      };
+    };
     const template = new Template();
     const style = new Style();
     const favicon = new Favicon();
     const mainjs = new MainJS();
+    const allpostjs = new AllpostJS();
 
     class Config extends HandleFile {
       constructor(fileName,chest) {
@@ -562,7 +572,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const mab = doc.querySelector('.allpost-btns');
         mab.insertAdjacentHTML('beforeend','<p></p><p></p><p></p>');
         const mabp = mab.querySelectorAll('p');
-        const data = [[doc.querySelector('title'),'allpost - '],[doc.querySelector('.title'),'allpost'],[mabp[1],'<span data-btn="tag-No-Tag" class="on">No Tag</span>'],[mabp[2],'<b class="allclear-btn">All Clear</b><b class="allview-btn">All View</b>'],[doc.querySelector('.contents'),'<div class="latest-posts"></div>']];
+        const data = [[doc.querySelector('title'),'allpost - '],[doc.querySelector('.title'),'allpost'],[mabp[1],'<span data-btn="tag-No-Tag" class="on">No Tag</span>'],[mabp[2],'<b class="allclear-btn">All Clear</b><b class="allview-btn">All View</b>'],[doc.querySelector('.contents'),'<div class="latest-posts"></div>'],[doc.head,'<script src="./allpost.js"></script>']];
         for (let i = 0; i < data.length; i++) data[i][0].insertAdjacentHTML('afterbegin',data[i][1]);
         const flds = postLister.sortLatestFolder();
         for (const fld of flds) mabp[0].insertAdjacentHTML('beforeend',`<U data-btn="fld-${fld}" class="on">${fld}</U>`);
@@ -582,51 +592,6 @@ document.addEventListener('DOMContentLoaded', () => {
           img.setAttribute('src',presrc);
           img.setAttribute('loading','lazy');
         }
-//         const js = `<script>
-// document.addEventListener('DOMContentLoaded', () => {
-//   const LATPO = document.querySelector('.latest-posts');
-//   const POSTS = LATPO.querySelectorAll('div');
-//   const POSBT = document.querySelector('.allpost-btns');
-//   const BTNPS = POSBT.querySelectorAll('p');
-//   viewSwitch = (e) => {
-//     e.target.classList.toggle('on');
-//     for (const post of POSTS) post.classList.add('hide');
-//     const flds = BTNPS[0].querySelectorAll('.on');
-//     const tags = BTNPS[1].querySelectorAll('.on');
-//     for (const fld of flds) {
-//       const fldName = fld.dataset.btn;
-//       for (const tag of tags) {
-//         const tagName = tag.dataset.btn;
-//         const acts = LATPO.querySelectorAll(\`.\${tagName}.\${fldName}\`);
-//         for (const act of acts) act.classList.remove('hide');
-//       }
-//     }
-//   };
-//   POSBT.onclick = (e) => {
-//     if (e.target.tagName === 'U') viewSwitch(e);
-//     else if (e.target.tagName === 'SPAN') viewSwitch(e);
-//     else if (e.target.className === 'allclear-btn') {
-//       for (const post of POSTS) post.classList.add('hide');
-//       const ons = BTNPS[1].querySelectorAll('.on');
-//       for (const on of ons) on.classList.remove('on');
-//     }
-//     else if (e.target.className === 'allview-btn') {
-//       const flds = BTNPS[0].querySelectorAll('.on');
-//       const spans = BTNPS[1].querySelectorAll('span');
-//       for (const fld of flds) {
-//         const fldName = fld.dataset.btn;
-//         for (const span of spans) {
-//           span.classList.add('on');
-//           const tagName = span.dataset.btn;
-//           const acts = LATPO.querySelectorAll(\`.\${tagName}.\${fldName}\`);
-//           for (const act of acts) act.classList.remove('hide');
-//         }
-//       }
-//     }
-//   };
-// });
-// </script>\n`;
-//         doc.head.insertAdjacentHTML('beforeend',js);
         return doc;
       };
     };
@@ -1122,7 +1087,7 @@ document.addEventListener('DOMContentLoaded', () => {
     //load files
     for (const file of [template,style,config]) await file.load();
     //save files for first step
-    for (const file of [style,favicon,mainjs]) {
+    for (const file of [style,favicon,mainjs,allpostjs]) {
       if (await file.txt() === '') await file.writeURLToFile();
     }
     OPEN.classList.add('disable');
@@ -1142,6 +1107,52 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 });
+//         const js = `<script>
+// document.addEventListener('DOMContentLoaded', () => {
+//   const LATPO = document.querySelector('.latest-posts');
+//   const POSTS = LATPO.querySelectorAll('div');
+//   const POSBT = document.querySelector('.allpost-btns');
+//   const BTNPS = POSBT.querySelectorAll('p');
+//   viewSwitch = (e) => {
+//     e.target.classList.toggle('on');
+//     for (const post of POSTS) post.classList.add('hide');
+//     const flds = BTNPS[0].querySelectorAll('.on');
+//     const tags = BTNPS[1].querySelectorAll('.on');
+//     for (const fld of flds) {
+//       const fldName = fld.dataset.btn;
+//       for (const tag of tags) {
+//         const tagName = tag.dataset.btn;
+//         const acts = LATPO.querySelectorAll(\`.\${tagName}.\${fldName}\`);
+//         for (const act of acts) act.classList.remove('hide');
+//       }
+//     }
+//   };
+//   POSBT.onclick = (e) => {
+//     if (e.target.tagName === 'U') viewSwitch(e);
+//     else if (e.target.tagName === 'SPAN') viewSwitch(e);
+//     else if (e.target.className === 'allclear-btn') {
+//       for (const post of POSTS) post.classList.add('hide');
+//       const ons = BTNPS[1].querySelectorAll('.on');
+//       for (const on of ons) on.classList.remove('on');
+//     }
+//     else if (e.target.className === 'allview-btn') {
+//       const flds = BTNPS[0].querySelectorAll('.on');
+//       const spans = BTNPS[1].querySelectorAll('span');
+//       for (const fld of flds) {
+//         const fldName = fld.dataset.btn;
+//         for (const span of spans) {
+//           span.classList.add('on');
+//           const tagName = span.dataset.btn;
+//           const acts = LATPO.querySelectorAll(\`.\${tagName}.\${fldName}\`);
+//           for (const act of acts) act.classList.remove('hide');
+//         }
+//       }
+//     }
+//   };
+// });
+// </script>\n`;
+//         doc.head.insertAdjacentHTML('beforeend',js);
+
         //doc.querySelector('.title').textContent = 'Post Map';
         // mabp[1].insertAdjacentHTML('beforeend','<span data-btn="tag-No-Tag" class="on">No Tag</span>');
         // mabp[2].insertAdjacentHTML('beforeend','<b class="allclear-btn">All Clear</b><b class="allview-btn">All View</b>');
