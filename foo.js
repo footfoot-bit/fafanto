@@ -532,8 +532,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const cnt = doc.querySelector('.latest-posts');
         const num = CONF.elements['latest-posts'].value;
         if (num > 0 && num < 21) await postLister.insertLatestNumber(num,cnt);
-        const conts = doc.querySelector('.contents');
-        const imgs = conts.querySelectorAll('img');
+        const imgs = cnt.querySelectorAll('img');
         for (const img of imgs) {
           const src = img.getAttribute('src');
           const presrc = src.replace('../../','');
@@ -558,7 +557,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const mab = doc.querySelector('.allpost-btns');
         mab.insertAdjacentHTML('beforeend','<p></p><p></p><p></p>');
         const mabp = mab.querySelectorAll('p');
-        const data = [[doc.querySelector('title'),'allpost - '],[doc.querySelector('.title'),'allpost'],[mabp[1],'<span data-btn="tag-No-Tag" class="on">No Tag</span>'],[mabp[2],'<b class="allclear-btn">All Clear</b><b class="allview-btn">All View</b>'],[doc.querySelector('.contents'),'<div class="latest-posts"></div>']];
+        const data = [[doc.querySelector('title'),'allpost - '],[doc.querySelector('.title'),'allpost'],[mabp[1],'<span data-btn="tag-No-Tag" class="on">No Tag</span>'],[mabp[2],'<b class="allclear-btn">All Clear</b><b class="allview-btn">All View</b>']];
         for (let i = 0; i < data.length; i++) data[i][0].insertAdjacentHTML('afterbegin',data[i][1]);
         const flds = postLister.sortLatestFolder();
         for (const fld of flds) mabp[0].insertAdjacentHTML('beforeend',`<U data-btn="fld-${fld}" class="on">${fld}</U>`);
@@ -995,9 +994,6 @@ document.addEventListener('DOMContentLoaded', () => {
           await new Post(fileName).save();
         }
         for (const file of files) await file.save();
-        // await index.save();
-        // await allpost.save();
-        // await sitemap.save();
       }
       else if (section === 'page') {
         if (PAGNW.classList.contains('hide') === false) {
@@ -1025,11 +1021,9 @@ document.addEventListener('DOMContentLoaded', () => {
       const folderName = POST.elements['years'].value;
       await postLister.addListForApp(folderName);
     });
+    POST.elements['img-open'].onclick = () => new ImgList(POST).addImgForTop();
     POSTG.onclick = (e) => {
       if (e.target.tagName === 'I') e.target.classList.toggle('on');
-    };
-    POST.elements['img-open'].onclick = () => {
-      new ImgList(POST).addImgForTop();
     };
     ( async () => {
     //Post, Page
