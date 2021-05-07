@@ -376,8 +376,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const headTags = [`<meta name="date" content="${today.ymd()}">\n`,`<link rel="stylesheet" href="${this.path}style.css">\n`,`<script src="${this.path}main.js"></script>`,`\n<title>${CNFBT.value}</title>\n`];
         for (const hTag of headTags) doc.head.insertAdjacentHTML('afterbegin',hTag);
         doc.querySelector('.blog-title').innerHTML = `<a href="${this.path}index.html">${CNFBT.value}</a>`;
-        const txt =  doc.querySelector('.search').innerHTML;
-        doc.querySelector('.search').innerHTML = `<a href="https://www.google.com/search?q=site%3A${normal.url()}" target="_blank">${txt}</a>`;
+        // const txt =  doc.querySelector('.search').innerHTML;
+        // doc.querySelector('.search').innerHTML = `<a href="https://www.google.com/search?q=site%3A${normal.url()}" target="_blank">${txt}</a>`;
         for await (const page of pageChest.values()) {
           if (page.kind === 'file') {
             const pdoc = await new Page(page.name).document();
@@ -520,7 +520,7 @@ document.addEventListener('DOMContentLoaded', () => {
         this.desc = CONF.elements['index-desc'];
         this.class = 'index';
       };
-      addSubtitle(doc) {
+      appendSubtitle(doc) {
         const txt = this.title.value;
         if (txt == false) return;
         doc.head.querySelector('title').insertAdjacentHTML('beforeend',` - ${txt}`);
@@ -528,7 +528,7 @@ document.addEventListener('DOMContentLoaded', () => {
       async makeHTML() {
         const doc = this.removeTempIf();
         await this.addCommonContent(doc);
-        this.addSubtitle(doc);
+        this.appendSubtitle(doc);
         const cnt = doc.querySelector('.latest-posts');
         const num = CONF.elements['latest-posts'].value;
         if (num > 0 && num < 21) await postLister.insertLatestNumber(num,cnt);
@@ -711,7 +711,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return doc;
       };
       async addOGP(doc) {
-        const inp = document.querySelectorAll(`[data-name="${this.fileName}"] input`);
+        const inp = POST.querySelectorAll(`[data-name="${this.fileName}"] input`);
         const fld = await this.parentName();
         let img = this.img;
         const tif = this.timg.value;
@@ -737,6 +737,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const newFile = await thisYear.getFileHandle(this.fileName,{create:true});
         this.chest.push(newFile);
         await this.save();
+        for (const inp of POSNW.elements) inp.value = '';
       };
       async parentName() {
         const rsv = await posHandle.resolve(this.handle());
@@ -769,11 +770,20 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         return doc;
       };
+      addOGP(doc) {
+        const inp = PAGE.querySelectorAll(`[data-name="${this.fileName}"] input`);
+        const url = `${normal.url()}page/${this.fileName}`;
+        const ogs = [['url',url],['title',inp[0].value],['site_name',CNFBT.value],['type','article'],['description',this.desc.value],['image',normal.url() + this.img]];
+        for (const og of ogs) {
+          doc.head.insertAdjacentHTML('beforeend',`<meta property="og:${og[0]}" content="${og[1]}" />\n`);
+        }
+      };
       async saveNew() {
         this.checkNewFileName();
         const newFile = await pagHandle.getFileHandle(this.fileName,{create:true});
         this.chest.push(newFile);
         await this.save();
+        for (const inp of PAGNW.elements) inp.value = '';
       };
     };
     //instance single files 
@@ -828,7 +838,11 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log(allData)
         return allData;
       },
-      insertListForApp: async(folderName) => {
+      addListForApp: async(folderName) => {
+        POSLI.textContent = '';
+        POSBO.classList.add('hide');
+        POSNW.elements['btn'].classList.remove('btn-close');
+        POST.elements['years'].classList.remove('hide');
         const data = await postLister.makeLatestData(folderName);
         for (const d of data) {
           POSLI.insertAdjacentHTML('beforeend',`<fieldset data-name="${d[1]}"><input value="${d[3]}"><input value="${d[2]}" title="${d[5]}"><u>${d[1]}</u><button type="button" class="btn-edit"></button></fieldset>`);
@@ -872,7 +886,10 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     };
     //page lister
-    insertPageList = async () => {
+    addPageList = async () => {
+      PAGLI.textContent = '';
+      PAGBO.classList.add('hide');
+      PAGNW.elements['btn'].classList.remove('btn-close');
       for await (const file of pageChest.values()) {
         if (file.kind === 'file') {
           const pdoc = await new Page(file.name).document();
@@ -881,6 +898,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       }
     };
+    //tetx editor exe
     class AList extends Editor {
       addA() {
         LINKS.classList.toggle('hide');
@@ -967,35 +985,29 @@ document.addEventListener('DOMContentLoaded', () => {
       const section = H2SE.dataset.section;
       const fileName = SAVE.dataset.file;
       console.log(section,fileName)
+      const files = [index,allpost,sitemap];
       if (section === 'post') {
         if (POSNW.classList.contains('hide') === false) {
           const newName = `${POSNW.elements['name'].value}.html`
           await new Post(newName).saveNew();
-          POSLI.textContent = '';
-          POSBO.classList.add('hide');
-          await postLister.insertListForApp(today.syear());
-          POSNW.elements['btn'].classList.remove('btn-close');
-          POST.elements['years'].classList.remove('hide');
-          for (const inp of POSNW.elements) inp.value = '';
+          await postLister.addListForApp(today.syear());
         } else {
           await new Post(fileName).save();
         }
-        await index.save();
-        await allpost.save();
-        await sitemap.save();
+        for (const file of files) await file.save();
+        // await index.save();
+        // await allpost.save();
+        // await sitemap.save();
       }
       else if (section === 'page') {
         if (PAGNW.classList.contains('hide') === false) {
           const newName = `${PAGNW.elements['name'].value}.html`
           await new Page(newName).saveNew();
-          PAGLI.textContent = '';
-          await insertPageList();
-          PAGBO.classList.add('hide');
-          PAGNW.elements['btn'].classList.remove('btn-close');
-          for (const i of PAGNW.elements) i.value = '';
+          await addPageList();
         } else {
           await new Page(fileName).save();
         }
+        for (const file of files) await file.save();
       }
       else if (section === 'style')  await style.save();
       else if (section === 'template') await template.save();
@@ -1010,9 +1022,8 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   //POST
     POST.elements['years'].addEventListener('input', async () => {
-      POSLI.textContent = '';
       const folderName = POST.elements['years'].value;
-      await postLister.insertListForApp(folderName);
+      await postLister.addListForApp(folderName);
     });
     POSTG.onclick = (e) => {
       if (e.target.tagName === 'I') e.target.classList.toggle('on');
@@ -1077,8 +1088,8 @@ document.addEventListener('DOMContentLoaded', () => {
     OPEN.classList.add('disable');
     POSNW.elements['date'].value = today.dateType();
     postLister.addFoldersToSelect();
-    await postLister.insertListForApp(today.syear());
-    await insertPageList();
+    await postLister.addListForApp(today.syear());
+    await addPageList();
     if (CONF.elements['custom-editor'].value !== '') Custom.replaceBtn();
     //spellcheck
     if (CONF.elements['spellcheck'].value === 'off') {
@@ -1139,7 +1150,7 @@ document.addEventListener('DOMContentLoaded', () => {
     //     console.log(allData)
     //     return allData;
     //   };
-    //   async insertListForApp(folderName) {
+    //   async addListForApp(folderName) {
     //     const data = await this.makeLatestData(folderName);
     //     for (const d of data) {
     //       POSLI.insertAdjacentHTML('beforeend',`<fieldset data-name="${d[1]}"><input value="${d[3]}"><input value="${d[2]}" title="${d[5]}"><u>${d[1]}</u><button type="button" class="btn-edit"></button></fieldset>`);
