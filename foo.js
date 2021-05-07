@@ -297,7 +297,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const sitHandle = await blgHandle.getFileHandle('sitemap.xml',{create:true});
     const icoHandle = await blgHandle.getFileHandle('favicon.svg',{create:true});
     const mjsHandle = await blgHandle.getFileHandle('main.js',{create:true});
-    // const ajsHandle = await blgHandle.getFileHandle('allpost.js',{create:true});
     const posHandle = await blgHandle.getDirectoryHandle('post',{create:true});
     const pagHandle = await blgHandle.getDirectoryHandle('page',{create:true});
     const medHandle = await blgHandle.getDirectoryHandle('media',{create:true});
@@ -499,7 +498,6 @@ document.addEventListener('DOMContentLoaded', () => {
           const tags = ctgs.querySelectorAll('i');
           for (const tag of tags) {
             tag.setAttribute('data-tag',tag.textContent);
-            console.log(tag)
             POSTG.insertAdjacentHTML('beforeend',tag.outerHTML);
           }
         // }
@@ -778,6 +776,7 @@ document.addEventListener('DOMContentLoaded', () => {
         await this.save();
       };
     };
+    //instance single files 
     const template = new Template();
     const style = new Style();
     const favicon = new Favicon();
@@ -786,22 +785,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const index = new Index();
     const allpost = new Allpost();
     const sitemap = new Sitemap();
-
-    class PostLister {
-      constructor() {
-        this.postFolders = postFolders;
-      };
-      sortLatestFolder() {
-        return this.postFolders.sort((a, b) => b - a);
-      };
-      insertFolders() {
-        const flds = this.sortLatestFolder();
+    //post lister obj
+    const postLister = {
+      sortLatestFolder: () => {
+        return postFolders.sort((a, b) => b - a);
+      },
+      addFoldersToSelect: () => {
+        const flds = postLister.sortLatestFolder();
         for (const fld of flds) {
           POST.elements['years'].insertAdjacentHTML('beforeend',`<option value="${fld}" class="years">${fld}</option>`);
         }
         POST.elements['years'].value = today.syear();
-      };
-      async makePostData(fileName,fldName) {
+      },
+      makePostData: async(fileName,fldName) => {
         const doc = await new Post(fileName).document();
         const tit = doc.querySelector('.title')?.textContent?? '';
         const dti = doc.querySelector('time')?.getAttribute('datetime')?? '';
@@ -810,35 +806,35 @@ document.addEventListener('DOMContentLoaded', () => {
         const tif = doc.querySelector('.top-image')?.innerHTML?? '';
         const tgs = doc.querySelector('.tags')?.innerHTML?? '';
         return [rti,fileName,tim,tit,fldName,dti,tif,tgs];
-      };
-      async makeLatestData(folderName) {
+      },
+      makeLatestData: async(folderName) => {
         const fldHandle = postChest.find(({name}) => name === folderName);
         let data = [];
         for await (const file of fldHandle.values()) {
           if (file.kind === 'file') {
-            const arr = await this.makePostData(file.name,folderName);
+            const arr = await postLister.makePostData(file.name,folderName);
             data.push(arr);
           }
         }
         return data.sort((a, b) => b[0] - a[0]);
-      };
-      async makeLatestAllData() {
-        const flds = this.sortLatestFolder();
+      },
+      makeLatestAllData: async() => {
+        const flds = postLister.sortLatestFolder();
         let allData = [];
         for (const fld of flds) {
-          const data = await this.makeLatestData(fld)
+          const data = await postLister.makeLatestData(fld)
           allData.push(...data);
         }
         console.log(allData)
         return allData;
-      };
-      async insertListForApp(folderName) {
-        const data = await this.makeLatestData(folderName);
+      },
+      insertListForApp: async(folderName) => {
+        const data = await postLister.makeLatestData(folderName);
         for (const d of data) {
           POSLI.insertAdjacentHTML('beforeend',`<fieldset data-name="${d[1]}"><input value="${d[3]}"><input value="${d[2]}" title="${d[5]}"><u>${d[1]}</u><button type="button" class="btn-edit"></button></fieldset>`);
         }
-      };
-      async insertRelatedPost(doc) {
+      },
+      insertRelatedPost: async(doc) => {
         const elem = doc.querySelector('.related-post');
         const text = POST.elements['related'].value;
         if (text == false) {
@@ -850,18 +846,18 @@ document.addEventListener('DOMContentLoaded', () => {
           console.log(name)
           const fileName = name.replace(/　/g,' ').trim();
           const parentName = await new Post(fileName).parentName();
-          const data = await this.makePostData(fileName,parentName);
+          const data = await postLister.makePostData(fileName,parentName);
           elem.insertAdjacentHTML('beforeend',`<div><a href="../../post/${data[4]}/${data[1]}">${data[6]}<h3>${data[3]}</h3><p><time>${data[2]}</time>${data[7]}</p></a></div>\n`);
         }
-      };
-      async insertLatestNumber(num,elem) {
-        const data = await this.makeLatestAllData();
+      },
+      insertLatestNumber: async(num,elem) => {
+        const data = await postLister.makeLatestAllData();
         for (let i = 0; i < num; i++) {
           elem.insertAdjacentHTML('beforeend',`<div><a href="./post/${data[i][4]}/${data[i][1]}">${data[i][6]}<h3>${data[i][3]}</h3><p><time>${data[i][2]}</time>${data[i][7]}</p></a></div>\n`);
         }
-      };
-      async insertLatestAll(elem) {
-        const data = await this.makeLatestAllData();
+      },
+      insertLatestAll: async(elem) => {
+        const data = await postLister.makeLatestAllData();
         for (let i = 0; i < data.length; i++) {
           const tagHTML = data[i][7];
           let classes = '';
@@ -873,9 +869,9 @@ document.addEventListener('DOMContentLoaded', () => {
           }
           elem.insertAdjacentHTML('beforeend',`<div class="${classes.trim()} fld-${data[i][4]}"><a href="./post/${data[i][4]}/${data[i][1]}">${data[i][6]}<h3>${data[i][3]}</h3><p><time>${data[i][2]}</time>${data[i][7]}</p></a></div>\n`);
         }
-      };
+      }
     };
-    const postLister = new PostLister();
+    //page lister
     insertPageList = async () => {
       for await (const file of pageChest.values()) {
         if (file.kind === 'file') {
@@ -1080,7 +1076,7 @@ document.addEventListener('DOMContentLoaded', () => {
     for (const file of [template,style,config]) await file.load();
     OPEN.classList.add('disable');
     POSNW.elements['date'].value = today.dateType();
-    postLister.insertFolders();
+    postLister.addFoldersToSelect();
     await postLister.insertListForApp(today.syear());
     await insertPageList();
     if (CONF.elements['custom-editor'].value !== '') Custom.replaceBtn();
@@ -1098,6 +1094,96 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 });
+    // class PostLister {
+    //   constructor() {
+    //     this.postFolders = postFolders;
+    //   };
+    //   sortLatestFolder() {
+    //     return this.postFolders.sort((a, b) => b - a);
+    //   };
+    //   insertFolders() {
+    //     const flds = this.sortLatestFolder();
+    //     for (const fld of flds) {
+    //       POST.elements['years'].insertAdjacentHTML('beforeend',`<option value="${fld}" class="years">${fld}</option>`);
+    //     }
+    //     POST.elements['years'].value = today.syear();
+    //   };
+    //   async makePostData(fileName,fldName) {
+    //     const doc = await new Post(fileName).document();
+    //     const tit = doc.querySelector('.title')?.textContent?? '';
+    //     const dti = doc.querySelector('time')?.getAttribute('datetime')?? '';
+    //     const rti = dti.replace('T','.').replace(/[^0-9\.]/g,'');
+    //     const tim = doc.querySelector('time')?.textContent?? '';
+    //     const tif = doc.querySelector('.top-image')?.innerHTML?? '';
+    //     const tgs = doc.querySelector('.tags')?.innerHTML?? '';
+    //     return [rti,fileName,tim,tit,fldName,dti,tif,tgs];
+    //   };
+    //   async makeLatestData(folderName) {
+    //     const fldHandle = postChest.find(({name}) => name === folderName);
+    //     let data = [];
+    //     for await (const file of fldHandle.values()) {
+    //       if (file.kind === 'file') {
+    //         const arr = await this.makePostData(file.name,folderName);
+    //         data.push(arr);
+    //       }
+    //     }
+    //     return data.sort((a, b) => b[0] - a[0]);
+    //   };
+    //   async makeLatestAllData() {
+    //     const flds = this.sortLatestFolder();
+    //     let allData = [];
+    //     for (const fld of flds) {
+    //       const data = await this.makeLatestData(fld)
+    //       allData.push(...data);
+    //     }
+    //     console.log(allData)
+    //     return allData;
+    //   };
+    //   async insertListForApp(folderName) {
+    //     const data = await this.makeLatestData(folderName);
+    //     for (const d of data) {
+    //       POSLI.insertAdjacentHTML('beforeend',`<fieldset data-name="${d[1]}"><input value="${d[3]}"><input value="${d[2]}" title="${d[5]}"><u>${d[1]}</u><button type="button" class="btn-edit"></button></fieldset>`);
+    //     }
+    //   };
+    //   async insertRelatedPost(doc) {
+    //     const elem = doc.querySelector('.related-post');
+    //     const text = POST.elements['related'].value;
+    //     if (text == false) {
+    //       elem.remove();
+    //       return;
+    //     }
+    //     const names = text.replace(/,\s*$/,'').split(',');
+    //     for (const name of names) {
+    //       console.log(name)
+    //       const fileName = name.replace(/　/g,' ').trim();
+    //       const parentName = await new Post(fileName).parentName();
+    //       const data = await this.makePostData(fileName,parentName);
+    //       elem.insertAdjacentHTML('beforeend',`<div><a href="../../post/${data[4]}/${data[1]}">${data[6]}<h3>${data[3]}</h3><p><time>${data[2]}</time>${data[7]}</p></a></div>\n`);
+    //     }
+    //   };
+    //   async insertLatestNumber(num,elem) {
+    //     const data = await this.makeLatestAllData();
+    //     for (let i = 0; i < num; i++) {
+    //       elem.insertAdjacentHTML('beforeend',`<div><a href="./post/${data[i][4]}/${data[i][1]}">${data[i][6]}<h3>${data[i][3]}</h3><p><time>${data[i][2]}</time>${data[i][7]}</p></a></div>\n`);
+    //     }
+    //   };
+    //   async insertLatestAll(elem) {
+    //     const data = await this.makeLatestAllData();
+    //     for (let i = 0; i < data.length; i++) {
+    //       const tagHTML = data[i][7];
+    //       let classes = '';
+    //       if (tagHTML === '') classes = 'tag-No-Tag';
+    //       else {
+    //         const sht = DOMPA.parseFromString(tagHTML,'text/html');
+    //         const spans = sht.querySelectorAll('span');
+    //         for (const span of spans) classes += ` tag-${span.textContent.replace(/ /g,'-')}`;
+    //       }
+    //       elem.insertAdjacentHTML('beforeend',`<div class="${classes.trim()} fld-${data[i][4]}"><a href="./post/${data[i][4]}/${data[i][1]}">${data[i][6]}<h3>${data[i][3]}</h3><p><time>${data[i][2]}</time>${data[i][7]}</p></a></div>\n`);
+    //     }
+    //   };
+    // };
+    // const postLister = new PostLister();
+
     // class AllpostJS extends HandleFile {
     //   constructor(fileName,chest) {
     //     super(fileName,chest);
