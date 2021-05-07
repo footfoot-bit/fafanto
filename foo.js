@@ -557,7 +557,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const mab = doc.querySelector('.allpost-btns');
         mab.insertAdjacentHTML('beforeend','<p></p><p></p><p></p>');
         const mabp = mab.querySelectorAll('p');
-        const data = [[doc.querySelector('title'),'allpost - '],[doc.querySelector('.title'),'allpost'],[mabp[1],'<span data-btn="tag-No-Tag" class="on">No Tag</span>'],[mabp[2],'<b class="allclear-btn">All Clear</b><b class="allview-btn">All View</b>']];
+        const data = [[doc.querySelector('title'),'allpost - '],[mabp[1],'<span data-btn="tag-No-Tag" class="on">No Tag</span>'],[mabp[2],'<b class="allclear-btn">All Clear</b><b class="allview-btn">All View</b>']];
         for (let i = 0; i < data.length; i++) data[i][0].insertAdjacentHTML('afterbegin',data[i][1]);
         const flds = postLister.sortLatestFolder();
         for (const fld of flds) mabp[0].insertAdjacentHTML('beforeend',`<U data-btn="fld-${fld}" class="on">${fld}</U>`);
