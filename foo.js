@@ -554,11 +554,8 @@ document.addEventListener('DOMContentLoaded', () => {
       async makeHTML() {
         const doc = this.removeTempIf();
         await this.addCommonContent(doc);
-        const mab = doc.querySelector('.allpost-btns');
-        mab.insertAdjacentHTML('beforeend','<p></p><p></p><p></p>');
-        const mabp = mab.querySelectorAll('p');
-        const data = [[doc.querySelector('title'),'allpost - '],[mabp[1],'<span data-btn="tag-No-Tag" class="on">No Tag</span>'],[mabp[2],'<b class="allclear-btn">All Clear</b><b class="allview-btn">All View</b>']];
-        for (let i = 0; i < data.length; i++) data[i][0].insertAdjacentHTML('afterbegin',data[i][1]);
+        const mabp = doc.querySelector('.allpost-btns').querySelectorAll('*');
+        doc.querySelector('title').insertAdjacentHTML('afterbegin','allpost - ');
         const flds = postLister.sortLatestFolder();
         for (const fld of flds) mabp[0].insertAdjacentHTML('beforeend',`<U data-btn="fld-${fld}" class="on">${fld}</U>`);
         const str = CONF.elements['tags'].value;
@@ -627,7 +624,6 @@ document.addEventListener('DOMContentLoaded', () => {
         this.timg = POST.elements['top-image'];
         this.desc = POST.elements['post-desc'];
         this.class = 'post';
-      
       };
       async loadContents() {
         const doc = await this.document();
@@ -785,7 +781,6 @@ document.addEventListener('DOMContentLoaded', () => {
         for (const inp of PAGNW.elements) inp.value = '';
       };
     };
-    //instance single files 
     const template = new Template();
     const style = new Style();
     const favicon = new Favicon();
@@ -838,10 +833,9 @@ document.addEventListener('DOMContentLoaded', () => {
         return allData;
       },
       addListForApp: async(folderName) => {
-        POSLI.textContent = '';
         POSBO.classList.add('hide');
+        POSLI.textContent = '';
         POSNW.elements['btn'].classList.remove('btn-close');
-        POST.elements['years'].classList.remove('hide');
         const data = await postLister.makeLatestData(folderName);
         for (const d of data) {
           POSLI.insertAdjacentHTML('beforeend',`<fieldset data-name="${d[1]}"><input value="${d[3]}"><input value="${d[2]}" title="${d[5]}"><u>${d[1]}</u><button type="button" class="btn-edit"></button></fieldset>`);
@@ -886,8 +880,8 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     //page lister
     addPageList = async () => {
-      PAGLI.textContent = '';
       PAGBO.classList.add('hide');
+      PAGLI.textContent = '';
       PAGNW.elements['btn'].classList.remove('btn-close');
       for await (const file of pageChest.values()) {
         if (file.kind === 'file') {
