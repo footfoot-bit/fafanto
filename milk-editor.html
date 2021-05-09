@@ -2,15 +2,15 @@
 <html>
 <head>
 <title>Milk Editor - export static site</title>
-<link href="foo.css" rel="stylesheet">
+<link href="milk-editor.css" rel="stylesheet">
 <script src="https://kit.fontawesome.com/8725e8d35f.js" crossorigin="anonymous"></script>
-<link rel="manifest" href="foo.webmanifest">
+<link rel="manifest" href="milk-editor.webmanifest">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.gstatic.com">
 <link href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap" rel="stylesheet">
 </head>
 <body>
-<script src="foo.js"></script>
+<script src="milk-editor.js"></script>
   <h1><img src="favicon.svg">Milk Editor</h1>
   <nav>
     <button type="button" id="open-dir" title="Select Folder"></button>
@@ -20,6 +20,7 @@
       <p data-nav="style"></p>
       <p data-nav="template"></p>
       <p data-nav="config"></p>
+      <p data-nav="allsave"></p>
     </div>
     <p data-nav="info"></p>
   </nav>
@@ -154,6 +155,17 @@
           <span>Select tag(2)</span><p>&lt;s title=&quot;link&quot;&gt;&lt;/s&gt;&lt;s title=&quot;img&quot;&gt;&lt;/s&gt;</p>
           <span>User tag(∞)</span><p>&lt;u title='&lt;div class=&quot;example&quot;&gt;&lt;/div&gt;'&gt;button&lt;/u&gt;</p>
         </div>
+      </fieldset>
+    </form>
+    <form id="allsave">
+      <p>Use this when you want to apply changes to common items (blog title, URL, template, etc.) all at once.</p>
+      <fieldset>
+        <label><input type="checkbox" name="post" checked>Post</label>
+        <label><input type="checkbox" name="page" checked>Page</label>
+        <label><input type="checkbox" name="index" checked>index.html</label>
+        <label><input type="checkbox" name="allpost" checked>allpost.html</label>
+        <label><input type="checkbox" name="sitemap" checked>sitemap.xml</label>
+        <button name="save">start save</button>
       </fieldset>
     </form>
     <form id="info">

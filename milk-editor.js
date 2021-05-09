@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const STYL = document.getElementById('style');
   const TEMP = document.getElementById('template');
   const CONF = document.getElementById('config');
+  const ALLS = document.getElementById('allsave');
   const POSNW = document.getElementById('post-new');
   const POSTG = document.getElementById('post-tagbox');
   const POSLI = document.getElementById('post-list');
@@ -1071,6 +1072,13 @@ document.addEventListener('DOMContentLoaded', () => {
         list[i][1].addFolders();
       }
     })();
+  //allsave
+    ALLS.elements['save'].onclick = async () => {
+      const singles = [index,allpost,sitemap];
+      for (const single of singles) {
+        if (ALLS.elements[String(single)].checked === true) await single.save();
+      }
+    };
     //load files
     for (const file of [template,style,config]) await file.load();
     OPEN.classList.add('disable');
