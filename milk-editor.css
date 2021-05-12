@@ -21,7 +21,7 @@ nav [data-nav="info"]:before {content:"\f129";}
 #post-panel:before,#page-panel:before {content:"\f121";padding:.5rem 1rem;vertical-align: middle;border-right: 1px solid #ddd;}
 .box-left [title="link"]:before, #rated button:before {content:"\f0c1";}
 .box-left [title="img"]:before, #image button:before {content:"\f302";}
-.box-right legend:hover:after {content:" ⌵";}/* text */
+.box-right legend:hover::after {content:" \f078";font-family:'Font Awesome 5 Free';font-weight: 900;font-size: 1.2rem;line-height: 1.2rem;}
 /** common **/
 * {
     margin: 0;
@@ -83,7 +83,7 @@ button,input, nav p,#post-panel *,#page-panel *,#post-tagbox i,.box-right label,
 .postcap [title],#parts [title] {
     cursor: help;
 }
-nav,#post-panel,#page-panel,#post-tagbox {
+nav,#post-panel,#page-panel,.box-right legend,#post-tagbox {
     user-select: none;
 }
 .show {

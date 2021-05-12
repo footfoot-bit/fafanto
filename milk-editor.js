@@ -58,6 +58,28 @@ document.addEventListener('DOMContentLoaded', () => {
       return url.replace(/\/$/,'/');
     }
   };
+  //dialog
+  const dialog = {
+    singleSave: (fileName) => {
+      const result = confirm(`Do you want to save "${fileName}" ?`);
+      if (result == false) {
+        alert('Canceled save.');
+        throw new Error('Stopped saving.');
+      }
+    },
+    nameEmpty: () => {
+      alert('👎 Failed to save.File name is empty.');
+      throw new Error('Failed to save.File name is empty.');
+    },
+    nameExists: () => {
+      alert('👎 Failed to save.Same file name exists.');
+      throw new Error('Failed to save.Same file name exists.');
+    },
+    checkTag: (tag) => {
+      alert(`👎 "${tag}" does not exist in the template`);
+      throw new Error(`"${tag}" does not exist in the template`);
+    }
+  };
   //date
   class Today {
     constructor() {
@@ -230,9 +252,9 @@ document.addEventListener('DOMContentLoaded', () => {
     SAVE.classList.remove('disable');
     PREV.classList.remove('disable');
   };
-  const activeSection = new MutationObserver(() => obsSection());
-  const activePostFile = new MutationObserver(() => obsPost());
-  const activePageFile = new MutationObserver(() => obsPage());
+  const activeSection = new MutationObserver(obsSection);
+  const activePostFile = new MutationObserver(obsPost);
+  const activePageFile = new MutationObserver(obsPage);
   const obsConfig1 = {
     attributes: true,
     attributeFilter: ['data-section']
@@ -322,8 +344,6 @@ document.addEventListener('DOMContentLoaded', () => {
       constructor(fileName,chest) {
         this.fileName = fileName;
         this.chest = chest;
-        this.path = './';
-        this.img = 'favicon.svg';
       };
       handle() {
         return this.chest.find(({name}) => name === this.fileName);
@@ -336,6 +356,18 @@ document.addEventListener('DOMContentLoaded', () => {
         const txt = await this.txt();
         return DOMPA.parseFromString(txt,'text/html');
       };
+      async write(str) {
+        const w = await this.handle().createWritable();
+        await w.write(str);
+        await w.close();
+      };
+    };
+    class TextFile extends HandleFile {
+      async writeURLToFile() {
+        const writable = await this.handle().createWritable();
+        const response = await fetch(this.url);
+        await response.body.pipeTo(writable);
+      };
       async load() {
         const str = await this.txt();
         if (str === '') {
@@ -343,6 +375,134 @@ document.addEventListener('DOMContentLoaded', () => {
           this.txta.value = rem;
         }
         else this.txta.value = str;
+      };
+      async save() {
+        dialog.singleSave(this.fileName);
+        await this.write(this.txta.value);
+      };
+    }
+    class Template extends TextFile {
+      constructor(fileName,chest) {
+        super(fileName,chest);
+        this.fileName = 'template.html';
+        this.chest = singleChest;
+        this.txta = TEMP.elements['txta'];
+      };
+      document() {
+        return DOMPA.parseFromString(this.txta.value,'text/html');
+      };
+    };
+    class Style extends TextFile {
+      constructor(fileName,chest) {
+        super(fileName,chest);
+        this.fileName = 'style.css';
+        this.chest = singleChest;
+        this.txta = STYL.elements['txta'];
+        this.url = 'default-style.css'
+      };
+      document() {
+        return DOMPA.parseFromString(this.txta.value,'text/html');
+      };
+    };
+    class Favicon extends TextFile {
+      constructor(fileName,chest) {
+        super(fileName,chest);
+        this.fileName = 'favicon.svg';
+        this.chest = singleChest;
+        this.url = 'favicon.svg';
+      };
+    };
+    class MainJS extends TextFile {
+      constructor(fileName,chest) {
+        super(fileName,chest);
+        this.fileName = 'main.js';
+        this.chest = singleChest;
+        this.url = 'default-main.js'
+      };
+    };
+    class Config extends TextFile {
+      constructor(fileName,chest) {
+        super(fileName,chest);
+        this.fileName = 'config.html';
+        this.chest = singleChest;
+        this.confs = ['blog-title','blog-subtitle','url','index-desc','latest-posts','auther','date-type','tags','spellcheck','custom-editor'];
+      };
+      async load() {
+        const doc = await this.document();
+        for (const cnf of this.confs) {
+          const txt = doc.getElementById(cnf)?.innerHTML?? '';
+          CONF.elements[cnf].value = txt;
+        }
+        POSTG.textContent = '';
+        const ctgs = doc.getElementById('tags');
+        // if (ctgs == true) {
+          const tags = ctgs.querySelectorAll('i');
+          for (const tag of tags) {
+            tag.setAttribute('data-tag',tag.textContent);
+            POSTG.insertAdjacentHTML('beforeend',tag.outerHTML);
+          }
+        // }
+      };
+      async save() {
+        dialog.singleSave(this.fileName);
+        let str = [];
+        for (const cnf of this.confs) {
+          const txt = CONF.elements[cnf].value;
+          str += `<p id="${cnf}">${txt}</p>\n`
+        }
+        await this.write(str);
+      };
+    };
+    class Sitemap extends TextFile {
+      constructor(fileName,chest) {
+        super(fileName,chest);
+        this.fileName = 'sitemap.xml';
+        this.chest = singleChest;
+      };
+      async save() {
+        const format = `<?xml version="1.0" encoding="UTF-8"?><urlset>\n</urlset>`;
+        const xmlDoc = DOMPA.parseFromString(format,'text/xml');
+        const url = normal.url();
+        const urlset = xmlDoc.getElementsByTagName('urlset')[0];
+        const files = [index,allpost];
+        for (const file of files) {
+          const doc = await file.document();
+          const date = doc.head.querySelector('[name="date"]')?.getAttribute('content')?? today.ymd();
+          urlset.innerHTML += `<url><loc>${url}${file.fileName}</loc><lastmod>${date}</lastmod></url>\n`;
+        }
+        for await (const file of pageChest.values()) {
+          if (file.kind === 'file') {
+            const doc = await new Page(file.name).document();
+            const date = doc.head.querySelector('[name="date"]')?.getAttribute('content')?? today.ymd();
+            urlset.innerHTML += `<url><loc>${url}page/${file.name}</loc><lastmod>${date}</lastmod></url>\n`;
+          }
+        }
+        for await (const file of postChest.values()) {
+          if (file.kind === 'file') {
+            const post = await new Post(file.name);
+            const doc = await post.document();
+            const date = doc.head.querySelector('[name="date"]')?.getAttribute('content')?? today.ymd();
+            const fld = await post.parentName();
+            urlset.innerHTML += `<url><loc>${url}post/${fld}/${file.name}</loc><lastmod>${date}</lastmod></url>\n`;
+          }
+        }
+        urlset.setAttribute('xmlns','http://www.sitemaps.org/schemas/sitemap/0.9');
+        const str = new XMLSerializer().serializeToString(xmlDoc);
+        await this.write(str);
+      };
+    };
+    const template = new Template();
+    const style = new Style();
+    const favicon = new Favicon();
+    const mainjs = new MainJS();
+    const config = new Config();
+    const sitemap = new Sitemap();
+    //HTML file Handler
+    class HtmlFile extends HandleFile {
+      constructor(fileName,chest) {
+        super(fileName,chest);
+        this.path = './';
+        this.img = 'favicon.svg';
       };
       removeTempIf() {
         const doc = template.document();
@@ -360,14 +520,13 @@ document.addEventListener('DOMContentLoaded', () => {
         return doc;
       };
       checkNewFileName() {
-        if (this.fileName === '.html') {
-          alert('👎 Failed to save.File name is empty.');
-          throw ERROR;
-        }
+        if (this.fileName === '.html') dialog.nameEmpty();
         const result = this.chest.findIndex(({name}) => name === this.fileName);
-        if (result !== -1) {
-          alert('👎 Failed to save.Same file name exists.');
-          throw ERROR;
+        if (result !== -1) dialog.nameExists();
+      };
+      checkRequiredTag(doc,tagArr) {
+        for (const tag of tagArr) {
+          if (doc.querySelector(tag) == null) dialog.checkTag(tag);
         }
       };
       async addCommonContent(doc) {
@@ -419,100 +578,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const ope = window.open();
         ope.document.write(str);
       };
-      async write(str) {
-        const w = await this.handle().createWritable();
-        await w.write(str);
-        await w.close();
-        alert(`👍 Successful Saving "${this.fileName}"`);
-      };
       async save() {
         const doc = await this.makeHTML();
         await this.addOGP(doc);
         const str = this.documentToHTMLstr(doc);
         await this.write(str);
       };
-      async writeURLToFile() {
-        const writable = await this.handle().createWritable();
-        const response = await fetch(this.url);
-        await response.body.pipeTo(writable);
-      };
-    };
-    class Template extends HandleFile {
-      constructor(fileName,chest) {
-        super(fileName,chest);
-        this.fileName = 'template.html';
-        this.chest = singleChest;
-        this.txta = TEMP.elements['txta'];
-      };
-      document() {
-        const str = this.txta.value;
-        return DOMPA.parseFromString(str,'text/html');
-      };
-      async save() {
-        await this.write(this.txta.value);
-      };
-    };
-    class Style extends HandleFile {
-      constructor(fileName,chest) {
-        super(fileName,chest);
-        this.fileName = 'style.css';
-        this.chest = singleChest;
-        this.txta = STYL.elements['txta'];
-        this.url = 'default-style.css'
-      };
-      async save() {
-        await this.write(this.txta.value);
-      };
-    };
-    class Favicon extends HandleFile {
-      constructor(fileName,chest) {
-        super(fileName,chest);
-        this.fileName = 'favicon.svg';
-        this.chest = singleChest;
-        this.url = 'favicon.svg';
-      };
-    };
-    class MainJS extends HandleFile {
-      constructor(fileName,chest) {
-        super(fileName,chest);
-        this.fileName = 'main.js';
-        this.chest = singleChest;
-        this.url = 'default-main.js'
-      };
-    };
-    class Config extends HandleFile {
-      constructor(fileName,chest) {
-        super(fileName,chest);
-        this.fileName = 'config.html';
-        this.chest = singleChest;
-        this.confs = ['blog-title','blog-subtitle','url','index-desc','latest-posts','auther','date-type','tags','spellcheck','custom-editor'];
-      };
-      async load() {
-        const doc = await this.document();
-        for (const cnf of this.confs) {
-          const txt = doc.getElementById(cnf)?.innerHTML?? '';
-          CONF.elements[cnf].value = txt;
-        }
-        POSTG.textContent = '';
-        const ctgs = doc.getElementById('tags');
-        // if (ctgs == true) {
-          const tags = ctgs.querySelectorAll('i');
-          for (const tag of tags) {
-            tag.setAttribute('data-tag',tag.textContent);
-            POSTG.insertAdjacentHTML('beforeend',tag.outerHTML);
-          }
-        // }
-      };
-      async save() {
-        let str = [];
-        for (const cnf of this.confs) {
-          const txt = CONF.elements[cnf].value;
-          str += `<p id="${cnf}">${txt}</p>\n`
-        }
-        await this.write(str);
-      };
-    };
-    class Index extends HandleFile {
+    }
+    class Index extends HtmlFile {
       constructor(fileName,chest) {
         super(fileName,chest);
         this.fileName = 'index.html';
@@ -528,6 +601,7 @@ document.addEventListener('DOMContentLoaded', () => {
       };
       async makeHTML() {
         const doc = this.removeTempIf();
+        this.checkRequiredTag(doc,['.latest-posts']);
         await this.addCommonContent(doc);
         this.appendSubtitle(doc);
         const cnt = doc.querySelector('.latest-posts');
@@ -543,7 +617,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return doc;
       };
     };
-    class Allpost extends HandleFile {
+    class Allpost extends HtmlFile {
       constructor(fileName,chest) {
         super(fileName,chest);
         this.fileName = 'allpost.html';
@@ -554,6 +628,7 @@ document.addEventListener('DOMContentLoaded', () => {
       };
       async makeHTML() {
         const doc = this.removeTempIf();
+        this.checkRequiredTag(doc,['.latest-posts','.allpost-btns']);
         await this.addCommonContent(doc);
         const mabp = doc.querySelector('.allpost-btns').querySelectorAll('*');
         doc.querySelector('title').insertAdjacentHTML('afterbegin','allpost - ');
@@ -578,45 +653,9 @@ document.addEventListener('DOMContentLoaded', () => {
         return doc;
       };
     };
-    class Sitemap extends HandleFile {
-      constructor(fileName,chest) {
-        super(fileName,chest);
-        this.fileName = 'sitemap.xml';
-        this.chest = singleChest;
-      };
-      async save() {
-        const format = `<?xml version="1.0" encoding="UTF-8"?><urlset>\n</urlset>`;
-        const xmlDoc = DOMPA.parseFromString(format,'text/xml');
-        const url = normal.url();
-        const urlset = xmlDoc.getElementsByTagName('urlset')[0];
-        const files = [index,allpost];
-        for (const file of files) {
-          const doc = await file.document();
-          const date = doc.head.querySelector('[name="date"]')?.getAttribute('content')?? today.ymd();
-          urlset.innerHTML += `<url><loc>${url}${file.fileName}</loc><lastmod>${date}</lastmod></url>\n`;
-        }
-        for await (const file of pageChest.values()) {
-          if (file.kind === 'file') {
-            const doc = await new Page(file.name).document();
-            const date = doc.head.querySelector('[name="date"]')?.getAttribute('content')?? today.ymd();
-            urlset.innerHTML += `<url><loc>${url}page/${file.name}</loc><lastmod>${date}</lastmod></url>\n`;
-          }
-        }
-        for await (const file of postChest.values()) {
-          if (file.kind === 'file') {
-            const post = await new Post(file.name);
-            const doc = await post.document();
-            const date = doc.head.querySelector('[name="date"]')?.getAttribute('content')?? today.ymd();
-            const fld = await post.parentName();
-            urlset.innerHTML += `<url><loc>${url}post/${fld}/${file.name}</loc><lastmod>${date}</lastmod></url>\n`;
-          }
-        }
-        urlset.setAttribute('xmlns','http://www.sitemaps.org/schemas/sitemap/0.9');
-        const str = new XMLSerializer().serializeToString(xmlDoc);
-        await this.write(str);
-      };
-    };
-    class Post extends HandleFile {
+    const index = new Index();
+    const allpost = new Allpost();
+    class Post extends HtmlFile {
       constructor(fileName,chest) {
         super(fileName,chest);
         this.chest = postChest;
@@ -639,34 +678,37 @@ document.addEventListener('DOMContentLoaded', () => {
           POSTG.querySelector(`[data-tag="${s.textContent}"]`)?.setAttribute('class','on');
         }
       };
-      addInputs(doc) {
+      addRequired(doc) {
+        this.checkRequiredTag(doc,['title','.title','.contents']);
         const inp = document.querySelectorAll(`[data-name="${this.fileName}"] input`);
-        const data = [['title',`${inp[0].value} - `],['.title',inp[0].value],['.contents',this.txta.value]];
-        for (let i = 0; i < data.length; i++) {
-          doc.querySelector(data[i][0]).insertAdjacentHTML('afterbegin',data[i][1]);
+        const items = [['title',`${inp[0].value} - `],['.title',inp[0].value],['.contents',this.txta.value]];
+        for (let item of items) {
+          doc.querySelector(item[0]).insertAdjacentHTML('afterbegin',item[1]);
         }
+        // const time = doc.querySelectorAll('time');
+        // time[0].insertAdjacentHTML('afterbegin',inp[1].value);
+        // time[0].setAttribute('datetime',inp[1].title);
+        // if (today.ymd() === inp[1].title.slice(0,10)) {
+        //   time[1].remove();
+        //   return;
+        // }
+        // time[1].insertAdjacentHTML('beforeend',today.dateType());
+        // time[1].setAttribute('datetime',today.ymdAndTime());
+      };
+      addTime(doc) {
+        const inp = document.querySelectorAll(`[data-name="${this.fileName}"] input`)[1];
         const time = doc.querySelectorAll('time');
-        time[0].insertAdjacentHTML('afterbegin',inp[1].value);
-        time[0].setAttribute('datetime',inp[1].title);
-        if (today.ymd() === inp[1].title.slice(0,10)) {
+        time[0].insertAdjacentHTML('afterbegin',inp.value);
+        time[0].setAttribute('datetime',inp.title);
+        if (today.ymd() === inp.title.slice(0,10)) {
           time[1].remove();
           return;
         }
         time[1].insertAdjacentHTML('beforeend',today.dateType());
         time[1].setAttribute('datetime',today.ymdAndTime());
-      };
-      addTableOfContents(doc) {
-        const cnt = doc.querySelector('.contents');
-        const h23 = cnt.querySelectorAll('h2,h3');
-        for (let i = 0; i < h23.length; i++) {
-          const htx = h23[i].textContent;
-          const tgn = h23[i].tagName;
-          doc.querySelector('.table-of-contents').innerHTML += `<p class="table-${tgn}"><a href="#index${i}">${htx}</a></p>\n`;
-          h23[i].setAttribute('id',`index${i}`);
-        }
-      };
+      }
       addTopImg(doc) {
-        const str = this.timg.value;
+        const str = POST.elements['top-image'].value;
         const elem = doc.querySelector('.top-image');
         if (str == false) {
           elem.remove();
@@ -692,18 +734,35 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         for (const elem of elems) for (const tag of tags) elem.innerHTML += `<span>${tag.textContent}</span>`;
       };
+      tableOfContents(doc) {
+        if (POST.elements['table-of-contents'].checked === true) {
+          const cnt = doc.querySelector('.contents');
+          const h23 = cnt.querySelectorAll('h2,h3');
+          for (let i = 0; i < h23.length; i++) {
+            const htx = h23[i].textContent;
+            const tgn = h23[i].tagName;
+            doc.querySelector('.table-of-contents').innerHTML += `<p class="table-${tgn}"><a href="#index${i}">${htx}</a></p>\n`;
+            h23[i].setAttribute('id',`index${i}`);
+          }
+        }
+        else doc.querySelector('.table-of-contents').remove();
+      };
+      comment(doc) {
+        if (POST.elements['comment'].checked === false) doc.querySelector('.comment').remove();
+      };
+      freespace(doc) {
+        if (POST.elements['freespace'].checked === false) doc.querySelector('.freespace').remove();
+      };
       async makeHTML() {
         const doc = this.removeTempIf();
         await this.addCommonContent(doc);
         this.addMetaDesc(doc);
-        this.addInputs(doc);
-        this.addTopImg(doc);
-        this.addAuther(doc);
-        this.addTags(doc);
+        this.addRequired(doc);
+        const items = [['.top-image',this.addTopImg],['.auther',this.addAuther],['time',this.addTime],['.tags',this.addTags],['.table-of-contents',this.tableOfContents],['.comment',this.comment],['.freespace',this.freespace]];
+        for (let item of items) {
+          if (doc.querySelector(item[0]) !== null) item[1](doc);
+        }
         await postLister.insertRelatedPost(doc);
-        if (POST.elements['table-of-contents'].checked === true) this.addTableOfContents(doc);
-        if (POST.elements['comment'].checked === false) doc.querySelector('.comment').remove();
-        if (POST.elements['freespace'].checked === false) doc.querySelector('.freespace').remove();
         return doc;
       };
       async addOGP(doc) {
@@ -740,7 +799,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return rsv[0];
       };
     };
-    class Page extends HandleFile {
+    class Page extends HtmlFile {
       constructor(fileName,chest) {
         super(fileName,chest);
         this.chest = pageChest;
@@ -756,6 +815,7 @@ document.addEventListener('DOMContentLoaded', () => {
       };
       async makeHTML() {
         const doc = this.removeTempIf();
+        this.checkRequiredTag(doc,['.contents','.title']);
         await this.addCommonContent(doc);
         this.addMetaDesc(doc);
         const str = this.txta.value;
@@ -782,14 +842,6 @@ document.addEventListener('DOMContentLoaded', () => {
         for (const inp of PAGNW.elements) inp.value = '';
       };
     };
-    const template = new Template();
-    const style = new Style();
-    const favicon = new Favicon();
-    const mainjs = new MainJS();
-    const config = new Config();
-    const index = new Index();
-    const allpost = new Allpost();
-    const sitemap = new Sitemap();
     //post lister obj
     const postLister = {
       sortLatestFolder: () => {
@@ -1061,15 +1113,15 @@ document.addEventListener('DOMContentLoaded', () => {
         data[i][1].classList.toggle('hide');
       }
     //A list, Img list
-      const list = [[LINKS,AList],[IMAGS,ImgList]];
-      for (let i = 0; i < 2; i++) {
-        list[i][0].elements['flds'].addEventListener('input', async () => {
-          const folderName = list[i][0].elements['flds'].value;
-          await list[i][1].addList(folderName);
+      const lists = [[LINKS,AList],[IMAGS,ImgList]];
+      for (const list of lists) {
+        list[0].elements['flds'].addEventListener('input', async () => {
+          const folderName = list[0].elements['flds'].value;
+          await list[1].addList(folderName);
         });
-        list[i][0].elements['btn'].onclick = () => list[i][0].classList.add('hide');
-        list[i][1].addList(today.syear());
-        list[i][1].addFolders();
+        list[0].elements['btn'].onclick = () => list[0].classList.add('hide');
+        list[1].addList(today.syear());
+        list[1].addFolders();
       }
     })();
   //allsave
@@ -1101,6 +1153,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 });
+        // this.addTopImg(doc);
+        // this.addAuther(doc);
+        // this.addTags(doc);
+        // if (POST.elements['table-of-contents'].checked === true) this.ifTableOfContents(doc);
+        // else doc.querySelector('.table-of-contents')?.remove() ?? '';
+        // if (POST.elements['comment'].checked === false) doc.querySelector('.comment')?.remove() ?? '';
+        // if (POST.elements['freespace'].checked === false) doc.querySelector('.freespace')?.remove() ?? '';
+
     // class PostLister {
     //   constructor() {
     //     this.postFolders = postFolders;
