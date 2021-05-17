@@ -1,63 +1,67 @@
 <!-- default template -->
-<html lang="en">
+<html lang="ja">
 <head>
-<meta charset="UTF-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title></title>
+<link rel="stylesheet">
+<link rel="icon" type="image/svg+xml">
+<meta name="description">
+<meta name="date">
+<script></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="format-detection" content="telephone=no">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-iBBXm8fW90+nuLcSKlbmrPcLa0OT92xO1BIsZ+ywDWZCvqsWgccV3gFoRBv0z+8dLJgyAHIhR35VZc2oM/gI1w==" crossorigin="anonymous" />
 </head>
 <body>
-
 <header class="header">
+
 <if class="post page allpost">
 <p class="blog-title"></p>
 </if>
+
 <if class="index">
 <h1 class="blog-title"></h1>
 </if>
+
+<span id="menu-icon"></span>
 <nav class="page-list"></nav>
-<p class="search"></p>
 </header>
 
 <main>
 
-<if class="post">
-<div class="freespace">Free Space</div>
+<if class="index">
+<h2>Latest Posts</h2>
+</if>
+
+<if class="allpost">
+<h1 class="title">allpost</h1>
+<div class="allpost-btns">
+  <p></p>
+  <p><span data-btn="tag-No-Tag" class="on">No Tag</span></p>
+  <p><b class="allclear-btn">All Clear</b><b class="allview-btn">All View</b></p>
+</div>
 </if>
 
 <if class="post">
-<time itemprop="datepublished"></time><time itemprop="modified">• Update </time> by <span class="auther"></span>
+<div class="freespace">Free Space</div>
+<span class="auther"></span><time itemprop="datepublished"></time><time itemprop="modified"> • Update </time>
 <h1 class="title"></h1>
 <div class="top-image"></div>
-<div class="table-of-contents"><p>contents</p></div>
+<div class="table-of-contents"><p class="dashed">contents</p></div>
 </if>
 
 <if class="page">
 <h1 class="title"></h1>
 </if>
 
-<if class="allpost">
-<h1 class="title"></h1>
-<div class="allpost-btns">
-</div>
-</if>
-
 <div class="contents">
-
-<if class="index">
-<h2>Latest Posts</h2>
-</if>
-<if class="index allpost">
-<div class="latest-posts"></div>
-</if>
+</div>
 
 <if class="post">
 <p class="tags"></p>
 <p class="social"></p>
 </if>
-
-</div>
 
 <if class="post">
 <div class="comment">
@@ -70,12 +74,10 @@ your disqus code
 <div class="related-post"></div>
 </if>
 
-<if class="index post page">
-<div class="goto-allpost"><a>All Post</a></div>
-</if>
-
 </main>
 
-<footer class="footer"></footer>
+<footer class="footer">
+  <div class="goto-allpost"><a>All Post</a></div><p class="search"></p>
+</footer>
 </body>
 </html>

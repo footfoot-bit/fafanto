@@ -11,7 +11,7 @@ nav [data-nav="page"]:before {content:"\f15c";}
 nav [data-nav="style"]:before {content:"\f546";}
 nav [data-nav="template"]:before {content:"\f126";}
 nav [data-nav="config"]:before {content:"\f013";}
-nav [data-nav="allsave"]:before {content:"\f0c7";}
+nav [data-nav="saveall"]:before {content:"\f0c7";}
 nav [data-nav="info"]:before {content:"\f129";}
 #home:before {content:"\f015";}
 #map:before {content:"\f279";}
@@ -45,12 +45,16 @@ body {
 small {
     font-size: 1.2rem;
 }
-textarea,input,button,select {
+textarea,input,select {
     padding: 1rem;
     outline: none;
     color: #333;
     border: 1px solid #ccc;
     font-size: 1.4rem;
+}
+button {
+    border: none;
+    background-color: transparent;
 }
 textarea {
     resize: none;
@@ -61,23 +65,23 @@ textarea {
 fieldset {
     border: none;
 }
-button {
-    border: none;
-    background-color: transparent;
-}
 form {
     display:none;
     height: 100%;
 }
 form button {
-    border: 1px solid #ddd;
     border-radius: 12px;
-    background-color: #fff;
+    background-color: #aaa;
+    color: #fff;
+    padding: 1rem;
 }
 form button:hover {
-    border: 1px solid #333;
+    opacity: .7;
 }
-button,input, nav p,#post-panel *,#page-panel *,#post-tagbox i,.box-right label,.box-right legend,#links p,#images img {
+form select {
+    width: 15rem;
+}
+button,input,label,nav p,#post-panel *,#page-panel *,#post-tagbox i,.box-right legend,#links p,#images img {
     cursor:pointer;
 }
 .postcap [title],#parts [title] {
@@ -152,7 +156,7 @@ nav {
     grid-area: nav;
     display: grid;
     grid-template-columns: 1fr;
-    grid-template-rows: auto 1fr auto;
+    grid-template-rows: 1fr 6fr auto;
     padding: 3rem 0 2rem 36px;
     background-color: #333;
     line-height: 1;
@@ -217,15 +221,14 @@ main {
     column-gap: 1rem;
     padding-bottom: 1.5rem;
     align-items: center;
+    padding-right: 5%;
 }
 .postcap,.pagecap {
     font-size: 1.2rem;
     padding: .3rem 0 0 0;
 }
-#post select[name="years"] {
-    width: 10rem;
-    padding: .5rem;
-    margin-bottom: 1rem;
+#post [name="years"] {
+    margin-bottom: 1.5rem;
 }
 #post-box,#page-box {
     display: grid;
@@ -316,30 +319,35 @@ fieldset u {
     border: none;
 }
 /* Config */
-#config fieldset {
+#config, #saveall {
+    padding-top: 4rem;
+}
+.desc {
+    border: 1px solid #ccc;
+    padding: 1.5rem 3rem;
+    text-align: center;
+    background-color: #eee;
+    border-radius: 1rem;
+}
+#config fieldset, #saveall fieldset {
     padding: 0 0 10rem 3rem;
 }
-#config h3 {
-    padding: 3rem 0;
+#config h3, #saveall h3 {
+    padding: 5rem 0;
     margin-top: 5rem;
-    font-size: 1.5rem;
+    font-size: 1.6rem;
     border-top: 1px dashed #ddd;
 }
-#config h3:nth-child(1) {
+#config h3:nth-of-type(1) {
     border: none;
-    padding-top: 1rem;
+    margin: 0;
 }
 #config div {
     display: grid;
-    grid-template-columns: 18rem auto;
+    grid-template-columns: 20rem auto;
     column-gap: 1rem;
     row-gap: 1.5rem;
-    padding-left: 2rem;
-}
-#config select {
-    padding: 0.5rem;
-    width: 15rem;
-    margin-right: 1rem;
+    padding-left: 5rem;
 }
 #config textarea {
     height: 25vh;
@@ -355,13 +363,33 @@ fieldset u {
 #custom p {
     font-family: Consolas, Menlo, 'Liberation Mono', Courier, monospace;
 }
-#allsave input {
+#saveall label {
+    display: block;
+}
+#saveall input {
     vertical-align: middle;
     margin-right: .5rem;
     filter: grayscale(100%);
 }
-#allsave label {
+#saveall button {
     display: block;
+    margin: 0 auto;
+    font-size: 1.8rem;
+    padding: 1rem 2rem;
+}
+#saveall div {
+    padding: 1rem 5rem;
+}
+#saveall h3 {
+    padding-bottom: 1rem;
+    margin: 0;
+    border: none;
+}
+#saveall h4 {
+    padding-top: 1rem;
+}
+.log {
+    background-color: #eee;
 }
 /** Link, Img Selector **/
 #links,#images {
