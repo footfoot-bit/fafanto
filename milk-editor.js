@@ -432,7 +432,7 @@ document.addEventListener('DOMContentLoaded', () => {
         super(fileName,chest);
         this.fileName = 'config.html';
         this.chest = singleChest;
-        this.confs = ['blog-title','blog-subtitle','url','index-desc','latest-posts','allpost-desc','auther','date-type','tags','custom-editor'];
+        this.confs = ['blog-title','blog-subtitle','url','latest-posts','index-desc','allpost-title','allpost-desc','search-title','search-desc','auther','date-type','tags','custom-editor'];
       };
       async load() {
         const doc = await this.document();
@@ -471,11 +471,6 @@ document.addEventListener('DOMContentLoaded', () => {
         this.path = './';
         this.img = 'favicon.svg';
       };
-      checkNewFileName() {
-        if (this.fileName === '.html') dialog.nameEmpty();
-        const result = this.chest.findIndex(({name}) => name === this.fileName);
-        if (result !== -1) dialog.nameExists();
-      };
       removeTempIf() {
         const doc = template.document();
         const hnt = doc.head.querySelectorAll(`[class]:not(.${this.class})`);
@@ -500,7 +495,7 @@ document.addEventListener('DOMContentLoaded', () => {
       };
       async addCommonContent(doc) {
         doc.head.querySelector('title').textContent = CNFBT.value;
-        const heads = [['[name="description"]','content',this.desc.value ?? ''],['[rel="stylesheet"]','href',`${this.path}style.css`],['script','src',`${this.path}main.js`],['[rel="icon"]','href',`${this.path}favion.svg`]];
+        const heads = [['[name="description"]','content',this.desc.value],['[rel="stylesheet"]','href',`${this.path}style.css`],['script','src',`${this.path}main.js`],['[rel="icon"]','href',`${this.path}favion.svg`]];
         for (const head of heads) doc.head.querySelector(head[0]).setAttribute(head[1],head[2]);
         doc.querySelector('.blog-title').innerHTML = `<a href="${this.path}index.html">${CNFBT.value}</a>`;
         // const txt =  doc.querySelector('.search').innerHTML;
@@ -520,7 +515,14 @@ document.addEventListener('DOMContentLoaded', () => {
         this.checkRequiredElems(doc);
         await this.addCommonContent(doc);
         return doc;
-      }
+      };
+      addOGP(doc) {
+        const url = normal.url() + this.fileName;
+        const ogs = [['url',url],['title',this.title.value],['site_name',CNFBT.value],['type','article'],['description',this.desc.value],['image',normal.url() + this.img]];
+        for (const og of ogs) {
+          doc.head.insertAdjacentHTML('beforeend',`<meta property="og:${og[0]}" content="${og[1]}" />\n`);
+        }
+      };
       documentToHTMLstr(doc) {
         const t = doc.documentElement.outerHTML; //convert document to text
         const r = t.replace(/^\s*[\r\n]/gm, ''); //remove white line
@@ -554,8 +556,9 @@ document.addEventListener('DOMContentLoaded', () => {
         super(fileName,chest);
         this.fileName = 'index.html';
         this.chest = singleChest;
-        this.desc = CONF.elements['index-desc'];
         this.class = 'index';
+        this.title = CONF.elements['blog-subtitle'];
+        this.desc = CONF.elements['index-desc'];
       };
       appendSubtitle(doc) {
         const txt = CONF.elements['blog-subtitle'].value;
@@ -565,7 +568,7 @@ document.addEventListener('DOMContentLoaded', () => {
       async addsHTML(doc) {
         this.appendSubtitle(doc);
         const cnt = doc.querySelector('.contents');
-        cnt.setAttribute('class','latest-posts');
+        cnt.classList.add('latest-posts');
         const num = CONF.elements['latest-posts'].value;
         if (num > 0 && num < 21) await postLister.insertLatestNumber(num,cnt);
         const imgs = cnt.querySelectorAll('img');
@@ -575,26 +578,21 @@ document.addEventListener('DOMContentLoaded', () => {
           img.setAttribute('src',nsrc);
         }
       };
-      addOGP(doc) {
-        const url = normal.url() + this.fileName;
-        const ogs = [['url',url],['title',CONF.elements['blog-subtitle'].value],['site_name',CNFBT.value],['type','article'],['description',this.desc.value],['image',normal.url() + this.img]];
-        for (const og of ogs) {
-          doc.head.insertAdjacentHTML('beforeend',`<meta property="og:${og[0]}" content="${og[1]}" />\n`);
-        }
-      };
     };
     class HandleAllpost extends HandleHTML {
       constructor(fileName,chest) {
         super(fileName,chest);
         this.fileName = 'allpost.html';
         this.chest = singleChest;
-        this.desc = CONF.elements['allpost-desc'];
         this.class = 'allpost';
+        this.title = CONF.elements['allpost-title'];
+        this.desc = CONF.elements['allpost-desc'];
         this.req = ['.allpost-btns'];
       };
       async addsHTML(doc) {
+        doc.head.querySelector('title').insertAdjacentHTML('afterbegin',`${this.title.value} - `);
+        doc.querySelector('.title').textContent = this.title.value;
         const mabp = doc.querySelector('.allpost-btns').querySelectorAll('*');
-        doc.querySelector('title').insertAdjacentHTML('afterbegin','allpost - ');
         const flds = postLister.sortLatestFolder();
         for (const fld of flds) mabp[0].insertAdjacentHTML('beforeend',`<U data-btn="fld-${fld}" class="on">${fld}</U>`);
         const str = CONF.elements['tags'].value;
@@ -605,7 +603,7 @@ document.addEventListener('DOMContentLoaded', () => {
           mabp[1].insertAdjacentHTML('afterbegin',`<span data-btn="tag-${editag}" class="on">${tag.textContent}</span>`);
         }
         const cnt = doc.querySelector('.contents');
-        cnt.setAttribute('class','latest-posts');
+        cnt.classList.add('latest-posts');
         await postLister.insertLatestAll(cnt);
         const imgs = cnt.querySelectorAll('img');
         for (const img of imgs) {
@@ -615,39 +613,64 @@ document.addEventListener('DOMContentLoaded', () => {
           img.setAttribute('loading','lazy');
         }
       };
-      async save() {
-        const doc = await this.makeHTML();
-        await this.addsHTML(doc);
-        const str = this.documentToHTMLstr(doc);
-        await this.write(str);
-      };
     };
     class HandleSearch extends HandleHTML {
       constructor(fileName,chest) {
         super(fileName,chest);
         this.fileName = 'search.html';
         this.chest = singleChest;
-        this.desc = {value:'Search for articles on the site.'};
         this.class = 'search';
+        this.title = CONF.elements['search-title'];
+        this.desc = CONF.elements['search-desc'];
       };
-      async save() {
-        const doc = await this.makeHTML();
-        const str = this.documentToHTMLstr(doc);
-        await this.write(str);
+      addsHTML(doc) {
+        doc.head.querySelector('title').insertAdjacentHTML('afterbegin',`${this.title.value} - `);
+        doc.querySelector('.title').textContent = this.title.value;
       };
     };
     const index = new HandleIndex();
     const allpost = new HandleAllpost();
     const search = new HandleSearch();
-    class HandlePost extends HandleHTML {
+    class HandleArticle extends HandleHTML {
+      checkNewFileName() {
+        if (this.fileName === '.html') dialog.nameEmpty();
+        const result = this.chest.findIndex(({name}) => name === this.fileName);
+        if (result !== -1) dialog.nameExists();
+      };
+      async commonTransfer(doc,beforeDoc) {
+        const conts = beforeDoc.querySelector('.contents')?.innerHTML?? '';
+        const title = beforeDoc.querySelector('.title')?.textContent?? '';
+        const desc = beforeDoc.head.querySelector('[name=description][content]')?.content?? '';
+        doc.querySelector('.contents').innerHTML = conts;
+        for (const cnt of [['title',`${title} - `],['.title',title]]) doc.querySelector(cnt[0]).insertAdjacentHTML('afterbegin',cnt[1]);
+        doc.head.querySelector('[name=description]').setAttribute('content',desc);
+        //OGP
+        const ogs = [['title',title],['site_name',CNFBT.value],['type','article'],['description',desc]];
+        for (const og of ogs) doc.head.insertAdjacentHTML('beforeend',`<meta property="og:${og[0]}" content="${og[1]}" />\n`);
+      };
+      async saveTransfer() {
+        const doc = await this.makeHTML();
+        await this.transferContent(doc);
+        const str = this.documentToHTMLstr(doc);
+        await this.write(str);
+      };
+    };
+    class HandlePost extends HandleArticle {
       constructor(fileName,chest) {
         super(fileName,chest);
         this.chest = postChest;
+        this.class = 'post';
         this.path = '../../';
+        const input = POST.querySelectorAll(`[data-name="${this.fileName}"] input`);
+        this.title = input[0];
+        this.time = input[1];
         this.txta = POST.elements['txta'];
         this.desc = POST.elements['post-desc'];
-        this.class = 'post';
         this.req = ['.title'];
+      };
+      async parentName() {
+        const rsv = await posHandle.resolve(this.handle());
+        return rsv[0];
       };
       async loadContents() {
         const doc = await this.document();
@@ -663,15 +686,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       };
       addInputs(doc) {
-        const inp = POST.querySelectorAll(`[data-name="${this.fileName}"] input`);
-        const items = [['title',`${inp[0].value} - `],['.title',inp[0].value],['.contents',this.txta.value]];
+        const items = [['title',`${this.title.value} - `],['.title',this.title.value],['.contents',this.txta.value]];
         for (let item of items) {
           doc.querySelector(item[0]).insertAdjacentHTML('afterbegin',item[1]);
         }
         const time = doc.querySelectorAll('time');
-        time[0].insertAdjacentHTML('afterbegin',inp[1].value);
-        time[0].setAttribute('datetime',inp[1].title);
-        if (today.ymd() === inp[1].title.slice(0,10)) {
+        time[0].insertAdjacentHTML('afterbegin',this.time.value);
+        time[0].setAttribute('datetime',this.time.title);
+        if (today.ymd() === this.time.title.slice(0,10)) {
           time[1].remove();
           return;
         }
@@ -733,22 +755,21 @@ document.addEventListener('DOMContentLoaded', () => {
         await postLister.insertRelatedPost(doc);
       };
       async addOGP(doc) {
-        const inp = POST.querySelectorAll(`[data-name="${this.fileName}"] input`);
         const fld = await this.parentName();
         let img = this.img;
         const tif = POST.elements['top-image'].value;
         const dom = DOMPA.parseFromString(tif,'text/html');
         const ipt = dom.querySelector('img')?.getAttribute('src')?? '';
         if (ipt !== '') img = ipt.replace('../../','');
-        let dsc = this.desc.value;
-        if (dsc === '') {
-          const str = this.txta.value;
-          const tst = str.replace(/<\/?[^>]+(>|$)/g,'');
-          dsc = tst.substr(0,70).replace(/\r?\n/g,'');
-        }
+        // let dsc = this.desc.value;
+        // if (dsc === '') {
+        //   const str = this.txta.value;
+        //   const tst = str.replace(/<\/?[^>]+(>|$)/g,'');
+        //   dsc = tst.substr(0,70).replace(/\r?\n/g,'');
+        // }
         const url = normal.url();
         const ful = `${url}post/${fld}/${this.fileName}`;
-        const ogs = [['url',ful],['title',inp[0].value],['site_name',CNFBT.value],['type','article'],['description',dsc],['image',`${url}${img}`]];
+        const ogs = [['url',ful],['title',this.title.value],['site_name',CNFBT.value],['type','article'],['description',this.desc.value],['image',`${url}${img}`]];
         for (const og of ogs) {
           doc.head.insertAdjacentHTML('beforeend',`<meta property="og:${og[0]}" content="${og[1]}" />\n`);
         }
@@ -759,21 +780,52 @@ document.addEventListener('DOMContentLoaded', () => {
         const newFile = await thisYear.getFileHandle(this.fileName,{create:true});
         this.chest.push(newFile);
         await this.save();
-        for (const inp of POSNW.elements) inp.value = '';
+        for (const input of POSNW.elements) input.value = '';
       };
-      async parentName() {
-        const rsv = await posHandle.resolve(this.handle());
-        return rsv[0];
+      async transferContent(doc) {
+        const beforeDoc = await this.document();
+        await this.commonTransfer(doc,beforeDoc);
+        // const beforeDoc = await this.document();
+        // const conts = beforeDoc.querySelector('.contents')?.innerHTML?? '';
+        // const title = beforeDoc.querySelector('.title')?.textContent?? '';
+        // const desc = beforeDoc.head.querySelector('[name=description][content]')?.content?? '';
+        const timg = beforeDoc.querySelector('.top-image')?.innerHTML?? '';
+        // doc.querySelector('.contents').innerHTML = conts;
+        // for (const cnt of [['title',`${title} - `],['.title',title]]) doc.querySelector(cnt[0]).insertAdjacentHTML('afterbegin',cnt[1]);
+        // doc.head.querySelector('[name=description]').setAttribute('content',desc);
+        const swaps = ['time[itemprop=datepublished]','time[itemprop=modified]','.top-image','.table-of-contents'];
+        for (const swap of swaps) {
+          if (doc.querySelector(swap) !== null) {
+            const cnt = beforeDoc.querySelector(swap)?.innerHTML?? '';
+            doc.querySelector(swap).innerHTML = cnt;
+          }
+        }
+        const parts = ['.comment','.freespace'];
+        for (const part of parts) {
+          if (beforeDoc.querySelector(part) === null) doc.querySelector(part).remove();
+        }
+        doc.querySelector('.auther').textContent = CONF.elements['auther'].value;
+        //OGP
+        let img = this.img;
+        const dom = DOMPA.parseFromString(timg,'text/html');
+        const ipt = dom.querySelector('img')?.getAttribute('src')?? '';
+        if (ipt !== '') img = ipt.replace('../../','');
+        const url = normal.url();
+        const fld = await this.parentName();
+        const ful = `${url}post/${fld}/${this.fileName}`;
+        const ogs = [['url',ful],['image',`${url}${img}`]];
+        for (const og of ogs) doc.head.insertAdjacentHTML('beforeend',`<meta property="og:${og[0]}" content="${og[1]}" />\n`);
       };
     };
-    class HandlePage extends HandleHTML {
+    class HandlePage extends HandleArticle {
       constructor(fileName,chest) {
         super(fileName,chest);
         this.chest = pageChest;
+        this.class = 'page';
         this.path = '../';
+        this.title = PAGE.querySelector(`[data-name="${this.fileName}"] input`);
         this.txta = PAGE.elements['txta'];
         this.desc = PAGE.elements['page-desc'];
-        this.class = 'page';
         this.req = ['.title'];
       };
       async loadContents() {
@@ -782,46 +834,38 @@ document.addEventListener('DOMContentLoaded', () => {
         this.txta.value = doc.querySelector('.contents')?.innerHTML?? '';
       };
       addInputs(doc) {
-        const inp = PAGE.querySelectorAll(`[data-name="${this.fileName}"] input`);
-        const items = [['title',`${inp[0].value} - `],['.title',inp[0].value],['.contents',this.txta.value]];
-        for (const item of items) {
-          doc.querySelector(item[0]).insertAdjacentHTML('afterbegin',item[1]);
-        }
-      };
-      async transferContent(doc) {
-        const fileDoc = await this.document();
-        const elems = ['.title','.contents'];
-        for (const elem of elems) {
-          const cnt = fileDoc.querySelector(elem)?.innerHTML?? '';
-          doc.querySelector(elem).innerHTML = cnt;
-        }
-        const desc = fileDoc.head.querySelector('[name=description][content]')?.content?? '';
-        doc.head.querySelector('[name=description]').setAttribute('content',desc);
+        const items = [['title',`${this.title.value} - `],['.title',this.title.value],['.contents',this.txta.value]];
+        for (const item of items) doc.querySelector(item[0]).insertAdjacentHTML('afterbegin',item[1]);
       };
       addsHTML(doc) {
         this.addInputs(doc)
       };
       addOGP(doc) {
-        const inp = PAGE.querySelectorAll(`[data-name="${this.fileName}"] input`);
         const url = `${normal.url()}page/${this.fileName}`;
-        const ogs = [['url',url],['title',inp[0].value],['site_name',CNFBT.value],['type','article'],['description',this.desc.value],['image',normal.url() + this.img]];
-        for (const og of ogs) {
-          doc.head.insertAdjacentHTML('beforeend',`<meta property="og:${og[0]}" content="${og[1]}" />\n`);
-        }
+        const ogs = [['url',url],['title',this.title.value],['site_name',CNFBT.value],['type','article'],['description',this.desc.value],['image',normal.url() + this.img]];
+        for (const og of ogs) doc.head.insertAdjacentHTML('beforeend',`<meta property="og:${og[0]}" content="${og[1]}" />\n`);
       };
       async saveNew() {
         this.checkNewFileName();
         const newFile = await pagHandle.getFileHandle(this.fileName,{create:true});
         this.chest.push(newFile);
         await this.save();
-        for (const inp of PAGNW.elements) inp.value = '';
+        for (const input of PAGNW.elements) input.value = '';
       };
-      async transferSave() {
-        const doc = await this.makeHTML();
-        await this.transferContent(doc);
-        await this.addOGP(doc);
-        const str = this.documentToHTMLstr(doc);
-        await this.write(str);
+      async transferContent(doc) {
+        const beforeDoc = await this.document();
+        await this.commonTransfer(doc,beforeDoc);
+        // const beforeDoc = await this.document();
+        // const conts = beforeDoc.querySelector('.contents')?.innerHTML?? '';
+        // const title = beforeDoc.querySelector('.title')?.textContent?? '';
+        // const desc = beforeDoc.head.querySelector('[name=description][content]')?.content?? '';
+        // doc.querySelector('.contents').innerHTML = conts;
+        // for (const cnt of [['title',`${title} - `],['.title',title]]) doc.querySelector(cnt[0]).insertAdjacentHTML('afterbegin',cnt[1]);
+        // doc.head.querySelector('[name=description]').setAttribute('content',desc);
+        //OGP
+        const url = `${normal.url()}page/${this.fileName}`;
+        const ogs = [['url',url],['image',normal.url() + this.img]];
+        for (const og of ogs)  doc.head.insertAdjacentHTML('beforeend',`<meta property="og:${og[0]}" content="${og[1]}" />\n`);
       };
     };
     //post lister obj
@@ -1113,7 +1157,7 @@ document.addEventListener('DOMContentLoaded', () => {
         list[1].addFolders();
       }
     })();
-  //save all
+  //saveall
     SALL.elements['post'].parentNode.insertAdjacentHTML('beforeend',`(${postChest.length - postFolders.length})`);
     SALL.elements['page'].parentNode.insertAdjacentHTML('beforeend',`(${pageChest.length})`);
     SALL.elements['save'].onclick = async () => {
@@ -1126,10 +1170,18 @@ document.addEventListener('DOMContentLoaded', () => {
           log.insertAdjacentHTML('beforeend',`<p>Succeeded in saving ${file[1].fileName}</p>`);
         }
       }
+      if (SALL.elements['post'].checked === true) {
+        for (const file of postChest.values()) {
+          if (file.kind === 'file') {
+            await new HandlePost(file.name).saveTransfer();
+            log.insertAdjacentHTML('beforeend',`<p>Succeeded in saving ${file.name}</p>`);
+          }
+        }
+      }
       if (SALL.elements['page'].checked === true) {
         for (const file of pageChest.values()) {
           if (file.kind === 'file') {
-            await new HandlePage(file.name).transferSave();
+            await new HandlePage(file.name).saveTransfer();
             log.insertAdjacentHTML('beforeend',`<p>Succeeded in saving ${file.name}</p>`);
           }
         }

@@ -225,7 +225,7 @@ main {
 }
 .postcap,.pagecap {
     font-size: 1.2rem;
-    padding: .3rem 0 0 0;
+    padding: 1rem 0 0 0;
 }
 #post [name="years"] {
     margin-bottom: 1.5rem;
@@ -344,18 +344,18 @@ fieldset u {
 }
 #config div {
     display: grid;
-    grid-template-columns: 20rem auto;
+    grid-template-columns: 20% 1fr;
     column-gap: 1rem;
     row-gap: 1.5rem;
-    padding-left: 5rem;
+    padding-left: 5%;
 }
 #config textarea {
     height: 25vh;
 }
 #custom {
     display: grid;
-    grid-template-columns: 14rem 1fr !important;
-    padding-left: 21rem !important;
+    grid-template-columns: 18% 1fr !important;
+    padding-left: 25% !important;
     row-gap: 1rem !important;
     font-size: 1.4rem;
     padding-top: 1.5rem;
