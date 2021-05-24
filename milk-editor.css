@@ -1,8 +1,8 @@
 /** Font Awesome **/
-#open-dir,nav p,#home,#map,.btn-new,.btn-edit,.btn-close,#post-panel,#page-panel,#allseve,#links button,#images button,#image button {
+#open-dir,nav p,#home,#map,.btn-new,.btn-edit,.btn-close,#post-panel,#page-panel,#allseve,#links button,#images button,[name="img-open"] {
     font-family:'Font Awesome 5 Free';
 }
-nav p,#home,.btn-new,.btn-edit,.btn-close,#post-panel,#page-panel,#allseve,#links button,#images button,#image button { 
+nav p,#home,.btn-new,.btn-edit,.btn-close,#post-panel,#page-panel,#allseve,#links button,#images button,[name="img-open"] { 
     font-weight: 900;
 }
 #open-dir:before {content:"\f07c";}
@@ -20,7 +20,7 @@ nav [data-nav="info"]:before {content:"\f129";}
 .btn-close:before,#links button:before,#images button:before {content:"\f00d";}
 #post-panel:before,#page-panel:before {content:"\f121";padding:.5rem 1rem;vertical-align: middle;border-right: 1px solid #ddd;}
 .box-left [title="link"]:before, #rated button:before {content:"\f0c1";}
-.box-left [title="img"]:before, #image button:before {content:"\f302";}
+.box-left [title="img"]:before, [name="img-open"]:before {content:"\f302";}
 .box-right legend:hover::after {content:" \f078";font-family:'Font Awesome 5 Free';font-weight: 900;font-size: 1.2rem;line-height: 1.2rem;}
 /** common **/
 * {
@@ -259,7 +259,7 @@ main {
     color: #eee;
 }
 .box-right {
-    padding-right: 5%;
+    padding: 1.6rem 5% 0 0;
     font-size: 1.5rem;
 }
 .box-right fieldset {
@@ -270,12 +270,16 @@ main {
 .box-right legend {
     padding: 0 5px;
 }
-#image button, #image span {
+.box-right [name="image"] {
     border: none;
-    display: inline-block;
-    width: 3rem;
-    text-align: center;
     padding: 0;
+    width: 100%;
+}
+.box-right [name="img-open"] {
+    color: #333;
+    background-color: transparent;
+    font-size: 1.6rem;
+    margin-top: 1rem;
 }
 .box-right textarea {
     border: none;
@@ -292,10 +296,6 @@ main {
 #parts label {
     display: block;
     padding: .1rem 0 .1rem .5rem;
-}
-#post-tagbox {
-    overflow-y: scroll;
-    max-height: 50vh;
 }
 #post-tagbox i {
     display: inline-block;
@@ -323,14 +323,14 @@ fieldset u {
     padding-top: 4rem;
 }
 .desc {
-    border: 1px solid #ccc;
-    padding: 1.5rem 3rem;
+    padding: 1.2rem 3rem;
     text-align: center;
-    background-color: #eee;
+    background-color: #f5f8eb;
     border-radius: 1rem;
+    color: #666235;
 }
 #config fieldset, #saveall fieldset {
-    padding: 0 0 10rem 3rem;
+    padding: 0 0 50vh 3rem;
 }
 #config h3, #saveall h3 {
     padding: 5rem 0;
@@ -350,7 +350,8 @@ fieldset u {
     padding-left: 5%;
 }
 #config textarea {
-    height: 25vh;
+    min-height: 20vh;
+    resize: vertical;
 }
 #custom {
     display: grid;
