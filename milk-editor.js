@@ -90,6 +90,9 @@ document.addEventListener('DOMContentLoaded', () => {
     constructor() {
       this.date = new Date();
     };
+    nowYmdTime() {
+      return this.date.toISOString().slice(0,16); //2021-05-26T14:00
+    }
     year() {
       return this.date.getFullYear();
     };
@@ -124,6 +127,16 @@ document.addEventListener('DOMContentLoaded', () => {
     ymdAndTime() {
       return `${this.ymd()}T${this.hours()}:${this.minutes()}`;
     };
+    convertYmdTo(ymd) {
+      // const dt = CONF.elements['date-type'].value;
+      // if (dt === 'yyyy-mm-dd') return;
+      const y = ymd.slice(0,4);
+      const m = ymd.slice(5,7);
+      const d = ymd.slice(8,10);
+      // else if (dt === 'dd-mm-yyyy') return `${d} ${m} ${y}`
+      // else if (dt === 'mm-dd-yyyy') return this.mdy();
+      console.log(y,m,d)
+    };
     dateType() {
       const dt = CONF.elements['date-type'].value;
       if (dt === 'yyyy-mm-dd') return this.ymd();
@@ -132,8 +145,9 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   };
   const today = new Today();
-  POSNW.elements['date'].title = today.ymdAndTime();
-  POSNW.elements['date'].value = today.ymd();
+  POSNW.elements['date'].value = today.nowYmdTime();
+  today.convertYmdTo(today.nowYmdTime());
+
 //Text Editor
   //original code from https://www.annytab.com/create-html-editor-with-pure-javascript/
   class Editor {
@@ -296,19 +310,19 @@ document.addEventListener('DOMContentLoaded', () => {
   //toggle view of right elements
   for (const boxr of document.querySelectorAll('.box-right')) {
     boxr.onclick = (e) => {
-      if (e.target.tagName === 'LEGEND') e.target.nextElementSibling.classList.toggle('hide');
+      if (e.target.tagName === 'H3') e.target.nextElementSibling.classList.toggle('hide');
     };
   }
   (() => {
     //adjust size
     const w = document.querySelector('.box-left').offsetWidth;
-    const elems = [POSLI,POSNW.elements['title'],PAGLI,PAGNW.elements['title'],document.querySelectorAll('.postcap *')[0],document.querySelectorAll('.pagecap *')[0],CONF.querySelector('fieldset'),SALL.querySelector('fieldset')];
+    const elems = [CONF.querySelector('fieldset'),SALL.querySelector('fieldset')];
     for (const elem of elems) elem.style.maxWidth = w + 'px';
     const f = document.querySelector('form').offsetHeight;
-    const p = POST.querySelector('p').offsetHeight;
+    // const p = POST.querySelector('p').offsetHeight;
     const n = POSNW.offsetHeight;
     const a = document.getElementById('post-panel').offsetHeight;
-    const h = (f-2)-(p+n+a)+'px';
+    const h = (f-2)-(n+a)+'px';
     POST.elements['txta'].style.height = h;
     PAGE.elements['txta'].style.height = h;
     //set translate="no"
@@ -543,6 +557,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const str = this.documentToHTMLstr(doc);
         const ope = window.open();
         ope.document.write(str);
+        console.log(this.path,this.desc,this.title)
       };
       async save() {
         const doc = await this.makeHTML();
@@ -677,7 +692,7 @@ document.addEventListener('DOMContentLoaded', () => {
         this.title = input[0];
         this.time = input[1];
         this.txta = POST.elements['txta'];
-        this.img = POST.elements['image'];
+        // this.img = POST.elements['image'];
         this.desc = POST.elements['post-desc'];
       };
       async parentName() {
@@ -686,9 +701,9 @@ document.addEventListener('DOMContentLoaded', () => {
       };
       async loadContents() {
         const doc = await this.document();
-        this.txta.value = doc.querySelector('.contents')?.innerHTML?? '';
-        this.img.value = doc.querySelector('.top-image')?.innerHTML?? '';
-        this.desc.value = doc.head.querySelector('[name=description][content]')?.content?? '';
+        POST.elements['txta'].value = doc.querySelector('.contents')?.innerHTML?? '';
+        POST.elements['image'].value = doc.querySelector('.top-image')?.innerHTML?? '';
+        POST.elements['post-desc'].value = doc.head.querySelector('[name=description][content]')?.content?? '';
         for (const part of POSPA) {
           if (doc.querySelector(`.${part}`) === null) POST.elements[part].checked = false;
         }
@@ -713,13 +728,13 @@ document.addEventListener('DOMContentLoaded', () => {
         time[1].setAttribute('datetime',today.ymdAndTime());
       };
       addTopImg(doc) {
-        const str = this.img.value;
+        const str = POST.elements['image'].value;
         const elem = doc.querySelector('.top-image');
         if (str == false) {
           elem.remove();
           return;
         }
-        elem.innerHTML = str;
+        elem.innerHTML = `<img src="${this.path}${str}" alt="${this.title.value}"/>`;
       };
       addAuther(doc) {
         const str = CONF.elements['auther'].value;
@@ -782,8 +797,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const url = `${normal.url()}post/${fld}/${this.fileName}`;
         const ogs = [['url',url],['title',this.title.value],['site_name',CNFBT.value],['description',this.desc.value]];
         for (const og of ogs) doc.head.querySelector(`[property="og:${og[0]}"]`).setAttribute('content',og[1]);
-        if (this.img.value !== '') {
-          const img = this.img.value.replace(this.path,normal.url());
+        if (POST.elements['image'].value !== '') {
+          const img = POST.elements['image'].value.replace(this.path,normal.url());
           doc.head.querySelector('[property="og:image"]').setAttribute('content',img);
         }
         // const url = normal.url();
@@ -910,7 +925,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const img = doc.querySelector('.top-image')?.innerHTML?? '';
         const tgs = doc.querySelector('.tags')?.innerHTML?? '';
         const dsc = doc.head.querySelector('[name=description][content]')?.content?? '';
-        return [rti,fileName,tim,tit,fldName,dti,img,tgs,dsc];//0:short datetime, 1:file name, 2:time, 3:title, 4:dirctory name, 5:datetime 6:image 7:tags 8:description
+        // return [rti,fileName,tim,tit,fldName,dti,img,tgs,dsc];//0:datetime(num), 1:file name, 2:time, 3:title, 4:dirctory name, 5:datetime 6:image 7:tags 8:description
+        return [fileName,tit,fldName,dti,rti,img,tgs,dsc];//0:file name, 1:title, 2:dirctory name, 3:datetime, 4:datetime(num), 5:image 6:tags 7:description
       },
       makeLatestData: async(folderName) => {
         const fldHandle = postChest.find(({name}) => name === folderName);
@@ -939,7 +955,7 @@ document.addEventListener('DOMContentLoaded', () => {
         POSNW.elements['btn'].classList.remove('btn-close');
         const data = await postLister.makeLatestData(folderName);
         for (const d of data) {
-          POSLI.insertAdjacentHTML('beforeend',`<fieldset data-name="${d[1]}"><input value="${d[3]}"><input value="${d[2]}" title="${d[5]}"><u>${d[1]}</u><button type="button" class="btn-edit"></button></fieldset>`);
+          POSLI.insertAdjacentHTML('beforeend',`<fieldset data-name="${d[0]}"><input value="${d[1]}"><input type="datetime-local" value="${d[3]}"><u>${d[0]}</u><button type="button" class="btn-edit"></button></fieldset>`);
         }
       },
       insertRelatedPost: async(doc) => {
@@ -961,9 +977,9 @@ document.addEventListener('DOMContentLoaded', () => {
       insertLatestNumber: async(num,elem) => {
         const d = await postLister.makeLatestAllData();
         for (let i = 0; i < num; i++) {
-          let mid = d[i][6];
-          if (d[i][6] === '' && d[i][8] !== '') mid = `<p class="headline">${d[i][8]}</p>`;
-          elem.insertAdjacentHTML('beforeend',`<div><a href="./post/${d[i][4]}/${d[i][1]}"><h3>${d[i][3]}</h3>${mid}<p class="time"><time>${d[i][2]}</time>${d[i][7]}</p></a></div>\n`);
+          let mid = d[i][5];
+          if (d[i][5] === '' && d[i][7] !== '') mid = `<p class="headline">${d[i][7]}</p>`;
+          elem.insertAdjacentHTML('beforeend',`<div><a href="./post/${d[i][2]}/${d[i][0]}"><h3>${d[i][1]}</h3>${mid}<p class="time"><time>${d[i][2]}</time>${d[i][6]}</p></a></div>\n`);
         }
       },
       insertLatestAll: async(elem) => {
@@ -1034,14 +1050,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       };
       async addImgForTop() {
-        const topImg = POST.elements['image'];
         IMAGS.classList.toggle('hide');
         LINKS.classList.add('hide');
         ImgList.addFolders();
         await ImgList.addList(today.syear());
         IMAGS.querySelector('div').onclick = (e) => {
           if (e.target.tagName === 'IMG') {
-            topImg.value = `media/${IMAGS.elements['flds'].value}/${e.target.title}`;
+            POST.elements['image'].value = `media/${IMAGS.elements['flds'].value}/${e.target.title}`;
           }
         }
       };

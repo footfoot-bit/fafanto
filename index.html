@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 <head>
 <title>Milk Editor - export static site</title>
 <link href="milk-editor.css" rel="stylesheet">
@@ -34,26 +34,24 @@
   </header>
   <main>
     <form id="post" class="show">
-      <p class="postcap"><span title='into .title'>Title</span><span title="published date. into time tag">Date</span><span>File Name</span></p>
-      <fieldset id="post-new"><input name="title" placeholder="New Post"><input name="date"><input name="name" placeholder="new-post"><button name="btn" type="button" class="btn-new"></button></fieldset>
+      <fieldset id="post-new"><input name="title" title="into title:calss" placeholder="New Post of Title"><input type="datetime-local" name="date"><input name="name" placeholder="New Post of File Name"><button name="btn" type="button" class="btn-new"></button></fieldset>
       <select name="years" class="hide"></select>
       <div id="post-list"></div>
       <div id="post-box">
         <div class="box-left">
-          <p class="postcap"><span title="into .contens">Contents</span></p>
           <div id="post-panel"><i>b</i><i>small</i><i>mark</i><i>br</i><i>p</i><i>h2</i><i>h3</i><i>h4</i><i>a</i><i>ul</i><i>table</i><s title="link"></s><s title="img"></s></div>
           <textarea name="txta" id="post-txt"></textarea>
         </div>
         <div class="box-right">
-          <fieldset id="image">
-            <legend>Image</legend>
+          <fieldset>
+            <h3>Image</h3>
             <div>
-              <input name="image" placeholder="media/2021/xxx.jpg">
+              <textarea name="image" placeholder="media/2021/xxx.jpg"></textarea>
               <button type="button" name="img-open"></button>
             </div>
           </fieldset>
           <fieldset id="parts">
-            <legend>Parts</legend>
+            <h3>Parts</h3>
             <div>
               <label title="Create anchor links of h2 h3/remove"><input type="checkbox" name="table-of-contents" checked>table of contents</label>
               <label title='.comment leave/remove'><input type="checkbox" name="comment" checked>comment</label>
@@ -61,7 +59,7 @@
             </div>
           </fieldset>
           <fieldset>
-            <legend>Tags</legend>
+            <h3>tags</h3>
             <div id="post-tagbox">
               <i class="on">DEMO</i>
               <i class="on">Static Blog Editor</i>
@@ -79,8 +77,10 @@
             </div>
           </fieldset>
           <fieldset>
-            <legend title="Use for meta description and OGP description">Description</legend>
-            <textarea name="post-desc" placeholder="description text"></textarea>
+            <h3 title="Use for meta description and OGP description">Description</h3>
+            <div>
+              <textarea name="post-desc" placeholder="description text"></textarea>
+            </div>
           </fieldset>
         </div>
       </div>
