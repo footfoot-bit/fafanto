@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<title>Milk Editor - export static site</title>
+<title>Float Editor - export static site</title>
 <link href="milk-editor.css" rel="stylesheet">
 <script src="https://kit.fontawesome.com/8725e8d35f.js" crossorigin="anonymous"></script>
 <link rel="manifest" href="milk-editor.webmanifest">
@@ -11,18 +11,18 @@
 </head>
 <body>
 <script src="milk-editor.js"></script>
-  <h1><img src="favicon.svg">Milk Editor</h1>
+  <h1><img src="favicon.svg">Float Editor</h1>
   <nav>
     <button type="button" id="open-dir" title="Select Folder"></button>
     <div>
-      <p data-nav="post" class="on"></p>
-      <p data-nav="page"></p>
-      <p data-nav="style"></p>
-      <p data-nav="template"></p>
-      <p data-nav="config"></p>
-      <p data-nav="saveall"></p>
+      <p data-nav="post" class="on">Post</p>
+      <p data-nav="page">Page</p>
+      <p data-nav="style">Style</p>
+      <p data-nav="template">Template</p>
+      <p data-nav="config">Config</p>
+      <p data-nav="saveall">Saveall</p>
     </div>
-    <p data-nav="info"></p>
+    <p data-nav="info">Info</p>
   </nav>
   <header>
     <h2 data-section="post">Post</h2>
@@ -34,7 +34,7 @@
   </header>
   <main>
     <form id="post" class="show">
-      <fieldset id="post-new"><input name="title" title="into title:calss" placeholder="New Post of Title"><input type="datetime-local" name="date"><input name="name" placeholder="New Post of File Name"><button name="btn" type="button" class="btn-new"></button></fieldset>
+      <fieldset id="post-new"><input name="title" title="into title:calss" placeholder="Add New Title"><input type="datetime-local" name="date"><input name="name" placeholder="Add New File Name"><button name="btn" type="button" class="btn-new"></button></fieldset>
       <select name="years" class="hide"></select>
       <div id="post-list"></div>
       <div id="post-box">
@@ -53,9 +53,9 @@
           <fieldset id="parts">
             <h3>Parts</h3>
             <div>
-              <label title="Create anchor links of h2 h3/remove"><input type="checkbox" name="table-of-contents" checked>table of contents</label>
-              <label title='.comment leave/remove'><input type="checkbox" name="comment" checked>comment</label>
-              <label title='.freespace leave/remove'><input type="checkbox" name="freespace" checked>freespace</label>
+              <label title="Create anchor links of h2 h3 or remove"><input type="checkbox" name="table-of-contents" checked>table of contents</label>
+              <label title='comment:class leave or remove'><input type="checkbox" name="comment" checked>comment</label>
+              <label title='freespace:class leave or remove'><input type="checkbox" name="freespace" checked>freespace</label>
             </div>
           </fieldset>
           <fieldset>
@@ -86,19 +86,19 @@
       </div>
     </form>
     <form id="page">
-      <p class="pagecap"><span title="h1">Title</span><span>File Name</span></p>
       <fieldset id="page-new"><input name="title" placeholder="New Page"><input name="name" placeholder="new-page.html"><button name="btn" type="button" class="btn-new"></button></fieldset>
       <div id="page-list"></div>
       <div id="page-box">
         <div class="box-left">
-          <p class="pagecap"><span title="into .title">Contents</span></p>
           <div id="page-panel"><i>b</i><i>i</i><i>mark</i><i>br</i><i>p</i><i>h2</i><i>h3</i><i>h4</i><i>a</i><i>ul</i><i>table</i><s title="link"></s><s title="img"></s></div>
           <textarea name="txta"></textarea>
         </div>
         <div class="box-right">
           <fieldset>
-            <legend title="Use for meta description and OGP description">Description</legend>
-            <textarea name="page-desc" placeholder="description text"></textarea>
+            <h3 title="Use for meta description and OGP description">Description</h3>
+            <div>
+              <textarea name="page-desc" placeholder="description text"></textarea>
+            </div>
           </fieldset>
         </div>
       </div>
