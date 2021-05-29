@@ -301,13 +301,18 @@ document.addEventListener('DOMContentLoaded', () => {
       e.target.setAttribute('class','on');
     }
   };
-  //add common tag
+  //dark mode
+  document.getElementById('mode').onclick = () => {
+    document.querySelector('header').classList.toggle('dark');
+    document.querySelector('main').classList.toggle('dark');
+  };
+  //text editor
   for (const panel of ['post-panel','page-panel']) {
     document.getElementById(panel).onclick = (e) => {
       if (e.target.tagName === 'I') new Editor().addTag(e.target.textContent);
     };
   }
-  //toggle view of right elements
+  //toggle switch of right elements
   for (const boxr of document.querySelectorAll('.box-right')) {
     boxr.onclick = (e) => {
       if (e.target.tagName === 'H3') e.target.nextElementSibling.classList.toggle('hide');
@@ -319,7 +324,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const elems = [CONF.querySelector('fieldset'),SALL.querySelector('fieldset')];
     for (const elem of elems) elem.style.maxWidth = w + 'px';
     const f = document.querySelector('form').offsetHeight;
-    // const p = POST.querySelector('p').offsetHeight;
     const n = POSNW.offsetHeight;
     const a = document.getElementById('post-panel').offsetHeight;
     const h = f-(n+a)+'px';
@@ -329,7 +333,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const nots = ['h2','#post-panel','#page-panel','#post-tagbox','#custom'];
     for (const not of nots) document.querySelector(not).setAttribute('translate','no');
   })();
-//// open folder picker ////
+//// open picker ////
   OPEN.onclick = async () => {
     const dirHandle = await window.showDirectoryPicker();//dialog ok
     //create file and folder
@@ -518,7 +522,7 @@ document.addEventListener('DOMContentLoaded', () => {
           if (page.kind === 'file') {
             const pdoc = await new HandlePage(page.name).document();
             const title = pdoc.querySelector('.title')?.textContent?? '';
-            doc.querySelector('.page-list').innerHTML += `<a href="${this.path}page/${page.name}">${title}</a>\n`;
+            doc.querySelector('.page-list').innerHTML += `<li><a href="${this.path}page/${page.name}">${title}</a></li>\n`;
           }
         }
         doc.querySelector('.goto-allpost a')?.setAttribute('href',`${this.path}allpost.html`);
@@ -925,7 +929,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const img = doc.querySelector('.top-image')?.innerHTML?? '';
         const tgs = doc.querySelector('.tags')?.innerHTML?? '';
         const dsc = doc.head.querySelector('[name=description][content]')?.content?? '';
-        // return [rti,fileName,tim,tit,fldName,dti,img,tgs,dsc];//0:datetime(num), 1:file name, 2:time, 3:title, 4:dirctory name, 5:datetime 6:image 7:tags 8:description
         return [fileName,tit,fldName,dti,rti,img,tgs,dsc];//0:file name, 1:title, 2:dirctory name, 3:datetime, 4:datetime(num), 5:image 6:tags 7:description
       },
       makeLatestData: async(folderName) => {
@@ -1027,7 +1030,7 @@ document.addEventListener('DOMContentLoaded', () => {
       static async addList(folderName) {
         LINKS.querySelector('div').textContent ='';
         const data = await postLister.makeLatestData(folderName);
-        for (const d of data) LINKS.querySelector('div').insertAdjacentHTML('beforeend',`<p data-name="${d[1]}" data-title="${d[3]}">${d[2]}<br />${d[3]}<br />${d[1]}</p>`);
+        for (const d of data) LINKS.querySelector('div').insertAdjacentHTML('beforeend',`<p data-name="${d[0]}" data-title="${d[1]}">${d[3]}<br />${d[1]}<br />${d[0]}</p>`);
         LINKS.elements['flds'].value = folderName;
       };
        static addFolders() {
@@ -1225,8 +1228,8 @@ document.addEventListener('DOMContentLoaded', () => {
       dialog.completeSave();
     };
     //load files
+    OPEN.classList.add('hide');
     for (const file of [template,style,config]) await file.load();
-    OPEN.classList.add('disable');
     POSNW.elements['date'].value = today.dateType();
     postLister.addFoldersToSelect();
     await postLister.addListForApp(today.syear());
