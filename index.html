@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<title>Plankton Editor - exports static site tool.</title>
+<title>Plankton Editor - Create a static site with minimal energy.</title>
 <link href="milk-editor.css" rel="stylesheet">
 <script src="https://kit.fontawesome.com/8725e8d35f.js" crossorigin="anonymous"></script>
 <link rel="manifest" href="milk-editor.webmanifest">
@@ -11,7 +11,7 @@
 </head>
 <body>
 <script src="milk-editor.js"></script>
-  <h1><img src="favicon.svg">Plankton Editor</h1>
+  <h1>Plankton Editor</h1>
   <nav>
     <div>
       <button type="button" id="home" title="Preview Index.html"></button><button type="button" id="map" title="Preview allpost.html"></button>
@@ -22,7 +22,7 @@
       <p data-nav="style">Style</p>
       <p data-nav="template">Template</p>
       <p data-nav="config">Config</p>
-      <p data-nav="saveall">Saveall</p>
+      <p data-nav="renews">Renews</p>
     </div>
     <p data-nav="info">Info</p>
   </nav>
@@ -31,23 +31,24 @@
     <button class="disable" id="save" type="button"> Save</button>
     <button class="disable" type="button" id="preview"> Preview</button>
     <span id="actfile"></span>
+    <button title="Spellcheck attribute" id="spellcheck"></button>
     <button title="Dark Mode" id="mode"></button>
   </header>
   <main>
     <form id="post" class="show">
-      <fieldset id="post-new"><input name="title" title="into title:calss" placeholder="Add New Title"><input type="datetime-local" name="date"><input name="name" placeholder="Add New File Name"><button name="btn" type="button" class="btn-new"></button></fieldset>
+      <fieldset id="post-new"><input name="title" title="into title:calss" placeholder="Add New Title"><input type="datetime-local" name="date"><input name="name" placeholder="Add New Filename"><button name="btn" type="button" class="btn-new"></button></fieldset>
       <select name="years" class="hide"></select>
       <div id="post-list"></div>
       <div id="post-box">
         <div class="box-left">
           <div id="post-panel"><i>b</i><i>small</i><i>mark</i><i>br</i><i>p</i><i>h2</i><i>h3</i><i>h4</i><i>a</i><i>ul</i><i>table</i><s title="link"></s><s title="img"></s></div>
-          <textarea name="txta" id="post-txt"></textarea>
+          <textarea name="ta" id="post-txt"></textarea>
         </div>
         <div class="box-right">
           <fieldset>
             <h3>Image</h3>
             <div>
-              <textarea name="image" placeholder="media/2021/xxx.jpg"></textarea>
+              <textarea name="img" placeholder="media/2021/xxx.jpg"></textarea>
               <button type="button" name="img-open"></button>
             </div>
           </fieldset>
@@ -80,35 +81,35 @@
           <fieldset>
             <h3 title="Use for meta description and OGP description">Description</h3>
             <div>
-              <textarea name="post-desc" placeholder="description text"></textarea>
+              <textarea name="desc" placeholder="description text"></textarea>
             </div>
           </fieldset>
         </div>
       </div>
     </form>
     <form id="page">
-      <fieldset id="page-new"><input name="title" placeholder="New Page"><input name="name" placeholder="new-page.html"><button name="btn" type="button" class="btn-new"></button></fieldset>
+      <fieldset id="page-new"><input name="title" placeholder="Add new title"><input name="name" placeholder="Add new filename"><button name="btn" type="button" class="btn-new"></button></fieldset>
       <div id="page-list"></div>
       <div id="page-box">
         <div class="box-left">
           <div id="page-panel"><i>b</i><i>i</i><i>mark</i><i>br</i><i>p</i><i>h2</i><i>h3</i><i>h4</i><i>a</i><i>ul</i><i>table</i><s title="link"></s><s title="img"></s></div>
-          <textarea name="txta"></textarea>
+          <textarea name="ta" placeholder="Add contents"></textarea>
         </div>
         <div class="box-right">
           <fieldset>
             <h3 title="Use for meta description and OGP description">Description</h3>
             <div>
-              <textarea name="page-desc" placeholder="description text"></textarea>
+              <textarea name="desc" placeholder="Add description text"></textarea>
             </div>
           </fieldset>
         </div>
       </div>
     </form>
     <form id="style">
-      <textarea name="txta"></textarea>
+      <textarea name="ta"></textarea>
     </form>
     <form id="template">
-      <textarea name="txta"></textarea>
+      <textarea name="ta"></textarea>
     </form>
     <form id="config">
       <fieldset>
@@ -137,7 +138,7 @@
         <h3>Post</h3>
         <div>
           <span>Auther</span><input name="auther" placeholder="your name" type="text">
-          <span>Date Type</span>
+          <span>Display Date</span>
           <select name="date-type">
             <option value="yyyy-mm-dd" selected>YYYY-MM-DD</option>
             <option value="dd-mm-yyyy">DD-MM-YYYY</option>
@@ -157,16 +158,16 @@
 &lt;s title=&quot;link&quot;&gt;&lt;/s&gt;&lt;s title=&quot;img&quot;&gt;&lt;/s&gt;"></textarea>
         </div>
         <div id="custom">
-          <span>Common tag(19)</span><p>&lt;i&gt;b&lt;/i&gt;&lt;i&gt;strong&lt;/i&gt;&lt;i&gt;i&lt;/i&gt;&lt;i&gt;s&lt;/i&gt;&lt;i&gt;small&lt;/i&gt;&lt;i&gt;big&lt;/i&gt;&lt;i&gt;mark&lt;/i&gt;&lt;i&gt;br&lt;/i&gt;&lt;i&gt;p&lt;/i&gt;&lt;i&gt;h2&lt;/i&gt;&lt;i&gt;h3&lt;/i&gt;&lt;i&gt;h4&lt;/i&gt;&lt;i&gt;h5&lt;/i&gt;&lt;i&gt;h6&lt;/i&gt;&lt;i&gt;a&lt;/i&gt;&lt;i&gt;ul&lt;/i&gt;&lt;i&gt;ol&lt;/i&gt;&lt;i&gt;table&lt;/i&gt;</p>
+          <span>Basic tag(19)</span><p>&lt;i&gt;b&lt;/i&gt;&lt;i&gt;strong&lt;/i&gt;&lt;i&gt;i&lt;/i&gt;&lt;i&gt;s&lt;/i&gt;&lt;i&gt;small&lt;/i&gt;&lt;i&gt;big&lt;/i&gt;&lt;i&gt;mark&lt;/i&gt;&lt;i&gt;br&lt;/i&gt;&lt;i&gt;p&lt;/i&gt;&lt;i&gt;h2&lt;/i&gt;&lt;i&gt;h3&lt;/i&gt;&lt;i&gt;h4&lt;/i&gt;&lt;i&gt;h5&lt;/i&gt;&lt;i&gt;h6&lt;/i&gt;&lt;i&gt;a&lt;/i&gt;&lt;i&gt;ul&lt;/i&gt;&lt;i&gt;ol&lt;/i&gt;&lt;i&gt;table&lt;/i&gt;</p>
           <span>Select tag(2)</span><p>&lt;s title=&quot;link&quot;&gt;&lt;/s&gt;&lt;s title=&quot;img&quot;&gt;&lt;/s&gt;</p>
           <span>User tag(∞)</span><p>&lt;u title='&lt;div class=&quot;example&quot;&gt;&lt;/div&gt;'&gt;button&lt;/u&gt;</p>
         </div>
       </fieldset>
     </form>
-    <form id="saveall">
+    <form id="renews">
       <fieldset>
-        <p class="desc">Use it after you have changed the common items of your site (blog title, URL, template, etc.).</p>
-        <h3>Save List</h3>
+        <p class="desc">This function is used when you have changed common items on your site. (Blog title, URL, template, etc.) <br />All checked files will be overwritten.</p>
+        <h3>Save Files</h3>
         <div>
           <label><input type="checkbox" name="index" checked>index.html</label>
           <label><input type="checkbox" name="allpost" checked>allpost.html</label>
@@ -195,7 +196,10 @@
     <button type="button" name="btn"></button>
     <div name="box"></div>
   </form>
-  <button type="button" id="open-dir" title="Select Folder">Select a Folder</button>
+  <div id="guide">
+    <button type="button" id="open-dir">Select Folder</button>
+    <a href="docs.html" target="_blank">Start Up Guide</a>
+  </div>
   <div id="alert" class="hide">Sory.This app only works on <b>PC</b> version of <b>Chrome</b> or <b>Edge</b> browser.</div>
 </body>
 </html>
