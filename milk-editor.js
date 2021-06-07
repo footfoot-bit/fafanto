@@ -518,65 +518,61 @@ document.addEventListener('DOMContentLoaded', () => {
         return doc;
       };
       checkRequiredElems(doc) {
-        let requiredElems = ['title','[rel=stylesheet]','script','[name=description]','[rel=icon]','.blog-title'];
+        let requiredElems = ['title','[rel=stylesheet]','script','[name=description]','[rel=icon]','.header','.blog-title','.footer'];
         if (this.req === true) required.concat(this.req);
         for (const elem of requiredElems) {
           if (doc.querySelector(elem) === null) dialog.checkTag(elem);
         }
       };
-      addTitle(doc,value) {
-        doc.head.querySelector('title').textContent = value;
-        doc.head.querySelector('[property="og:title"]').setAttribute('content',value);
-      };
-      addDescription(doc,value) {
-        doc.head.querySelector('[name=description]').setAttribute('content',value);
-        doc.head.querySelector('[property="og:description"]').setAttribute('content',value);
-      };
-      async addsCommonContent(doc) {
-        // doc.head.querySelector('title').textContent = CNFBT.value;
+      async addsCommonElements(doc) {
         const elems = [
           ['[rel=stylesheet]','href',`${this.path}style.css`],
           ['script','src',`${this.path}main.js`],
           ['[rel=icon]','href',`${this.path}favicon.svg`],
-          ['[property="og:url"]','content',normal.url() + this.fileName],
-          ['[property="og:site_name"]','content',CNFBT.value]
+          ['[property="og:site_name"]','content',CNFBT.value],
+          ['[property="og:image"]','content',normal.url() + CONF.elements['img'].value]
         ];
         for (const elem of elems) doc.head.querySelector(elem[0]).setAttribute(elem[1],elem[2]);
         doc.querySelector('.blog-title').innerHTML = `<a href="${this.path}">${CNFBT.value}</a>`;
         for (const page of pageChest.values()) {
           if (page.kind === 'file') {
-            const pdoc = await new HandlePage(page.name).document();
-            const title = pdoc.querySelector('.title')?.textContent?? '';
+            const pfile = new HandlePage(page.name);
+            const pdoc = await pfile.document();
+            const title = pfile.loadTitle(pdoc);
             doc.querySelector('.page-list').innerHTML += `<li><a href="${this.path}page/${page.name}">${title}</a></li>\n`;
           }
         }
         doc.querySelector('.goto-allpost a')?.setAttribute('href',`${this.path}allpost.html`);
         doc.querySelector('.footer')?.insertAdjacentHTML('afterbegin',`©${today.syear()} <a href="${this.path}">${CNFBT.value}</a>`);
       };
-      async makeHTML() {
+      addHeadTitle(doc,value) {
+        doc.head.querySelector('title').textContent = value;
+        doc.head.querySelector('[property="og:title"]').setAttribute('content',value);
+      };
+      addBodyTitle(doc,value) {
+        doc.querySelector('.title').insertAdjacentHTML('afterbegin',value);
+      };
+      addDescription(doc,value) {
+        doc.head.querySelector('[name=description]').setAttribute('content',value);
+        doc.head.querySelector('[property="og:description"]').setAttribute('content',value);
+      };
+      addOGPUrl(doc,value) {
+        doc.head.querySelector('[property="og:url"]').setAttribute('content',value);
+      };
+      async makeHTMLCommon() {
         const doc = this.removeTempIf();
         this.checkRequiredElems(doc);
-        await this.addsCommonContent(doc);
-        this.addTitle(doc,`${this.title.value} - ${CNFBT.value}`);
-        this.addDescription(doc,this.desc.value);
+        await this.addsCommonElements(doc);
         return doc;
       };
-      // addOGP(doc) {
-      //   // const url = normal.url() + this.fileName;
-      //   const ogs = [['title',this.title.value]];
-      //   for (const og of ogs) {
-      //     const pro = doc.head.querySelector(`[property="og:${og[0]}"]`);
-      //     pro.setAttribute('content',og[1]);
-      //   }
-      // };
       documentToHTMLstr(doc) {
-        const t = doc.documentElement.outerHTML; //convert document to text
-        const r = t.replace(/^\s*[\r\n]/gm, ''); //remove white line
-        return `<!DOCTYPE html>\n${r}`;
+        const str = doc.documentElement.outerHTML;
+        const rstr = str.replace(/^\s*[\r\n]/gm, ''); //remove white line
+        return `<!DOCTYPE html>\n${rstr}`;
       };
       async preview() {
-        const doc = await this.makeHTML();
-        await this.addsHTML(doc);
+        const doc = await this.makeHTMLCommon();
+        await this.makeHTMLOriginal(doc);
         const elems =[['[rel=stylesheet]','href','blog/style.css'],['script','src','blog/main.js'],['[rel=icon]','href','blog/favicon.svg']];
         for (const elem of elems ) doc.head.querySelector(elem[0]).setAttribute(elem[1],elem[2]);
         const imgs = doc.querySelectorAll('img');
@@ -590,9 +586,8 @@ document.addEventListener('DOMContentLoaded', () => {
         ope.document.write(str);
       };
       async save() {
-        const doc = await this.makeHTML();
-        await this.addsHTML(doc);
-        // await this.addOGP(doc);
+        const doc = await this.makeHTMLCommon();
+        await this.makeHTMLOriginal(doc);
         const str = this.documentToHTMLstr(doc);
         await this.write(str);
       };
@@ -607,10 +602,11 @@ document.addEventListener('DOMContentLoaded', () => {
         this.desc = CONF.elements['index-desc'];
         this.req = ['.latest-posts'];
         this.path = './';
-        this.img = 'favicon.svg';
       };
-      async addsHTML(doc) {
-        this.addTitle(doc,`${CNFBT.value} - ${this.title.value}`);
+      async makeHTMLOriginal(doc) {
+        this.addHeadTitle(doc,`${CNFBT.value} - ${this.title.value}`);
+        this.addDescription(doc,this.desc.value);
+        this.addOGPUrl(doc,normal.url());
         const lat = doc.querySelector('.latest-posts');
         const num = CONF.elements['latest-posts'].value;
         if (num > 0 && num < 21) await postLister.insertLatestNumber(num,lat);
@@ -632,11 +628,12 @@ document.addEventListener('DOMContentLoaded', () => {
         this.desc = CONF.elements['allpost-desc'];
         this.req = ['.allpost-btns','.latest-posts'];
         this.path = './';
-        this.img = 'favicon.svg';
       };
-      async addsHTML(doc) {
-        // doc.head.querySelector('title').insertAdjacentHTML('afterbegin',`${this.title.value} - `);
-        doc.querySelector('.title').textContent = this.title.value;
+      async makeHTMLOriginal(doc) {
+        this.addHeadTitle(doc,`${this.title.value} - ${CNFBT.value}`);
+        this.addDescription(doc,this.desc.value);
+        this.addOGPUrl(doc,normal.url() + this.fileName);
+        this.addBodyTitle(doc,this.title.value);
         const mabp = doc.querySelector('.allpost-btns').querySelectorAll('*');
         const flds = postLister.sortLatestFolder();
         for (const fld of flds) mabp[0].insertAdjacentHTML('beforeend',`<U data-btn="fld-${fld}" class="on">${fld}</U>`);
@@ -667,11 +664,12 @@ document.addEventListener('DOMContentLoaded', () => {
         this.title = CONF.elements['search-title'];
         this.desc = CONF.elements['search-desc'];
         this.path = './';
-        this.img = 'favicon.svg';
       };
-      addsHTML(doc) {
-        // doc.head.querySelector('title').insertAdjacentHTML('afterbegin',`${this.title.value} - `);
-        doc.querySelector('.title').textContent = this.title.value;
+      makeHTMLOriginal(doc) {
+        this.addHeadTitle(doc,`${this.title.value} - ${CNFBT.value}`);
+        this.addDescription(doc,this.desc.value);
+        this.addOGPUrl(doc,normal.url() + this.fileName);
+        this.addBodyTitle(doc,this.title.value);
       };
     };
     const index = new HandleIndex();
@@ -687,38 +685,29 @@ document.addEventListener('DOMContentLoaded', () => {
         const result = this.chest.findIndex(({name}) => name === this.fileName);
         if (result !== -1) dialog.nameExists();
       };
-      addTitle(doc,value) {
-        // doc.head.querySelector('title').insertAdjacentHTML('afterbegin',value);
-        // doc.head.querySelector('[property="og:title"]').setAttribute('content',value);
-        doc.querySelector('.title').insertAdjacentHTML('afterbegin',value);
+      loadDescription(doc) {
+        return doc.head.querySelector('[name=description]')?.getAttribute('contents')?? '';
+      };
+      loadTitle(doc) {
+        return doc.querySelector('.title')?.textContent?? '';
+      };
+      loadContents(doc) {
+        return doc.querySelector('.contents')?.innerHTML?? '';
       };
       addContents(doc,value) {
           doc.querySelector('.contents').insertAdjacentHTML('afterbegin',value);
       };
-      async commonTransfer(doc,beforeDoc) {
-        const desc = beforeDoc.head.querySelector('[name=description][content]')?.content?? '';
-        const conts = beforeDoc.querySelector('.contents')?.innerHTML?? '';
-        const title = beforeDoc.querySelector('.title')?.textContent?? '';
-        this.addDescription(doc,desc);
-        this.addTitle(doc,title);
-        this.addContents(doc,conts);
-        const src = beforeDoc.querySelector('.top-image img')?.getAttribute('src')?? '';
-        // doc.querySelector('.contents').innerHTML = conts;
-        // for (const cnt of [['title',`${title} - `],['.title',title]]) doc.querySelector(cnt[0]).insertAdjacentHTML('afterbegin',cnt[1]);
-        // doc.head.querySelector('[name=description]').setAttribute('content',desc);
-        //OGP
-        // const url = normal.url() + this.fileName;
-        // const ogs = [['url',url],['site_name',CNFBT.value],['description',desc]];
-        // for (const og of ogs) doc.head.querySelector(`[property="og:${og[0]}"]`).setAttribute('content',og[1]);
-        if (src !== '') {
-          const img = src.replace(this.path,normal.url());
-          doc.head.querySelector('[property="og:image"]').setAttribute('content',img);
-        }
-        // const ogs = [['title',title],['site_name',CNFBT.value],['description',desc],['image',normal.url() + this.img]];
-        // for (const og of ogs) doc.head.insertAdjacentHTML('beforeend',`<meta property="og:${og[0]}" content="${og[1]}" />\n`);
+      commonTransfer(doc,beforeDoc) {
+        // const desc = beforeDoc.head.querySelector('[name=description][content]')?.content?? '';
+        // const conts = beforeDoc.querySelector('.contents')?.innerHTML?? '';
+        // const title = beforeDoc.querySelector('.title')?.textContent?? '';
+        this.addDescription(doc,this.loadDescription(beforeDoc));
+        this.addHeadTitle(doc,this.loadTitle(beforeDoc) + CNFBT.value);
+        this.addBodyTitle(doc,this.loadTitle(beforeDoc));
+        this.addContents(doc,this.loadContents(beforeDoc));
       };
       async saveTransfer() {
-        const doc = await this.makeHTML();
+        const doc = await this.makeHTMLCommon();
         await this.transferContent(doc);
         const str = this.documentToHTMLstr(doc);
         await this.write(str);
@@ -734,54 +723,65 @@ document.addEventListener('DOMContentLoaded', () => {
         this.time = POST.querySelectorAll(`[data-name="${this.fileName}"] input`)[1];
         this.ta = POST.elements['ta'];
         this.img = POST.elements['img'];
+        this.tags = POST.elements['tags'];
         this.desc = POST.elements['desc'];
       };
       async parentName() {
         const rsv = await posHandle.resolve(this.handle());
         return rsv[0];
       };
-      async loadContents() {
+      async fullURL() {
+        const fld = await this.parentName();
+        return `${normal.url()}post/${fld}/${this.fileName}`;
+      };
+      loadImg(doc) {
+        const src = doc.querySelector('.top-image img')?.getAttribute('src')?? '';
+        return src.replace(this.path,'');
+      };
+      loadTime(doc) {
+        return doc.querySelector('time')?.getAttribute('datetime')?? '';
+      };
+      loadTags(doc) {
+        return doc.querySelector('.tags')?.innerHTML?? '';
+      };
+      async loadElements() {
         const doc = await this.document();
-        this.ta.value = doc.querySelector('.contents')?.innerHTML?? '';
-        const imgt = doc.querySelector('.top-image img')?.getAttribute('src')?? '';
-        this.img.value = imgt.replace(this.path,'');
-        this.desc.value = doc.head.querySelector('[name=description][content]')?.content?? '';
+        this.ta.value = this.loadContents(doc);
+        this.img.value = this.loadImg(doc);
+        this.desc.value = this.loadDescription(doc);
+        this.tags.value = this.loadTags(doc);
+        const spans = doc.querySelectorAll('.tags span');
+        for (const span of spans) POSTG.querySelector(`[data-tag="${span.textContent}"]`)?.setAttribute('class','on');
         for (const part of POSPA) {
           if (doc.querySelector(`.${part}`) === null) POST.elements[part].checked = false;
         }
-        const ss = doc.querySelectorAll('.tags span');
-        for (const s of ss) {
-          POSTG.querySelector(`[data-tag="${s.textContent}"]`)?.setAttribute('class','on');
-        }
       };
       addTime(doc,value) {
-        const time = doc.querySelectorAll('time');
-        // const pTime = this.time.value;
-        time[0].innerHTML = today.convertFormat(value);
-        time[0].setAttribute('datetime',value);
+        const elems = doc.querySelectorAll('time');
+        if (elems[0] === null) return;
+        elems[0].innerHTML = today.convertFormat(value);
+        elems[0].setAttribute('datetime',value);
         if (today.ymd() === value.slice(0,10)) {
-          time[1].remove();
+          elems[1].remove();
           return;
         }
         const cTime = today.convertFormat(today.ymdAndTime())
-        time[1].insertAdjacentHTML('beforeend',cTime);
-        time[1].setAttribute('datetime',today.ymdAndTime());
+        elems[1].insertAdjacentHTML('beforeend',cTime);
+        elems[1].setAttribute('datetime',today.ymdAndTime());
       };
       addTopImg(doc,value,title) {
         const elem = doc.querySelector('.top-image');
         if (elem === null) return;
-        // const str = this.img.value;
         if (value == false) {
           elem.remove();
           return;
         }
-        // const input = POST.querySelector(`[data-name="${this.fileName}"] input`);
         elem.innerHTML = `<img src="${this.path}${value}"${title}"/>`;
+        doc.head.querySelector('[property="og:image"]').setAttribute('content',normal.url() + value);
       };
       addAuther(doc,value) {
         const elems = doc.querySelectorAll('.auther');
-        if (elems === null) return;
-        // const str = CONF.elements['auther'].value;
+        if (elems[0] === null) return;
         if (value == false) {
           for (const elem of elems) elem.remove();
           return;
@@ -790,21 +790,23 @@ document.addEventListener('DOMContentLoaded', () => {
       };
       addTags(doc,value) {
         const elems = doc.querySelectorAll('.tags');
-        if (elems === null) return;
-        const tags = POSTG.querySelectorAll('.on');
-        if (tags.length == false) {
+        if (elems[0] === null) return;
+        if (value == false) {
           for (const elem of elems) elem.remove();
           return;
         }
-        for (const elem of elems) for (const tag of tags) elem.innerHTML += `<span>${tag.textContent}</span>`;
+        for (const elem of elems) elem.innerHTML = value;
+      };
+      checkParts() {
+
       };
       tableOfContents(doc) {
         const elem = doc.querySelector('.table-of-contents');
         if (elem === null) return;
-        if (POST.elements['table-of-contents'].checked === false) {
-          elem.remove();
-          return;
-        }
+        // if (POST.elements['table-of-contents'].checked === false) {
+        //   elem.remove();
+        //   return;
+        // }
         const cnt = doc.querySelector('.contents');
         const h23 = cnt.querySelectorAll('h2,h3');
         for (let i = 0; i < h23.length; i++) {
@@ -814,37 +816,39 @@ document.addEventListener('DOMContentLoaded', () => {
           h23[i].setAttribute('id',`index${i}`);
         }
       };
-      comment(doc) {
-        const elem = doc.querySelector('.comment');
-        if (elem === null) return;
-        if (POST.elements['comment'].checked === false) elem.remove();
-      };
-      freespace(doc) {
-        const elem = doc.querySelector('.freespacet');
-        if (elem === null) return;
-        if (POST.elements['freespace'].checked === false) elem.remove();
-      };
-      async addsHTML(doc) {
-        // this.addInputs(doc);
-        this.addTitle(doc,this.title.value);
+      // comment(doc) {
+      //   const elem = doc.querySelector('.comment');
+      //   if (elem === null) return;
+      //   if (POST.elements['comment'].checked === false) elem.remove();
+      // };
+      // freespace(doc) {
+      //   const elem = doc.querySelector('.freespacet');
+      //   if (elem === null) return;
+      //   if (POST.elements['freespace'].checked === false) elem.remove();
+      // };
+      async makeHTMLOriginal(doc) {
+        this.addHeadTitle(doc,`${this.title.value} - ${CNFBT.value}`);
+        this.addDescription(doc,this.desc.value);
+        this.addBodyTitle(doc,this.title.value);
         this.addContents(doc,this.ta.value);
         this.addTime(doc,this.time.value);
         this.addTopImg(doc,this.img.value,this.title.value);
         this.addAuther(doc,CONF.elements['auther'].value);
-        this.addTags(doc);
+        this.addTags(doc,this.tags.value);
+        for(const part of POSPA) {
+          if (POST.elements[part].checked === false) doc.querySelector(`.${part}`).remove();
+        }
         this.tableOfContents(doc);
-        this.comment(doc);
-        this.freespace(doc);
+        // this.comment(doc);
+        // this.freespace(doc);
         // await postLister.insertRelatedPost(doc);
       };
-      async addOGP(doc) {
-        const fld = await this.parentName();
-        const url = `${normal.url()}post/${fld}/${this.fileName}`;
-        doc.head.querySelector('[property="og:url"]').setAttribute('content',url);
-        if (this.img.value !== '') {
-          const img =  normal.url() + this.img.value;
-          doc.head.querySelector('[property="og:image"]').setAttribute('content',img);
-        }
+      async save() {
+        const doc = await this.makeHTMLCommon();
+        await this.makeHTMLOriginal(doc);
+        this.addOGPUrl(doc,await this.fullURL());
+        const str = this.documentToHTMLstr(doc);
+        await this.write(str);
       };
       async saveNew() {
         this.checkNewFileName();
@@ -857,40 +861,48 @@ document.addEventListener('DOMContentLoaded', () => {
       async transferContent(doc) {
         const beforeDoc = await this.document();
         await this.commonTransfer(doc,beforeDoc);
-        const swaps = ['.top-image','.table-of-contents'];
-        for (const swap of swaps) {
-          if (doc.querySelector(swap) !== null) {
-            const cnt = beforeDoc.querySelector(swap)?.innerHTML?? '';
-            doc.querySelector(swap).innerHTML = cnt;
-          }
-        }
-        const times = ['time[itemprop=datepublished]','time[itemprop=modified]'];
-        for (const time of times) {
-          if (doc.querySelector(time) !== null) {
-            const cnt = beforeDoc.querySelector(time)?.innerHTML?? '';
-            doc.querySelector(time).innerHTML = cnt;
-            const date = beforeDoc.querySelector(time)?.getAttribute('datetime')?? '';
-            doc.querySelector(time).setAttribute('datetime',date);
-          }
-        }
-        const parts = ['.comment','.freespace'];
-        for (const part of parts) {
-          if (beforeDoc.querySelector(part) === null) doc.querySelector(part).remove();
-        }
-        doc.querySelector('.auther').textContent = CONF.elements['auther'].value;
-        //OGP
-        const fld = await this.parentName();
-        const ful = `${normal.url()}post/${fld}/${this.fileName}`;
-        doc.head.insertAdjacentHTML('beforeend',`<meta property="og:url" content="${ful}" />\n`);
-        const timg = beforeDoc.querySelector('.top-image')?.innerHTML?? '';
-        if (timg !== '') {
-          const dom = DOMPA.parseFromString(timg,'text/html');
-          const src = dom.querySelector('img')?.getAttribute('src')?? '';
-          if (src !== '') {
-            const path = src.replace('../../','');
-            doc.head.querySelector('[property="og:image"]').setAttribute('content',path)
-          }
-        }
+        this.addOGPUrl(doc,await this.fullURL());
+        this.addTime(doc,this.loadTime(beforeDoc));
+        this.addTopImg(doc,this.loadImg(beforeDoc),this.loadTitle(beforeDoc));
+        this.addAuther(doc,CONF.elements['auther'].value);
+        this.addTags(doc,this.loadTags(beforeDoc));
+        this.tableOfContents(doc);
+        this.comment(doc);
+        this.freespace(doc);
+        // const swaps = ['.top-image','.table-of-contents'];
+        // for (const swap of swaps) {
+        //   if (doc.querySelector(swap) !== null) {
+        //     const cnt = beforeDoc.querySelector(swap)?.innerHTML?? '';
+        //     doc.querySelector(swap).innerHTML = cnt;
+        //   }
+        // }
+        // const times = ['time[itemprop=datepublished]','time[itemprop=modified]'];
+        // for (const time of times) {
+        //   if (doc.querySelector(time) !== null) {
+        //     const cnt = beforeDoc.querySelector(time)?.innerHTML?? '';
+        //     doc.querySelector(time).innerHTML = cnt;
+        //     const date = beforeDoc.querySelector(time)?.getAttribute('datetime')?? '';
+        //     doc.querySelector(time).setAttribute('datetime',date);
+        //   }
+        // }
+        // const parts = ['.comment','.freespace'];
+        // for (const part of parts) {
+        //   if (beforeDoc.querySelector(part) === null) doc.querySelector(part).remove();
+        // }
+        // doc.querySelector('.auther').textContent = CONF.elements['auther'].value;
+        // //OGP
+        // const fld = await this.parentName();
+        // const ful = `${normal.url()}post/${fld}/${this.fileName}`;
+        // doc.head.insertAdjacentHTML('beforeend',`<meta property="og:url" content="${ful}" />\n`);
+        // const timg = beforeDoc.querySelector('.top-image')?.innerHTML?? '';
+        // if (timg !== '') {
+        //   const dom = DOMPA.parseFromString(timg,'text/html');
+        //   const src = dom.querySelector('img')?.getAttribute('src')?? '';
+        //   if (src !== '') {
+        //     const path = src.replace('../../','');
+        //     doc.head.querySelector('[property="og:image"]').setAttribute('content',path)
+        //   }
+        // }
       };
     };
     class HandlePage extends HandleArticle {
@@ -903,24 +915,18 @@ document.addEventListener('DOMContentLoaded', () => {
         this.ta = PAGE.elements['ta'];
         this.desc = PAGE.elements['desc'];
       };
-      async loadContents() {
+      fullURL() {
+        return `${normal.url()}page/${this.fileName}`;
+      };
+      async loadElements() {
         const doc = await this.document();
-        this.ta.value = doc.querySelector('.contents')?.innerHTML?? '';
-        this.desc.value = doc.head.querySelector('[name=description][content]')?.content?? '';
+        this.ta.value = this.loadContents(doc);
+        this.desc.value = this.loadDescription(doc);
       };
-      // addInputs(doc) {
-      //   const items = [['title',`${this.title.value} - `],['.title',this.title.value],['.contents',this.ta.value]];
-      //   for (const item of items) doc.querySelector(item[0]).insertAdjacentHTML('afterbegin',item[1]);
-      // };
-
-      addsHTML(doc) {
-        // this.addInputs(doc)
-        this.addTitle(doc,this.title.value);
+      makeHTMLOriginal(doc) {
+        this.addHeadTitle(doc,this.title.value);
+        this.addOGPUrl(doc,this.fullURL());
         this.addContents(doc,this.ta.value);
-      };
-      addOGP(doc) {
-        const url = `${normal.url()}page/${this.fileName}`;
-        doc.head.querySelector('[property="og:url"]').setAttribute('content',url);
       };
       async saveNew() {
         this.checkNewFileName();
@@ -932,8 +938,7 @@ document.addEventListener('DOMContentLoaded', () => {
       async transferContent(doc) {
         const beforeDoc = await this.document();
         await this.commonTransfer(doc,beforeDoc);
-        const url = `${normal.url()}page/${this.fileName}`;
-        doc.head.insertAdjacentHTML('beforeend',`<meta property="og:url" content="${url}" />\n`);
+        doc.head.insertAdjacentHTML('beforeend',`<meta property="og:url" content="${this.fullURL()}" />\n`);
       };
     };
     //post lister obj
@@ -1173,8 +1178,13 @@ document.addEventListener('DOMContentLoaded', () => {
       await postLister.addListForApp(folderName);
     });
     POST.elements['img-open'].onclick = () => new ImgList(POST).addImgForTop();
+    //click tags
     POSTG.onclick = (e) => {
       if (e.target.tagName === 'I') e.target.classList.toggle('on');
+      const ons = POSTG.querySelectorAll('.on');
+      let tagsHtml = '';
+      for(const on of ons) tagsHtml += `<span>${on.textContent}</span>`
+      POST.elements['tags'].value = tagsHtml;
     };
     ( async () => {
     //Post, Page
@@ -1189,7 +1199,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const fileName = e.target.parentNode.dataset.name;
             const fs = document.querySelectorAll(`#${elem[3]}-list fieldset:not([data-name="${fileName}"])`);
             for (const f of fs) f.classList.toggle('hide');
-            if (elem[1].classList.contains('hide') === false) await new elem[4](fileName).loadContents();
+            if (elem[1].classList.contains('hide') === false) await new elem[4](fileName).loadElements();
           }
         };
         //click new button
@@ -1551,7 +1561,7 @@ document.addEventListener('DOMContentLoaded', () => {
     //     const fileName = e.target.parentNode.dataset.name;
     //     const fs = document.querySelectorAll(`#post-list fieldset:not([data-name="${fileName}"])`);
     //     for (const f of fs) f.classList.toggle('hide');
-    //     if (POSBO.classList.contains('hide') === false) await new HandlePost(fileName).loadContents();
+    //     if (POSBO.classList.contains('hide') === false) await new HandlePost(fileName).loadElements();
     //   }
     // };
     // POSNW.elements['btn'].onclick = (e) => {
