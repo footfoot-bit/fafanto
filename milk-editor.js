@@ -545,18 +545,18 @@ document.addEventListener('DOMContentLoaded', () => {
         doc.querySelector('.goto-allpost a')?.setAttribute('href',`${this.path}allpost.html`);
         doc.querySelector('.footer')?.insertAdjacentHTML('afterbegin',`©${today.syear()} <a href="${this.path}">${CNFBT.value}</a>`);
       };
-      addHeadTitle(doc,value) {
+      insertHeadTitle(doc,value) {
         doc.head.querySelector('title').textContent = value;
         doc.head.querySelector('[property="og:title"]').setAttribute('content',value);
       };
-      addBodyTitle(doc,value) {
+      insertBodyTitle(doc,value) {
         doc.querySelector('.title').insertAdjacentHTML('afterbegin',value);
       };
-      addDescription(doc,value) {
+      insertDescription(doc,value) {
         doc.head.querySelector('[name=description]').setAttribute('content',value);
         doc.head.querySelector('[property="og:description"]').setAttribute('content',value);
       };
-      addOGPUrl(doc,value) {
+      insertOGPUrl(doc,value) {
         doc.head.querySelector('[property="og:url"]').setAttribute('content',value);
       };
       async makeHTMLCommon() {
@@ -604,9 +604,9 @@ document.addEventListener('DOMContentLoaded', () => {
         this.path = './';
       };
       async makeHTMLOriginal(doc) {
-        this.addHeadTitle(doc,`${CNFBT.value} - ${this.title.value}`);
-        this.addDescription(doc,this.desc.value);
-        this.addOGPUrl(doc,normal.url());
+        this.insertHeadTitle(doc,`${CNFBT.value} - ${this.title.value}`);
+        this.insertDescription(doc,this.desc.value);
+        this.insertOGPUrl(doc,normal.url());
         const lat = doc.querySelector('.latest-posts');
         const num = CONF.elements['latest-posts'].value;
         if (num > 0 && num < 21) await postLister.insertLatestNumber(num,lat);
@@ -630,10 +630,10 @@ document.addEventListener('DOMContentLoaded', () => {
         this.path = './';
       };
       async makeHTMLOriginal(doc) {
-        this.addHeadTitle(doc,`${this.title.value} - ${CNFBT.value}`);
-        this.addDescription(doc,this.desc.value);
-        this.addOGPUrl(doc,normal.url() + this.fileName);
-        this.addBodyTitle(doc,this.title.value);
+        this.insertHeadTitle(doc,`${this.title.value} - ${CNFBT.value}`);
+        this.insertDescription(doc,this.desc.value);
+        this.insertOGPUrl(doc,normal.url() + this.fileName);
+        this.insertBodyTitle(doc,this.title.value);
         const mabp = doc.querySelector('.allpost-btns').querySelectorAll('*');
         const flds = postLister.sortLatestFolder();
         for (const fld of flds) mabp[0].insertAdjacentHTML('beforeend',`<U data-btn="fld-${fld}" class="on">${fld}</U>`);
@@ -666,10 +666,10 @@ document.addEventListener('DOMContentLoaded', () => {
         this.path = './';
       };
       makeHTMLOriginal(doc) {
-        this.addHeadTitle(doc,`${this.title.value} - ${CNFBT.value}`);
-        this.addDescription(doc,this.desc.value);
-        this.addOGPUrl(doc,normal.url() + this.fileName);
-        this.addBodyTitle(doc,this.title.value);
+        this.insertHeadTitle(doc,`${this.title.value} - ${CNFBT.value}`);
+        this.insertDescription(doc,this.desc.value);
+        this.insertOGPUrl(doc,normal.url() + this.fileName);
+        this.insertBodyTitle(doc,this.title.value);
       };
     };
     const index = new HandleIndex();
@@ -686,7 +686,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (result !== -1) dialog.nameExists();
       };
       loadDescription(doc) {
-        return doc.head.querySelector('[name=description]')?.getAttribute('contents')?? '';
+        return doc.head.querySelector('[name=description][content]')?.content?? '';
       };
       loadTitle(doc) {
         return doc.querySelector('.title')?.textContent?? '';
@@ -694,21 +694,20 @@ document.addEventListener('DOMContentLoaded', () => {
       loadContents(doc) {
         return doc.querySelector('.contents')?.innerHTML?? '';
       };
-      addContents(doc,value) {
+      insertContents(doc,value) {
           doc.querySelector('.contents').insertAdjacentHTML('afterbegin',value);
       };
-      commonTransfer(doc,beforeDoc) {
-        // const desc = beforeDoc.head.querySelector('[name=description][content]')?.content?? '';
-        // const conts = beforeDoc.querySelector('.contents')?.innerHTML?? '';
-        // const title = beforeDoc.querySelector('.title')?.textContent?? '';
-        this.addDescription(doc,this.loadDescription(beforeDoc));
-        this.addHeadTitle(doc,this.loadTitle(beforeDoc) + CNFBT.value);
-        this.addBodyTitle(doc,this.loadTitle(beforeDoc));
-        this.addContents(doc,this.loadContents(beforeDoc));
+      transferCommon(doc,beforeDoc) {
+        this.insertDescription(doc,this.loadDescription(beforeDoc));
+        this.insertHeadTitle(doc,`${this.loadTitle(beforeDoc)} - ${CNFBT.value}`);
+        this.insertBodyTitle(doc,this.loadTitle(beforeDoc));
+        this.insertContents(doc,this.loadContents(beforeDoc));
       };
       async saveTransfer() {
         const doc = await this.makeHTMLCommon();
-        await this.transferContent(doc);
+        const beforeDoc = await this.document();
+        await this.transferCommon(doc,beforeDoc);
+        await this.transferOriginal(doc,beforeDoc);
         const str = this.documentToHTMLstr(doc);
         await this.write(str);
       };
@@ -756,7 +755,7 @@ document.addEventListener('DOMContentLoaded', () => {
           if (doc.querySelector(`.${part}`) === null) POST.elements[part].checked = false;
         }
       };
-      addTime(doc,value) {
+      insertTime(doc,value) {
         const elems = doc.querySelectorAll('time');
         if (elems[0] === null) return;
         elems[0].innerHTML = today.convertFormat(value);
@@ -769,7 +768,7 @@ document.addEventListener('DOMContentLoaded', () => {
         elems[1].insertAdjacentHTML('beforeend',cTime);
         elems[1].setAttribute('datetime',today.ymdAndTime());
       };
-      addTopImg(doc,value,title) {
+      insertImg(doc,value,title) {
         const elem = doc.querySelector('.top-image');
         if (elem === null) return;
         if (value == false) {
@@ -779,7 +778,7 @@ document.addEventListener('DOMContentLoaded', () => {
         elem.innerHTML = `<img src="${this.path}${value}"${title}"/>`;
         doc.head.querySelector('[property="og:image"]').setAttribute('content',normal.url() + value);
       };
-      addAuther(doc,value) {
+      insertAuther(doc,value) {
         const elems = doc.querySelectorAll('.auther');
         if (elems[0] === null) return;
         if (value == false) {
@@ -788,7 +787,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         for (const elem of elems) elem.innerHTML = value;
       };
-      addTags(doc,value) {
+      insertTags(doc,value) {
         const elems = doc.querySelectorAll('.tags');
         if (elems[0] === null) return;
         if (value == false) {
@@ -797,16 +796,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         for (const elem of elems) elem.innerHTML = value;
       };
-      checkParts() {
-
-      };
-      tableOfContents(doc) {
+      editParts(doc) {
+        for(const part of POSPA) {
+          if (POST.elements[part].checked === false) doc.querySelector(`.${part}`).remove();
+        }
         const elem = doc.querySelector('.table-of-contents');
         if (elem === null) return;
-        // if (POST.elements['table-of-contents'].checked === false) {
-        //   elem.remove();
-        //   return;
-        // }
         const cnt = doc.querySelector('.contents');
         const h23 = cnt.querySelectorAll('h2,h3');
         for (let i = 0; i < h23.length; i++) {
@@ -816,37 +811,21 @@ document.addEventListener('DOMContentLoaded', () => {
           h23[i].setAttribute('id',`index${i}`);
         }
       };
-      // comment(doc) {
-      //   const elem = doc.querySelector('.comment');
-      //   if (elem === null) return;
-      //   if (POST.elements['comment'].checked === false) elem.remove();
-      // };
-      // freespace(doc) {
-      //   const elem = doc.querySelector('.freespacet');
-      //   if (elem === null) return;
-      //   if (POST.elements['freespace'].checked === false) elem.remove();
-      // };
       async makeHTMLOriginal(doc) {
-        this.addHeadTitle(doc,`${this.title.value} - ${CNFBT.value}`);
-        this.addDescription(doc,this.desc.value);
-        this.addBodyTitle(doc,this.title.value);
-        this.addContents(doc,this.ta.value);
-        this.addTime(doc,this.time.value);
-        this.addTopImg(doc,this.img.value,this.title.value);
-        this.addAuther(doc,CONF.elements['auther'].value);
-        this.addTags(doc,this.tags.value);
-        for(const part of POSPA) {
-          if (POST.elements[part].checked === false) doc.querySelector(`.${part}`).remove();
-        }
-        this.tableOfContents(doc);
-        // this.comment(doc);
-        // this.freespace(doc);
-        // await postLister.insertRelatedPost(doc);
+        this.insertHeadTitle(doc,`${this.title.value} - ${CNFBT.value}`);
+        this.insertDescription(doc,this.desc.value);
+        this.insertBodyTitle(doc,this.title.value);
+        this.insertContents(doc,this.ta.value);
+        this.insertTime(doc,this.time.value);
+        this.insertImg(doc,this.img.value,this.title.value);
+        this.insertAuther(doc,CONF.elements['auther'].value);
+        this.insertTags(doc,this.tags.value);
+        this.editParts(doc);
       };
       async save() {
         const doc = await this.makeHTMLCommon();
         await this.makeHTMLOriginal(doc);
-        this.addOGPUrl(doc,await this.fullURL());
+        this.insertOGPUrl(doc,await this.fullURL());
         const str = this.documentToHTMLstr(doc);
         await this.write(str);
       };
@@ -858,51 +837,18 @@ document.addEventListener('DOMContentLoaded', () => {
         await this.save();
         for (const input of POSNW.elements) input.value = '';
       };
-      async transferContent(doc) {
-        const beforeDoc = await this.document();
-        await this.commonTransfer(doc,beforeDoc);
-        this.addOGPUrl(doc,await this.fullURL());
-        this.addTime(doc,this.loadTime(beforeDoc));
-        this.addTopImg(doc,this.loadImg(beforeDoc),this.loadTitle(beforeDoc));
-        this.addAuther(doc,CONF.elements['auther'].value);
-        this.addTags(doc,this.loadTags(beforeDoc));
-        this.tableOfContents(doc);
-        this.comment(doc);
-        this.freespace(doc);
-        // const swaps = ['.top-image','.table-of-contents'];
-        // for (const swap of swaps) {
-        //   if (doc.querySelector(swap) !== null) {
-        //     const cnt = beforeDoc.querySelector(swap)?.innerHTML?? '';
-        //     doc.querySelector(swap).innerHTML = cnt;
-        //   }
-        // }
-        // const times = ['time[itemprop=datepublished]','time[itemprop=modified]'];
-        // for (const time of times) {
-        //   if (doc.querySelector(time) !== null) {
-        //     const cnt = beforeDoc.querySelector(time)?.innerHTML?? '';
-        //     doc.querySelector(time).innerHTML = cnt;
-        //     const date = beforeDoc.querySelector(time)?.getAttribute('datetime')?? '';
-        //     doc.querySelector(time).setAttribute('datetime',date);
-        //   }
-        // }
-        // const parts = ['.comment','.freespace'];
-        // for (const part of parts) {
-        //   if (beforeDoc.querySelector(part) === null) doc.querySelector(part).remove();
-        // }
-        // doc.querySelector('.auther').textContent = CONF.elements['auther'].value;
-        // //OGP
-        // const fld = await this.parentName();
-        // const ful = `${normal.url()}post/${fld}/${this.fileName}`;
-        // doc.head.insertAdjacentHTML('beforeend',`<meta property="og:url" content="${ful}" />\n`);
-        // const timg = beforeDoc.querySelector('.top-image')?.innerHTML?? '';
-        // if (timg !== '') {
-        //   const dom = DOMPA.parseFromString(timg,'text/html');
-        //   const src = dom.querySelector('img')?.getAttribute('src')?? '';
-        //   if (src !== '') {
-        //     const path = src.replace('../../','');
-        //     doc.head.querySelector('[property="og:image"]').setAttribute('content',path)
-        //   }
-        // }
+      async transferOriginal(doc,beforeDoc) {
+        // const beforeDoc = await this.document();
+        // await this.transferCommon(doc,beforeDoc);
+        this.insertOGPUrl(doc,await this.fullURL());
+        this.insertTime(doc,this.loadTime(beforeDoc));
+        this.insertImg(doc,this.loadImg(beforeDoc),this.loadTitle(beforeDoc));
+        this.insertAuther(doc,CONF.elements['auther'].value);
+        this.insertTags(doc,this.loadTags(beforeDoc));
+        for(const part of POSPA) {
+          const elem = beforeDoc.querySelector(`.${part}`);
+          if (elem === null) doc.querySelector(`.${part}`).remove();
+        }
       };
     };
     class HandlePage extends HandleArticle {
@@ -924,9 +870,11 @@ document.addEventListener('DOMContentLoaded', () => {
         this.desc.value = this.loadDescription(doc);
       };
       makeHTMLOriginal(doc) {
-        this.addHeadTitle(doc,this.title.value);
-        this.addOGPUrl(doc,this.fullURL());
-        this.addContents(doc,this.ta.value);
+        this.insertHeadTitle(doc,this.title.value);
+        this.insertDescription(doc,this.desc.value);
+        this.insertOGPUrl(doc,this.fullURL());
+        this.insertBodyTitle(doc,this.title.value);
+        this.insertContents(doc,this.ta.value);
       };
       async saveNew() {
         this.checkNewFileName();
@@ -935,10 +883,10 @@ document.addEventListener('DOMContentLoaded', () => {
         await this.save();
         for (const input of PAGNW.elements) input.value = '';
       };
-      async transferContent(doc) {
-        const beforeDoc = await this.document();
-        await this.commonTransfer(doc,beforeDoc);
-        doc.head.insertAdjacentHTML('beforeend',`<meta property="og:url" content="${this.fullURL()}" />\n`);
+      async transferOriginal(doc) {
+        // const beforeDoc = await this.document();
+        // await this.transferCommon(doc,beforeDoc);
+        this.insertOGPUrl(doc,this.fullURL());
       };
     };
     //post lister obj
@@ -954,13 +902,19 @@ document.addEventListener('DOMContentLoaded', () => {
         POST.elements['years'].value = today.syear();
       },
       makePostData: async(fileName,fldName) => {
-        const doc = await new HandlePost(fileName).document();
-        const tit = doc.querySelector('.title')?.textContent?? '';
-        const dti = doc.querySelector('time')?.getAttribute('datetime')?? '';
+        const post = new HandlePost(fileName);
+        const doc = await post.document();
+        // const tit = doc.querySelector('.title')?.textContent?? '';
+        const tit = post.loadTitle(doc);
+        // const dti = doc.querySelector('time')?.getAttribute('datetime')?? '';
+        const dti = post.loadTime(doc);
         const rti = dti.replace('T','.').replace(/[^0-9\.]/g,'');
-        const img = doc.querySelector('.top-image')?.innerHTML?? '';
-        const tgs = doc.querySelector('.tags')?.innerHTML?? '';
-        const dsc = doc.head.querySelector('[name=description][content]')?.content?? '';
+        const img = post.loadImg(doc);
+        // const img = post.querySelector('.top-image')?.innerHTML?? '';
+        // const tgs = doc.querySelector('.tags')?.innerHTML?? '';
+        const tgs = post.loadTags(doc);
+        // const dsc = doc.head.querySelector('[name=description][content]')?.content?? '';
+        const dsc = post.loadDescription(doc);
         return [fileName,tit,fldName,dti,rti,img,tgs,dsc];//0:file name, 1:title, 2:dirctory name, 3:datetime, 4:datetime(num), 5:image 6:tags 7:description
       },
       makeLatestData: async(folderName) => {
@@ -993,26 +947,10 @@ document.addEventListener('DOMContentLoaded', () => {
           POSLI.insertAdjacentHTML('beforeend',`<fieldset data-name="${d[0]}"><input value="${d[1]}"><input type="datetime-local" value="${d[3]}"><u>${d[0]}</u><button type="button" class="btn-edit"></button></fieldset>`);
         }
       },
-      insertRelatedPost: async(doc) => {
-        // const elem = doc.querySelector('.related-post');
-        // const text = POST.elements['related'].value;
-        // if (text == false) {
-        //   elem.remove();
-        //   return;
-        // }
-        // const names = text.replace(/,\s*$/,'').split(',');
-        // for (const name of names) {
-        //   console.log(name)
-        //   const fileName = name.replace(/　/g,' ').trim();
-        //   const parentName = await new HandlePost(fileName).parentName();
-        //   const data = await postLister.makePostData(fileName,parentName);
-        //   elem.insertAdjacentHTML('beforeend',`<div><a href="../../post/${data[4]}/${data[1]}">${data[6]}<h3>${data[3]}</h3><p><time>${data[2]}</time>${data[7]}</p></a></div>\n`);
-        // }
-      },
       insertLatestNumber: async(num,elem) => {
         const d = await postLister.makeLatestAllData();
         for (let i = 0; i < num; i++) {
-          let mid = d[i][5];
+          let mid = `<img src="${d[i][5]}" alt="${d[i][1]}" />`;
           if (d[i][5] === '' && d[i][7] !== '') mid = `<p class="headline">${d[i][7]}</p>`;
           elem.insertAdjacentHTML('beforeend',`<div><a href="./post/${d[i][2]}/${d[i][0]}"><h3>${d[i][1]}</h3>${mid}<p class="time"><time>${d[i][2]}</time>${d[i][6]}</p></a></div>\n`);
         }
@@ -1028,7 +966,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const spans = sht.querySelectorAll('span');
             for (const span of spans) classes += ` tag-${span.textContent.replace(/ /g,'-')}`;
           }
-          let mid = d[5];
+          let mid = `<img src="${d[5]}" alt="${d[1]}" />`;;
           if (d[5] === '' && d[7] !== '') mid = `<p class="headline">${d[8]}</p>`;
           elem.insertAdjacentHTML('beforeend',`<div class="${classes.trim()} fld-${d[2]}"><a href="./post/${d[2]}/${d[0]}"><h3>${d[1]}</h3>${mid}<p class="time"><time>${today.convertFormat(d[3])}</time>${d[6]}</p></a></div>\n`);
         }
@@ -1039,11 +977,12 @@ document.addEventListener('DOMContentLoaded', () => {
       PAGBO.classList.add('hide');
       PAGLI.textContent = '';
       PAGNW.elements['btn'].classList.remove('btn-close');
-      for (const file of pageChest.values()) {
-        if (file.kind === 'file') {
-          const pdoc = await new HandlePage(file.name).document();
-          const title = pdoc.querySelector('.title')?.textContent?? '';
-          PAGLI.insertAdjacentHTML('beforeend',`<fieldset data-name="${file.name}"><input value="${title}"><u>${file.name}</u><button type="button" class="btn-edit"></button></fieldset>`);
+      for (const page of pageChest.values()) {
+        if (page.kind === 'file') {
+          const pfile = new HandlePage(page.name);
+          const pdoc = await pfile.document();
+          const title = pfile.loadTitle(pdoc);
+          PAGLI.insertAdjacentHTML('beforeend',`<fieldset data-name="${page.name}"><input value="${title}"><u>${page.name}</u><button type="button" class="btn-edit"></button></fieldset>`);
         }
       }
     };
@@ -1074,7 +1013,7 @@ document.addEventListener('DOMContentLoaded', () => {
       };
     };
     class ImgList extends Editor {
-      addImg() {
+      addImgTag() {
         IMAGS.classList.toggle('hide');
         LINKS.classList.add('hide');
         IMAGS.querySelector('div').onclick = (e) => {
@@ -1084,7 +1023,7 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         }
       };
-      async addImgForTop() {
+      async addImgPath() {
         IMAGS.classList.toggle('hide');
         LINKS.classList.add('hide');
         ImgList.addFolders();
@@ -1177,7 +1116,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const folderName = POST.elements['years'].value;
       await postLister.addListForApp(folderName);
     });
-    POST.elements['img-open'].onclick = () => new ImgList(POST).addImgForTop();
+    POST.elements['img-open'].onclick = () => new ImgList(POST).addImgPath();
     //click tags
     POSTG.onclick = (e) => {
       if (e.target.tagName === 'I') e.target.classList.toggle('on');
@@ -1221,7 +1160,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById(`${elem[3]}-panel`).onclick = (e) => {
           if (e.target.tagName === 'I') new Editor().addTag(e.target.textContent);
           else if (e.target.title === 'link') new AList(elem[5]).addA();
-          else if (e.target.title === 'img') new ImgList(elem[5]).addImg();
+          else if (e.target.title === 'img') new ImgList(elem[5]).addImgTag();
           else if (e.target.tagName === 'U') new Custom(elem[5]).addCustomTag(e.target.title);
         };
         elem[1].classList.toggle('hide');
@@ -1279,6 +1218,24 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 });
+
+      // insertRelatedPost: async(doc) => {
+        // const elem = doc.querySelector('.related-post');
+        // const text = POST.elements['related'].value;
+        // if (text == false) {
+        //   elem.remove();
+        //   return;
+        // }
+        // const names = text.replace(/,\s*$/,'').split(',');
+        // for (const name of names) {
+        //   console.log(name)
+        //   const fileName = name.replace(/　/g,' ').trim();
+        //   const parentName = await new HandlePost(fileName).parentName();
+        //   const data = await postLister.makePostData(fileName,parentName);
+        //   elem.insertAdjacentHTML('beforeend',`<div><a href="../../post/${data[4]}/${data[1]}">${data[6]}<h3>${data[3]}</h3><p><time>${data[2]}</time>${data[7]}</p></a></div>\n`);
+        // }
+      // },
+
       // addInputs(doc) {
       //     const items = [['title',`${this.title.value} - `],['.title',this.title.value],['.contents',this.ta.value]];
       //     for (let item of items) {
@@ -1297,7 +1254,7 @@ document.addEventListener('DOMContentLoaded', () => {
       //     time[1].setAttribute('datetime',today.ymdAndTime());
       // };
 
-        // const items = [['.auther',this.addAuther],['.top-image',this.addTopImg],['.tags',this.addTags],['.table-of-contents',this.tableOfContents],['.comment',this.comment],['.freespace',this.freespace]];
+        // const items = [['.auther',this.insertAuther],['.top-image',this.insertImg],['.tags',this.insertTags],['.table-of-contents',this.tableOfContents],['.comment',this.comment],['.freespace',this.freespace]];
         // for (let item of items) {
         //   if (doc.querySelector(item[0]) !== null) item[1](doc);
         // }
@@ -1370,7 +1327,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // }
     //save files for first step
 
-      // addTime(doc) {
+      // insertTime(doc) {
       //   const inp = POST.querySelectorAll(`[data-name="${this.fileName}"] input`);
       //   console.log(inp)
       //   const time = doc.querySelectorAll('time');
@@ -1384,9 +1341,9 @@ document.addEventListener('DOMContentLoaded', () => {
       //   time[1].setAttribute('datetime',today.ymdAndTime());
       // };
 
-        // this.addTopImg(doc);
-        // this.addAuther(doc);
-        // this.addTags(doc);
+        // this.insertImg(doc);
+        // this.insertAuther(doc);
+        // this.insertTags(doc);
         // if (POST.elements['table-of-contents'].checked === true) this.ifTableOfContents(doc);
         // else doc.querySelector('.table-of-contents')?.remove() ?? '';
         // if (POST.elements['comment'].checked === false) doc.querySelector('.comment')?.remove() ?? '';
@@ -1584,13 +1541,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // document.getElementById('post-panel').onclick = (e) => {
     //   if (e.target.tagName === 'I') postEditor.addTag(e.target.textContent);
     //   else if (e.target.title === 'link') new AList(POST).addA();
-    //   else if (e.target.title === 'img') new ImgList(POST).addImg();
+    //   else if (e.target.title === 'img') new ImgList(POST).addImgTag();
     //   else if (e.target.tagName === 'U') new Custom(POST).addCustomTag(e.target.title);
     // };
     // document.getElementById('page-panel').onclick = (e) => {
     //   if (e.target.tagName === 'I') pageEditor.addTag(e.target.textContent);
     //   else if (e.target.title === 'link') new AList(PAGE).addA();
-    //   else if (e.target.title === 'img') new ImgList(PAGE).addImg();
+    //   else if (e.target.title === 'img') new ImgList(PAGE).addImgTag();
     //   else if (e.target.tagName === 'U') new Custom(PAGE).addCustomTag(e.target.title);
     // };
     // static lastmodToYmd(doc) {

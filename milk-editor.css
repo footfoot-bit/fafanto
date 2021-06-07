@@ -301,9 +301,6 @@ main {
     border: none;
 }
 /* Config, renews*/
-#config, #renews {
-    width: 80%;
-}
 #config input ,#config textarea,#config select {
     border: 1px solid #ddd;
     margin: 0;
@@ -329,10 +326,11 @@ main {
 }
 #config div {
     display: grid;
-    grid-template-columns: 20% 1fr;
+    grid-template-columns: 15% 1fr;
     column-gap: 2rem;
     row-gap: 2rem;
     padding-left: 10%;
+    padding-right: 20%;
 }
 #config textarea {
     min-height: 20vh;
