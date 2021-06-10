@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<title>Moji Craft - Create a static site with minimal energy.</title>
+<title>Pulp Notes - Create a static site with minimum energy.</title>
 <link href="milk-editor.css" rel="stylesheet">
 <script src="https://kit.fontawesome.com/8725e8d35f.js" crossorigin="anonymous"></script>
 <link rel="manifest" href="milk-editor.webmanifest">
@@ -11,7 +11,7 @@
 </head>
 <body>
 <script src="milk-editor.js"></script>
-  <h1>Moji Craft</h1>
+  <h1>Pulp Notes</h1>
   <nav>
     <div>
       <button type="button" id="home" title="Preview Index.html"></button><button type="button" id="map" title="Preview allpost.html"></button>
@@ -42,7 +42,7 @@
       <div id="post-box">
         <div class="box-left">
           <div id="post-panel"><i>b</i><i>small</i><i>mark</i><i>br</i><i>p</i><i>h2</i><i>h3</i><i>h4</i><i>a</i><i>ul</i><i>table</i><s title="link"></s><s title="img"></s></div>
-          <textarea name="ta" id="post-txt"></textarea>
+          <textarea name="ta" placeholder="Add contents" id="post-txt"></textarea>
         </div>
         <div class="box-right">
           <fieldset>
@@ -181,9 +181,10 @@
       </fieldset>
     </form>
     <form id="info">
-      <p>This app works completely offline, so if you want to work in a local environment, please download and use this page. </p>
-      <p>The functionality is minimal because I made it for my own use, but the code is easy to modify as it consists only of HTML CSS Pure Javascript. </p>
-      <p>You may want to add features yourself and create your own blog generator.</p>
+      <h3>What's this</h3>
+      <p>Pulp Notes is a lightweight web app that creates clean, static sites. </p>
+      <p>The difference between this and a static site generator is that it can be operated via GUI and can be used by non-engineers. </p>
+      <h3>Upadate</h3>
     </form>
   </main>
   <form id="links" class="hide">
@@ -196,7 +197,8 @@
     <button type="button" name="btn"></button>
     <div name="box"></div>
   </form>
-  <div id="guide">
+  <div id="guide" class="drag">
+    <p></p>
     <button type="button" id="open-dir">Select Folder</button>
     <a href="docs.html" target="_blank">Start Up Guide</a>
   </div>
