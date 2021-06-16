@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<title>Pulp Notes - Create a static site with minimum energy.</title>
-<link href="milk-editor.css" rel="stylesheet">
+<title>Pulpen | Create a static site with minimum energy.</title>
+<link href="pulpnotes.css" rel="stylesheet">
 <script src="https://kit.fontawesome.com/8725e8d35f.js" crossorigin="anonymous"></script>
-<link rel="manifest" href="milk-editor.webmanifest">
+<link rel="manifest" href="pulpnotes.webmanifest">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.gstatic.com">
-<link href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap" rel="stylesheet">
+<!-- <link rel="preconnect" href="https://fonts.gstatic.com"> -->
+<!-- <link href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap" rel="stylesheet"> -->
 </head>
 <body>
-<script src="milk-editor.js"></script>
-  <h1>Pulp Notes</h1>
+<script src="pulpnotes.js"></script>
+  <h1><img src="favicon.svg">Pulpen</h1>
   <nav>
     <div>
       <button type="button" id="home" title="Preview Index.html"></button><button type="button" id="map" title="Preview allpost.html"></button>
@@ -55,9 +55,12 @@
           <fieldset id="parts">
             <h3>Parts</h3>
             <div>
-              <label title="Create anchor links of h2 h3 or remove"><input type="checkbox" name="table-of-contents" checked>table of contents</label>
-              <label title='comment:class leave or remove'><input type="checkbox" name="comment" checked>comment</label>
-              <label title='freespace:class leave or remove'><input type="checkbox" name="freespace" checked>freespace</label>
+              <label title="teble-of-contents:class
+Create anchor links of h2 h3 or remove"><input type="checkbox" name="table-of-contents" checked>table of contents</label>
+              <label title='comment:class
+leave or remove'><input type="checkbox" name="comment" checked>comment</label>
+              <label title='freespace:class
+leave or remove'><input type="checkbox" name="freespace" checked>freespace</label>
             </div>
           </fieldset>
           <fieldset>
@@ -117,8 +120,8 @@
         <p class="desc">After changing the config, reload the app.</p>
         <h3>General</h3>
         <div>
-          <span>Blog Title</span><input name="blog-title" placeholder="blog title" type="text">
-          <span>Blog Subtitle</span><input name="blog-subtitle" placeholder="blog subtitle" type="text">
+          <span>Site Title</span><input name="site-title" placeholder="site title" type="text">
+          <span>Site Subtitle</span><input name="site-subtitle" placeholder="site subtitle" type="text">
           <span>URL</span><input name="url" placeholder="https://www.example.com/" type="text">
           <span>Image</span><input name="img" placeholder="image.png" type="text">
         </div>
@@ -198,7 +201,7 @@
     <div name="box"></div>
   </form>
   <div id="guide" class="drag">
-    <p></p>
+    <p><img src="favicon.svg">Welcome  to Pulpen</p>
     <button type="button" id="open-dir">Select Folder</button>
     <a href="docs.html" target="_blank">Start Up Guide</a>
   </div>

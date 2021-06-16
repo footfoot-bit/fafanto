@@ -88,30 +88,40 @@ button,select,label,nav p,#post-panel *,#page-panel *,#post-tagbox i,.box-right 
     grid-template-rows: auto 1fr auto;
     background-color: #fff;
     opacity: .9;
-    box-shadow: 0 0 10px #aaa;
+    box-shadow: 0 0 15px #ccc;
     text-align: center;
     padding-bottom: 2rem;
     border: #ddd solid 1px;
 }
 #guide p {
-    height: 3rem;
-    background-color: #333;
+    /* height: 30px; */
+    display: grid;
+    grid-template-columns: 3rem 1fr;
+    align-items: center;
+    padding: 2rem;
+    background-color: #222;
+    border-bottom: #ddd solid 1px;
     cursor: move;
-    /* background-image: url(favicon.svg);
-    background-repeat: no-repeat;
-    background-position: center left; */
-    /* filter: invert(); */
+    /* background: url(favicon.svg) no-repeat 5px 5px/25px;
+    opacity: .5; */
+    /* background-color: #222; */
+    color: #eee;
+}
+#guide p img{
+    filter: invert(1);
 }
 #open-dir {
     background-color: transparent;
     font-size: 2rem;
+    color: #555;
 }
 #guide a {
-    color: #000;
+    color: #555;
 }
 #open-dir:hover,#guide a:hover {
     /* font-weight: bold; */
     text-decoration: none;
+    color: #000;
 }
 /** Title **/
 h1 {
@@ -140,8 +150,8 @@ nav {
     display: grid;
     grid-template-columns: 1fr;
     grid-template-rows: auto 1fr auto;
-    row-gap: 3rem;
-    padding: 0 0 4rem 40px;
+    row-gap: 5rem;
+    padding: 0 0 5rem 40px;
     background-color: #333;
     color: #ccc;
 }
@@ -161,8 +171,8 @@ nav p {
     align-items: center;
 }
 nav p.on {
-    background-color: #ccc;
-    color: #333;
+    background-color: #008066;
+    color: #eee;
 }
 nav p:hover {
     background-color: #eee;
@@ -175,7 +185,7 @@ nav div:nth-of-type(1) {
 header {
     grid-area: header;
     display: grid;
-    grid-template-columns: minmax(10rem,22rem) 9rem 9rem 1fr 5rem 5rem;
+    grid-template-columns: 18% 9rem 9rem 1fr 5rem 5rem;
     grid-template-rows: auto;
     align-items: center;
     padding-left: 1.5rem;
@@ -192,7 +202,10 @@ header button {
 }
 #save,#preview {
     font-weight: bold;
-    border: none;
+}
+#save:hover ,#preview:hover {
+    background-color: #333;
+    color: #fff;
 }
 #actfile {
     padding-left: 2rem;
@@ -320,8 +333,7 @@ main {
 .desc {
     padding: 1.2rem 3rem;
     text-align: center;
-    background-color: #f5f8eb;
-    color: #666235;
+    background-color: #f5f5e9;
 }
 #config fieldset, #renews fieldset {
     padding-bottom: 50vh;
@@ -329,7 +341,8 @@ main {
 #config h3, #renews h3 {
     padding: 5rem 0 5rem 5%;
     margin-top: 7rem;
-    font-size: 1.5rem;
+    font-size: 1.8rem;
+    font-weight: normal;
     border-top: 1px dashed #ddd;
 }
 #config h3:nth-of-type(1) {
@@ -338,11 +351,10 @@ main {
 }
 #config div {
     display: grid;
-    grid-template-columns: 15% 1fr;
-    column-gap: 2rem;
+    grid-template-columns: 18% 1fr;
     row-gap: 2rem;
-    padding-left: 10%;
-    padding-right: 15%;
+    padding-left: 5%;
+    padding-right: 30%;
 }
 #config textarea {
     min-height: 20vh;
@@ -351,7 +363,7 @@ main {
 #custom {
     display: grid;
     grid-template-columns: 18% 1fr !important;
-    padding-left: 25% !important;
+    padding-left: 18% !important;
     row-gap: 1rem !important;
     font-size: 1.4rem;
     padding-top: 1.5rem;

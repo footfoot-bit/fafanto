@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const PAGNW = document.getElementById('page-new');
   const PAGLI = document.getElementById('page-list');
   const PAGBO = document.getElementById('page-box');
-  const CNFBT = CONF.elements['blog-title'];
+  const CNFST = CONF.elements['site-title'];
   const LINKS = document.getElementById('links');
   const IMAGS = document.getElementById('images');
   //load default template and style
@@ -335,7 +335,7 @@ document.addEventListener('DOMContentLoaded', () => {
     //create file and folder
     const tmpHandle = await dirHandle.getFileHandle('template.html',{create:true});
     const cfgHandle = await dirHandle.getFileHandle('config.html',{create:true});
-    const blgHandle = await dirHandle.getDirectoryHandle('blog',{create:true});
+    const blgHandle = await dirHandle.getDirectoryHandle('site',{create:true});
     const idxHandle = await blgHandle.getFileHandle('index.html',{create:true});
     const styHandle = await blgHandle.getFileHandle('style.css',{create:true});
     const allHandle = await blgHandle.getFileHandle('allpost.html',{create:true});
@@ -447,7 +447,7 @@ document.addEventListener('DOMContentLoaded', () => {
         super(fileName,chest);
         this.fileName = 'config.html';
         this.chest = singleChest;
-        this.confs = ['blog-title','blog-subtitle','url','latest-posts','index-desc','allpost-title','allpost-desc','search-title','search-desc','auther','date-type','tags','custom-editor'];
+        this.confs = ['site-title','site-subtitle','url','latest-posts','index-desc','allpost-title','allpost-desc','search-title','search-desc','auther','date-type','tags','custom-editor'];
       };
       async load() {
         const doc = await this.document();
@@ -497,7 +497,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return doc;
       };
       checkRequiredElems(doc) {
-        let requiredElems = ['title','[rel=stylesheet]','script','[name=description]','[rel=icon]','.header','.blog-title','.footer'];
+        let requiredElems = ['title','[rel=stylesheet]','script','[name=description]','[rel=icon]','.header','.site-title','.footer'];
         if (this.req === true) required.concat(this.req);
         for (const elem of requiredElems) {
           if (doc.querySelector(elem) === null) dialog.notTag(elem);
@@ -508,11 +508,11 @@ document.addEventListener('DOMContentLoaded', () => {
           ['[rel=stylesheet]','href',`${this.path}style.css`],
           ['script','src',`${this.path}main.js`],
           ['[rel=icon]','href',`${this.path}favicon.svg`],
-          ['[property="og:site_name"]','content',CNFBT.value],
+          ['[property="og:site_name"]','content',CNFST.value],
           ['[property="og:image"]','content',normal.url() + CONF.elements['img'].value]
         ];
         for (const elem of elems) doc.head.querySelector(elem[0]).setAttribute(elem[1],elem[2]);
-        doc.querySelector('.blog-title').innerHTML = `<a href="${this.path}">${CNFBT.value}</a>`;
+        doc.querySelector('.site-title').innerHTML = `<a href="${this.path}">${CNFST.value}</a>`;
         for (const page of pageChest.values()) {
           if (page.kind === 'file') {
             const pfile = new HandlePage(page.name);
@@ -522,7 +522,7 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         }
         doc.querySelector('.goto-allpost a')?.setAttribute('href',`${this.path}allpost.html`);
-        doc.querySelector('.footer')?.insertAdjacentHTML('afterbegin',`©${date.nowYear()} <a href="${this.path}">${CNFBT.value}</a>`);
+        doc.querySelector('.footer')?.insertAdjacentHTML('afterbegin',`©${date.nowYear()} <a href="${this.path}">${CNFST.value}</a>`);
       };
       insertHeadTitle(doc,value) {
         doc.head.querySelector('title').textContent = value;
@@ -552,12 +552,12 @@ document.addEventListener('DOMContentLoaded', () => {
       async preview() {
         const doc = await this.makeHTMLCommon();
         await this.makeHTMLOriginal(doc);
-        const elems =[['[rel=stylesheet]','href','blog/style.css'],['script','src','blog/main.js'],['[rel=icon]','href','blog/favicon.svg']];
+        const elems =[['[rel=stylesheet]','href','site/style.css'],['script','src','site/main.js'],['[rel=icon]','href','site/favicon.svg']];
         for (const elem of elems ) doc.head.querySelector(elem[0]).setAttribute(elem[1],elem[2]);
         const imgs = doc.querySelectorAll('img');
         for (const img of imgs) {
           const src = img.getAttribute('src');
-          const presrc = src.replace('media','blog/media');
+          const presrc = src.replace('media','site/media');
           img.setAttribute('src',presrc);
         }
         const str = this.docToHTMLStr(doc);
@@ -577,13 +577,13 @@ document.addEventListener('DOMContentLoaded', () => {
         this.fileName = 'index.html';
         this.chest = singleChest;
         this.class = 'index';
-        this.title = CONF.elements['blog-subtitle'];
+        this.title = CONF.elements['site-subtitle'];
         this.desc = CONF.elements['index-desc'];
         this.req = ['.latest-posts'];
         this.path = './';
       };
       async makeHTMLOriginal(doc) {
-        this.insertHeadTitle(doc,`${CNFBT.value} - ${this.title.value}`);
+        this.insertHeadTitle(doc,`${CNFST.value} - ${this.title.value}`);
         this.insertDescription(doc,this.desc.value);
         this.insertOGPUrl(doc,normal.url());
         const lat = doc.querySelector('.latest-posts');
@@ -609,7 +609,7 @@ document.addEventListener('DOMContentLoaded', () => {
         this.path = './';
       };
       async makeHTMLOriginal(doc) {
-        this.insertHeadTitle(doc,`${this.title.value} - ${CNFBT.value}`);
+        this.insertHeadTitle(doc,`${this.title.value} - ${CNFST.value}`);
         this.insertDescription(doc,this.desc.value);
         this.insertOGPUrl(doc,normal.url() + this.fileName);
         this.insertBodyTitle(doc,this.title.value);
@@ -645,7 +645,7 @@ document.addEventListener('DOMContentLoaded', () => {
         this.path = './';
       };
       makeHTMLOriginal(doc) {
-        this.insertHeadTitle(doc,`${this.title.value} - ${CNFBT.value}`);
+        this.insertHeadTitle(doc,`${this.title.value} - ${CNFST.value}`);
         this.insertDescription(doc,this.desc.value);
         this.insertOGPUrl(doc,normal.url() + this.fileName);
         this.insertBodyTitle(doc,this.title.value);
@@ -678,7 +678,7 @@ document.addEventListener('DOMContentLoaded', () => {
       };
       transHTMLCommon(doc,beforeDoc) {
         this.insertDescription(doc,this.loadDescription(beforeDoc));
-        this.insertHeadTitle(doc,`${this.loadTitle(beforeDoc)} - ${CNFBT.value}`);
+        this.insertHeadTitle(doc,`${this.loadTitle(beforeDoc)} - ${CNFST.value}`);
         this.insertBodyTitle(doc,this.loadTitle(beforeDoc));
         this.insertContents(doc,this.loadContents(beforeDoc));
       };
@@ -704,13 +704,19 @@ document.addEventListener('DOMContentLoaded', () => {
         this.tags = POST.elements['tags'];
         this.desc = POST.elements['desc'];
       };
-      async getDirName() {
+      async dirName() {
         const rsv = await posHandle.resolve(this.handle());
         return rsv[0];
       };
       async fullURL() {
-        const dir = await this.getDirName();
+        const dir = await this.dirName();
         return `${normal.url()}post/${dir}/${this.fileName}`;
+      };
+      loadContents(doc) {
+        const cnt = doc.querySelector('.contents');
+        const h23 = cnt.querySelectorAll('h2,h3');
+        if (h23.length == true) for (const h of h23) h.removeAttribute('id');
+        return doc.querySelector('.contents').innerHTML?? '';
       };
       loadImg(doc) {
         const src = doc.querySelector('.top-image img')?.getAttribute('src')?? '';
@@ -783,15 +789,29 @@ document.addEventListener('DOMContentLoaded', () => {
         if (elem === null) return;
         const cnt = doc.querySelector('.contents');
         const h23 = cnt.querySelectorAll('h2,h3');
+        if (h23.length == false) {
+          elem.remove();
+          return;
+        }
+        elem.innerHTML += '<ul></ul>';
+        const ul = elem.querySelector('ul');
         for (let i = 0; i < h23.length; i++) {
           const htx = h23[i].textContent;
           const tgn = h23[i].tagName;
-          elem.innerHTML += `<p class="table-${tgn}"><a href="#index${i}">${htx}</a></p>\n`;
+          if (tgn === 'H2') ul.innerHTML += `<li><a href="#index${i}">${htx}</a></li>\n<ul></ul>\n`;
+          if (tgn === 'H3') {
+            const myul = ul.querySelectorAll('ul');
+            myul[myul.length -1].innerHTML += `<li><a href="#index${i}">${htx}</a></li>\n`;
+          }
           h23[i].setAttribute('id',`index${i}`);
+        }
+        const checkUl = ul.querySelectorAll('ul');
+        for(const cul of checkUl) {
+          if(cul.textContent === '') cul.remove();
         }
       };
       async makeHTMLOriginal(doc) {
-        this.insertHeadTitle(doc,`${this.title.value} - ${CNFBT.value}`);
+        this.insertHeadTitle(doc,`${this.title.value} - ${CNFST.value}`);
         this.insertDescription(doc,this.desc.value);
         this.insertBodyTitle(doc,this.title.value);
         this.insertContents(doc,this.ta.value);
@@ -1016,7 +1036,7 @@ document.addEventListener('DOMContentLoaded', () => {
         for await (const file of dHandle.values()) {
           if (file.kind === 'file') {
             if (file.name.match(/(.jpg|.jpeg|.png|.gif|.apng|.svg|.jfif|.pjpeg|.pjp|.ico|.cur)/i)) {
-              IMAGS.querySelector('div').innerHTML += `<img src="blog/media/${dirName}/${file.name}" title="${file.name}" loading="lazy" />`;
+              IMAGS.querySelector('div').innerHTML += `<img src="site/media/${dirName}/${file.name}" title="${file.name}" loading="lazy" />`;
             }
           }
         }
@@ -1194,6 +1214,34 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 });
+
+        // elem.innerHTML += '<ul></ul>';
+        // const ul = elem.querySelector('ul');
+        // let num = 0;
+        // for (let i = 0; i < h23.length; i++) {
+        //   const htx = h23[i].textContent;
+        //   const tgn = h23[i].tagName;
+        //   if (tgn === 'H2') num++;
+        //   ul.innerHTML += `<li class="${tgn} i${num}"><a href="#index${i}">${htx}</a></li>\n`;
+        //   h23[i].setAttribute('id',`index${i}`);
+        // }
+        // if (ul.querySelector('.H3') === null) return;
+        // const h2 = ul.querySelectorAll('.H2');
+        // for (let i = 0; i < h2.length; i++) {
+        //   const h3li = ul.querySelectorAll(`.H3.i${i+1}`);
+        //   if (h3li.length == true) {
+        //     h3li[0].insertAdjacentHTML('beforebegin',`<ul></ul>`);
+        //     for (const li of h3li) {
+        //       const myul = ul.querySelectorAll('ul');
+        //       console.log(myul,myul[i],i)
+        //       myul[myul.length - 1].appendChild(li);
+        //     }
+        //   }
+        // }
+        // const lis = elem.querySelectorAll('li');
+        // for (const li of lis ) li.removeAttribute('class');
+
+
     // class Today {
   //   constructor() {
   //     this.date = new Date();
@@ -1588,10 +1636,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // const aut = doc.getElementById('auther')?.textContent?? '';
         // CONF.elements['auther'].value = aut;
-        // const tit = doc.getElementById('blog-title')?.textContent?? '';
-        // CONF.elements['blog-title'].value = tit;
-        // const sub = doc.getElementById('blog-subtitle')?.textContent?? '';
-        // CONF.elements['blog-subtitle'].value = sub;
+        // const tit = doc.getElementById('site-title')?.textContent?? '';
+        // CONF.elements['site-title'].value = tit;
+        // const sub = doc.getElementById('site-subtitle')?.textContent?? '';
+        // CONF.elements['site-subtitle'].value = sub;
         // const url = doc.getElementById('url')?.textContent?? '';
         // CONF.elements['url'].value = url;
         // const dat = doc.getElementById('date-type')?.textContent?? '';
@@ -1604,8 +1652,8 @@ document.addEventListener('DOMContentLoaded', () => {
 //         const idc = CONF.elements['index-desc'].value;
 //         const num = CONF.elements['latest-posts'].value;
 //         const ctm = CONF.elements['custom-editor'].value;
-//         const str = `<p id="blog-title">${CNFBT.value}</p>
-// <p id="blog-subtitle">${CNFST.value}</p>
+//         const str = `<p id="site-title">${CNFST.value}</p>
+// <p id="site-subtitle">${CNFST.value}</p>
 // <p id="url">${CNFUR.value}</p>
 // <p id="auther">${aut}</p>
 // <p id="date-type">${dat}</p>
@@ -1641,7 +1689,7 @@ document.addEventListener('DOMContentLoaded', () => {
     //   for await (const file of folder.values()) {
     //     if (file.kind === 'file') {
     //       if (file.name.match(/(.jpg|.jpeg|.png|.gif|.apng|.svg|.jfif|.pjpeg|.pjp|.ico|.cur)/i)) {
-    //         LIMBO.innerHTML += `<img src="blog/media/${dirName}/${file.name}" title="${file.name}" loading="lazy" />`;
+    //         LIMBO.innerHTML += `<img src="site/media/${dirName}/${file.name}" title="${file.name}" loading="lazy" />`;
     //       }
     //     }
     //   }
@@ -1904,7 +1952,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // const b = doc.body.innerHTML;
         // const h = doc.querySelector('head').innerHTML;
         // const relativePath = await posHandle.resolve(this.handle());
-        // const pre = window.open(`${LCURL}/blog/post/${relativePath[0]}/${this.fileName}`);
+        // const pre = window.open(`${LCURL}/site/post/${relativePath[0]}/${this.fileName}`);
         // pre.onload = () => {
         //   pre.document.querySelector('head').innerHTML = h;
         //   pre.document.body.innerHTML = b;
