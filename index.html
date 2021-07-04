@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<title>Pulpen | Create a static site with minimum energy.</title>
+<title>fafanto | Create a static site with minimality.</title>
 <link href="pulpnotes.css" rel="stylesheet">
 <script src="https://kit.fontawesome.com/8725e8d35f.js" crossorigin="anonymous"></script>
 <link rel="manifest" href="pulpnotes.webmanifest">
@@ -11,7 +11,7 @@
 </head>
 <body>
 <script src="pulpnotes.js"></script>
-  <h1><img src="favicon.svg">Pulpen</h1>
+  <h1><img src="favicon.svg">fafanto</h1>
   <nav>
     <div>
       <button type="button" id="home" title="Preview Index.html"></button><button type="button" id="map" title="Preview allpost.html"></button>
@@ -21,69 +21,70 @@
       <p data-nav="page">Page</p>
       <p data-nav="style">Style</p>
       <p data-nav="template">Template</p>
-      <p data-nav="config">Config</p>
-      <p data-nav="renews">Renews</p>
+      <p data-nav="setting">Setting</p>
+      <p data-nav="allsave">Allsave</p>
     </div>
-    <p data-nav="info">Info</p>
+    <p data-nav="info">News</p>
   </nav>
   <header>
     <h2 data-section="post">Post</h2>
     <button class="disable" id="save" type="button"> Save</button>
     <button class="disable" type="button" id="preview"> Preview</button>
     <span id="actfile"></span>
-    <button title="Spellcheck attribute" id="spellcheck"></button>
+    <button title="Spellcheck ON/OFF" id="spellcheck"></button>
     <button title="Dark Mode" id="mode"></button>
   </header>
   <main>
     <form id="post" class="show">
-      <fieldset id="post-new"><input name="title" title="into title:calss" placeholder="Add New Title"><input type="datetime-local" name="date"><input name="name" placeholder="Add New Filename"><button name="btn" type="button" class="btn-new"></button></fieldset>
+      <fieldset id="post-new"><input name="title" title="into title:calss" placeholder="Add Title"><input type="datetime-local" name="date"><input name="name" placeholder="Add Filename"><button name="btn" type="button" class="btn-new"></button></fieldset>
       <select name="years" class="hide"></select>
       <div id="post-list"></div>
       <div id="post-box">
         <div class="box-left">
           <div id="post-panel"><i>b</i><i>small</i><i>mark</i><i>br</i><i>p</i><i>h2</i><i>h3</i><i>h4</i><i>a</i><i>ul</i><i>table</i><s title="link"></s><s title="img"></s></div>
-          <textarea name="ta" placeholder="Add contents" id="post-txt"></textarea>
+          <textarea name="ta" placeholder="Add Contents" id="post-txt"></textarea>
         </div>
         <div class="box-right">
           <fieldset>
-            <h3>Image</h3>
+            <h3>Image<b></b></h3>
             <div>
               <textarea name="img" placeholder="media/2021/xxx.jpg"></textarea>
               <button type="button" name="img-open"></button>
             </div>
           </fieldset>
           <fieldset id="parts">
-            <h3>Parts</h3>
+            <h3>Parts<b></b></h3>
             <div>
               <label title="teble-of-contents:class
-Create anchor links of h2 h3 or remove"><input type="checkbox" name="table-of-contents" checked>table of contents</label>
+Create anchor links of h2 h3 or remove">Table Of Contents<input type="checkbox" name="table-of-contents" checked></label>
               <label title='comment:class
-leave or remove'><input type="checkbox" name="comment" checked>comment</label>
+do nothing or remove'>Comment<input type="checkbox" name="comment" checked></label>
               <label title='freespace:class
-leave or remove'><input type="checkbox" name="freespace" checked>freespace</label>
+do nothing or remove'>Freespace<input type="checkbox" name="freespace" checked></label>
             </div>
           </fieldset>
           <fieldset>
-            <h3>tags</h3>
+            <h3>Tags<b></b></h3>
             <div id="post-tagbox">
-              <i class="on">DEMO</i>
-              <i class="on">Static Blog Editor</i>
-              <i>Web App</i>
-              <i>HTML</i>
-              <i>CSS</i>
+              <i class="on">Static Site Builder</i>
+              <i>Blog</i>
+              <i class="on">Lightweight</i>
+              <i>Clean</i>
               <i>Minimal</i>
-              <i class="on">Clean</i>
-              <i class="on">One Template</i>
-              <i>Vanilla JS</i>
-              <i>Open Source</i>
+              <i class="on">Fast</i>
+              <i>One Template</i>
+              <i class="on">Easy</i>
               <i>Offline</i>
               <i>Local</i>
-              <i>日本語</i>
+              <i>Vanilla JS</i>
+              <i>Open Source</i>
+              <i>漢字</i>
+              <i>ひらがな</i>
             </div>
             <textarea name="tags" class="hide"></textarea>
           </fieldset>
           <fieldset>
-            <h3 title="Use for meta description and OGP description">Description</h3>
+            <h3 title="Use for meta description and OGP description">Description<b></b></h3>
             <div>
               <textarea name="desc" placeholder="description text"></textarea>
             </div>
@@ -92,18 +93,18 @@ leave or remove'><input type="checkbox" name="freespace" checked>freespace</labe
       </div>
     </form>
     <form id="page">
-      <fieldset id="page-new"><input name="title" placeholder="Add new title"><input name="name" placeholder="Add new filename"><button name="btn" type="button" class="btn-new"></button></fieldset>
+      <fieldset id="page-new"><input name="title" placeholder="Add Title"><input name="name" placeholder="Add Filename"><button name="btn" type="button" class="btn-new"></button></fieldset>
       <div id="page-list"></div>
       <div id="page-box">
         <div class="box-left">
           <div id="page-panel"><i>b</i><i>i</i><i>mark</i><i>br</i><i>p</i><i>h2</i><i>h3</i><i>h4</i><i>a</i><i>ul</i><i>table</i><s title="link"></s><s title="img"></s></div>
-          <textarea name="ta" placeholder="Add contents"></textarea>
+          <textarea name="ta" placeholder="Add Contents"></textarea>
         </div>
         <div class="box-right">
           <fieldset>
-            <h3 title="Use for meta description and OGP description">Description</h3>
+            <h3 title="Use for meta description and OGP description">Description<b></b></h3>
             <div>
-              <textarea name="desc" placeholder="Add description text"></textarea>
+              <textarea name="desc" placeholder="Add Description"></textarea>
             </div>
           </fieldset>
         </div>
@@ -115,15 +116,15 @@ leave or remove'><input type="checkbox" name="freespace" checked>freespace</labe
     <form id="template">
       <textarea name="ta"></textarea>
     </form>
-    <form id="config">
+    <form id="setting">
       <fieldset>
-        <p class="desc">After changing the config, reload the app.</p>
+        <p class="desc">After changing the settings and saving the file, please reload this application.</p>
         <h3>General</h3>
         <div>
           <span>Site Title</span><input name="site-title" placeholder="site title" type="text">
           <span>Site Subtitle</span><input name="site-subtitle" placeholder="site subtitle" type="text">
           <span>URL</span><input name="url" placeholder="https://www.example.com/" type="text">
-          <span>Image</span><input name="img" placeholder="image.png" type="text">
+          <span>Image</span><input name="image" placeholder="image.png" type="text">
         </div>
         <h3>index.html</h3>
         <div>
@@ -167,16 +168,16 @@ leave or remove'><input type="checkbox" name="freespace" checked>freespace</labe
         </div>
       </fieldset>
     </form>
-    <form id="renews">
+    <form id="allsave">
       <fieldset>
-        <p class="desc">This function is used when you have changed common items on your site. (Blog title, URL, template, etc.) <br />All checked files will be overwritten.</p>
+        <p class="desc exclamation">This function is used when you have changed common items on your site. (Blog title, URL, template, etc.) <br />All checked files will be overwritten.</p>
         <h3>Save Files</h3>
         <div>
           <label><input type="checkbox" name="index" checked>index.html</label>
           <label><input type="checkbox" name="allpost" checked>allpost.html</label>
           <label><input type="checkbox" name="search" checked>search.html</label>
           <label><input type="checkbox" name="post" checked>Post</label>
-          <label><input type="checkbox" name="page" checked>Page</label>
+          <label>Page<input type="checkbox" name="page" checked></label>
         </div>
         <button type="button" name="save">Start Saving</button>
         <h3>Log</h3>
@@ -185,7 +186,7 @@ leave or remove'><input type="checkbox" name="freespace" checked>freespace</labe
     </form>
     <form id="info">
       <h3>What's this</h3>
-      <p>Pulp Notes is a lightweight web app that creates clean, static sites. </p>
+      <p>Abatis is a lightweight web app that creates clean, static sites. </p>
       <p>The difference between this and a static site generator is that it can be operated via GUI and can be used by non-engineers. </p>
       <h3>Upadate</h3>
     </form>
@@ -201,10 +202,9 @@ leave or remove'><input type="checkbox" name="freespace" checked>freespace</labe
     <div name="box"></div>
   </form>
   <div id="guide" class="drag">
-    <p><img src="favicon.svg">Welcome  to Pulpen</p>
-    <button type="button" id="open-dir">Select Folder</button>
-    <a href="docs.html" target="_blank">Start Up Guide</a>
+    <p><img src="favicon.svg">Welcome  to fafanto</p>
+    <div><button type="button" id="open-dir">Select Folder</button></div>
+    <a href="docs.html" target="_blank" class="disable">Start Up Guide</a>
   </div>
-  <div id="alert" class="hide">Sory.This app only works on <b>PC</b> version of <b>Chrome</b> or <b>Edge</b> browser.</div>
 </body>
 </html>

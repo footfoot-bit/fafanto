@@ -1,10 +1,11 @@
 //license MIT
 //footfoot lab (https://www.footfoot.tokyo)
 document.addEventListener('DOMContentLoaded', () => {
-  //Check File API
+  //Check user's browser supports
   if (window.showOpenFilePicker) console.log('File System is available');
-  else document.getElementById('alert').removeAttribute('class');
-  //short constant
+  else document.querySelector('#guide div').innerHTML = 
+  '<span class="exclamation">This app works with Chromium-based browsers (Google Chrome, MS Edge, etc.) for PC.</span>';
+  //global constant
   const DOMP = new DOMParser();
   const DATE = new Date().toISOString();
   const SAVE = document.getElementById('save');
@@ -16,8 +17,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const PAGE = document.forms['page'];
   const STYL = document.forms['style'];
   const TEMP = document.forms['template'];
-  const CONF = document.forms['config'];
-  const RENW = document.forms['renews'];
+  const SETT = document.forms['setting'];
+  const RENW = document.forms['allsave'];
   const POSNW = document.getElementById('post-new');
   const POSTG = document.getElementById('post-tagbox');
   const POSLI = document.getElementById('post-list');
@@ -26,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const PAGNW = document.getElementById('page-new');
   const PAGLI = document.getElementById('page-list');
   const PAGBO = document.getElementById('page-box');
-  const CNFST = CONF.elements['site-title'];
+  const CNFST = SETT.elements['site-title'];
   const LINKS = document.getElementById('links');
   const IMAGS = document.getElementById('images');
   //load default template and style
@@ -54,7 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
   //normalization
   const normal = {
     url: () => {
-      const url = CONF.elements['url'].value;
+      const url = SETT.elements['url'].value;
       return url.replace(/\/$/,'/');
     }
   };
@@ -62,7 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const dialog = {
     confirmSave: (fileName) => {
       const result = confirm(`Do you want to save "${fileName}" ?`);
-      if (result == false) {
+      if (!result) {
         alert('Stopped saving.');
         throw new Error('Stopped saving.');
       }
@@ -98,14 +99,14 @@ document.addEventListener('DOMContentLoaded', () => {
       return DATE.slice(0,4); //2021
     },
     changeFormat: (ymd) => {
-      if(ymd === '') return '';
+      if(!ymd) return '';
       const year = ymd.slice(0,4);
       const month = ymd.slice(5,7);
       const monthInt = month.replace(/\b0+/, '');
       const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
       const monthName = monthNames[monthInt];
       const day = ymd.slice(8,10);
-      const dt = CONF.elements['date-type'].value;
+      const dt = SETT.elements['date-type'].value;
       if (dt === 'yyyy-mm-dd') return `${year}-${month}-${day}`;
       else if (dt === 'dd-mm-yyyy') return `${day} ${monthName}, ${year}`;
       else if (dt === 'mm-dd-yyyy') return `${monthName} ${day}, ${year}`;
@@ -113,8 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
   };
   POSNW.elements['date'].value = date.nowYmdTime();
 //Text Editor
-  //original code from https://www.annytab.com/create-html-editor-with-pure-javascript/
-  class Editor {
+  class TextEditor {
     constructor() {
       const section = H2SE.dataset.section;
       this.ta = document.getElementById(section).elements['ta'];
@@ -134,14 +134,14 @@ document.addEventListener('DOMContentLoaded', () => {
       else if (btnTxt === "big") this.surroundSelectedText('<big>','</big>');
       else if (btnTxt === "strong") this.surroundSelectedText('<strong>','</strong>');
       else if (btnTxt === "mark") this.surroundSelectedText('<mark>','</mark>');
-      else if (btnTxt === "ul") this.insertText('<ul>\n<li></li>\n<li></li>\n<li></li>\n</ul>\n');
+      else if (btnTxt === "ul") this.insertText('<ul>\n  <li></li>\n  <li></li>\n  <li></li>\n</ul>\n');
       else if (btnTxt === "code") this.surroundSelectedText('<code>','</code>');
       else if (btnTxt === "pre code") this.surroundSelectedText('<pre><code>\n','</code></pre>\n');
       else if (btnTxt === "textarea") this.surroundSelectedText('<textarea>','</textarea>\n');
       else if (btnTxt === "img") this.insertText('<img src="" alt="" target="_blank" />');
       else if (btnTxt === "q") this.surroundSelectedText('<q>','</q>');
       else if (btnTxt === "blockquote") this.surroundSelectedText('<blockquote>','</blockquote>\n');
-      else if (btnTxt === "table") this.insertText('<table>\n<tr><th></th><th></th></tr>\n<tr><td></td><td></td></tr>\n</table>\n');
+      else if (btnTxt === "table") this.insertText('<table>\n  <tr><th></th><th></th></tr>\n  <tr><td></td><td></td></tr>\n</table>\n');
       else if (btnTxt === "i") this.surroundSelectedText('<i>','</i>');
       else if (btnTxt === "h5") this.surroundSelectedText('<h5>','</h5>\n');
       else if (btnTxt === "h6") this.surroundSelectedText('<h6>','</h6>\n');
@@ -189,7 +189,7 @@ document.addEventListener('DOMContentLoaded', () => {
         PREV.classList.remove('disable');
       }
     }
-    else if (section === 'template' || section === 'config') {
+    else if (section === 'template' || section === 'setting') {
       SAVE.dataset.file = `${section}.html`;
       ACTF.textContent = `${section}.html`;
       SAVE.classList.remove('disable');
@@ -201,7 +201,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
   obsPost = () => {
-    if (POSBO.classList.contains('hide') === true) {
+    if (POSBO.classList.contains('hide')) {
       SAVE.removeAttribute('data-file');
       SAVE.classList.add('disable');
       PREV.classList.add('disable');
@@ -222,7 +222,7 @@ document.addEventListener('DOMContentLoaded', () => {
     POST.elements['years'].classList.add('hide');
   };
   obsPage = () => {
-    if (PAGBO.classList.contains('hide') === true) {
+    if (PAGBO.classList.contains('hide')) {
       SAVE.removeAttribute('data-file');
       SAVE.classList.add('disable');
       PREV.classList.add('disable');
@@ -270,7 +270,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const spl = document.getElementById('spellcheck');
     spl.classList.toggle('off');
     const frms = ['input','textarea'];
-    if (spl.classList.contains('off') === true) {
+    if (spl.classList.contains('off')) {
       for (const frm of frms) {
         const inps = document.querySelectorAll(frm);
         for (const inp of inps) inp.setAttribute('spellcheck','false');
@@ -290,27 +290,38 @@ document.addEventListener('DOMContentLoaded', () => {
   //click text editor panel
   for (const panel of ['post-panel','page-panel']) {
     document.getElementById(panel).onclick = (e) => {
-      if (e.target.tagName === 'I') new Editor().addTag(e.target.textContent);
+      if (e.target.tagName === 'I') new TextEditor().addTag(e.target.textContent);
     };
   }
-  //click right elements title
-  for (const boxr of document.querySelectorAll('.box-right')) {
+  //click right block title
+  for (const boxr of document.querySelectorAll('.box-right h3')) {
     boxr.onclick = (e) => {
-      if (e.target.tagName === 'H3') e.target.nextElementSibling.classList.toggle('hide');
+      if (e.target.tagName === 'B') {
+        e.target.parentNode.nextElementSibling.classList.toggle('hide');
+        e.target.classList.toggle('arrdown');
+      }
     };
   }
+  //click tags
+  POSTG.onclick = (e) => {
+    if (e.target.tagName === 'I') e.target.classList.toggle('on');
+    const ons = POSTG.querySelectorAll('.on');
+    let tagsHtml = '';
+    for(const on of ons) tagsHtml += `<span>${on.textContent}</span>`
+    POST.elements['tags'].value = tagsHtml;
+  };
   (() => {
-    //adjust size
-    const f = document.querySelector('form').offsetHeight;
-    const n = POSNW.offsetHeight;
-    const a = document.getElementById('post-panel').offsetHeight;
-    const h = (f-8)-(n+a)+'px';
-    POST.elements['ta'].style.height = h;
-    PAGE.elements['ta'].style.height = h;
+    //adjust Height
+    const fh = document.querySelector('form').offsetHeight;
+    const nh = POSNW.offsetHeight;
+    const ph = document.getElementById('post-panel').offsetHeight;
+    const ch = fh - (nh + ph) + 'px';
+    POST.elements['ta'].style.height = ch;
+    PAGE.elements['ta'].style.height = ch;
     //set translate="no"
     const elems = ['nav','header','#post-panel','#page-panel','#post-tagbox','#custom'];
     for (const elem of elems) document.querySelector(elem).setAttribute('translate','no');
-    //drag element
+    //draggable element
     let dragStartX, dragStartY;
     let objInitLeft, objInitTop;
     let inDrag = false;
@@ -331,10 +342,10 @@ document.addEventListener('DOMContentLoaded', () => {
   })();
 //// open picker ////
   OPEN.onclick = async () => {
-    const dirHandle = await window.showDirectoryPicker();//dialog ok
+    const dirHandle = await window.showDirectoryPicker(); //dialog accept
     //create file and folder
     const tmpHandle = await dirHandle.getFileHandle('template.html',{create:true});
-    const cfgHandle = await dirHandle.getFileHandle('config.html',{create:true});
+    const setHandle = await dirHandle.getFileHandle('setting.html',{create:true});
     const blgHandle = await dirHandle.getDirectoryHandle('site',{create:true});
     const idxHandle = await blgHandle.getFileHandle('index.html',{create:true});
     const styHandle = await blgHandle.getFileHandle('style.css',{create:true});
@@ -347,21 +358,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const medHandle = await blgHandle.getDirectoryHandle('media',{create:true});
     await posHandle.getDirectoryHandle(date.nowYear(),{create:true});
     await medHandle.getDirectoryHandle(date.nowYear(),{create:true});
-    //store file and folder handles
-    let singleChest = [];
-    singleChest.push(tmpHandle,cfgHandle,idxHandle,styHandle,allHandle,srhHandle,icoHandle,mjsHandle);
-    let postChest = await listAll(posHandle);
-    let pageChest = await listAll(pagHandle);
-    let mediaChest = await listAll(medHandle);
+    //store file and directory handles
+    const singleChest = [];
+    singleChest.push(tmpHandle,setHandle,idxHandle,styHandle,allHandle,srhHandle,icoHandle,mjsHandle);
+    const postChest = await listAll(posHandle);
+    const pageChest = await listAll(pagHandle);
+    const mediaChest = await listAll(medHandle);
     console.log(singleChest,postChest,pageChest,mediaChest);
-    let postFolders = [];
+    const postFolders = [];
     for (const folder of postChest.values()) {
       if (folder.kind === 'directory') postFolders.push(folder.name);
     };
-    let mediaFolders = [];
+    const mediaFolders = [];
     for (const folder of mediaChest.values()) {
       if (folder.kind === 'directory') mediaFolders.push(folder.name);
     };
+    //file handler class
     class HandleFile {
       constructor(fileName,chest) {
         this.fileName = fileName;
@@ -392,7 +404,7 @@ document.addEventListener('DOMContentLoaded', () => {
       };
       async load() {
         const str = await this.txt();
-        if (str === '') {
+        if (!str) {
           const rem = this.ta.value.substring(this.ta.value.indexOf("\n") + 1);
           this.ta.value = rem;
         }
@@ -442,22 +454,22 @@ document.addEventListener('DOMContentLoaded', () => {
         this.url = 'default-main.js'
       };
     };
-    class HandleConfig extends HandleText {
+    class HandleSetting extends HandleText {
       constructor(fileName,chest) {
         super(fileName,chest);
-        this.fileName = 'config.html';
+        this.fileName = 'setting.html';
         this.chest = singleChest;
-        this.confs = ['site-title','site-subtitle','url','latest-posts','index-desc','allpost-title','allpost-desc','search-title','search-desc','auther','date-type','tags','custom-editor'];
+        this.setts = ['site-title','site-subtitle','url','image','latest-posts','index-desc','allpost-title','allpost-desc','search-title','search-desc','auther','date-type','tags','custom-editor'];
       };
       async load() {
         const doc = await this.document();
-        for (const conf of this.confs) {
-          const txt = doc.getElementById(conf)?.innerHTML?? '';
-          CONF.elements[conf].value = txt;
+        for (const sett of this.setts) {
+          const txt = doc.getElementById(sett)?.innerHTML?? '';
+          SETT.elements[sett].value = txt;
         }
         POSTG.textContent = '';
         const ctgs = doc.getElementById('tags');
-        if (ctgs !== null) {
+        if (ctgs) {
           const tags = ctgs.querySelectorAll('i');
           for (const tag of tags) {
             tag.setAttribute('data-tag',tag.textContent);
@@ -468,7 +480,7 @@ document.addEventListener('DOMContentLoaded', () => {
       async save() {
         let str = [];
         for (const cnf of this.confs) {
-          const txt = CONF.elements[cnf].value;
+          const txt = SETT.elements[cnf].value;
           str += `<p id="${cnf}">${txt}</p>\n`
         }
         await this.write(str);
@@ -478,11 +490,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const style = new HandleStyle();
     const favicon = new HandleFavicon();
     const mainjs = new HandleMainJS();
-    const config = new HandleConfig();
+    const setting = new HandleSetting();
     //HTML file Handler
     class HandleHTML extends HandleFile {
-      removeTempIf() {
+      templateToDoc() {
         const doc = template.document();
+        //remove not class
         const hnt = doc.head.querySelectorAll(`[class]:not(.${this.class})`);
         for (const i of hnt) i.remove();
         const hdt = doc.head.querySelectorAll(`.${this.class}`);
@@ -496,11 +509,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         return doc;
       };
-      checkRequiredElems(doc) {
-        let requiredElems = ['title','[rel=stylesheet]','script','[name=description]','[rel=icon]','.header','.site-title','.footer'];
-        if (this.req === true) required.concat(this.req);
-        for (const elem of requiredElems) {
-          if (doc.querySelector(elem) === null) dialog.notTag(elem);
+      existsRequiredElems(doc) {
+        const reqElems = ['title','[rel=stylesheet]','script','[name=description]','[rel=icon]','.site-title','.page-list','.link-allpost','.link-search','.copyright'];
+        if (this.req) for (const word of this.req) reqElems.push(word);
+        console.log(reqElems,this.req)
+        for (const elem of reqElems) {
+          if (!doc.querySelector(elem)) dialog.notTag(elem);
         }
       };
       async insertCommonElems(doc) {
@@ -509,20 +523,19 @@ document.addEventListener('DOMContentLoaded', () => {
           ['script','src',`${this.path}main.js`],
           ['[rel=icon]','href',`${this.path}favicon.svg`],
           ['[property="og:site_name"]','content',CNFST.value],
-          ['[property="og:image"]','content',normal.url() + CONF.elements['img'].value]
+          ['[property="og:image"]','content',normal.url() + SETT.elements['image'].value]
         ];
         for (const elem of elems) doc.head.querySelector(elem[0]).setAttribute(elem[1],elem[2]);
         doc.querySelector('.site-title').innerHTML = `<a href="${this.path}">${CNFST.value}</a>`;
-        for (const page of pageChest.values()) {
-          if (page.kind === 'file') {
-            const pfile = new HandlePage(page.name);
-            const pdoc = await pfile.document();
-            const title = pfile.loadTitle(pdoc);
-            doc.querySelector('.page-list').innerHTML += `<li><a href="${this.path}page/${page.name}">${title}</a></li>\n`;
-          }
-        }
-        doc.querySelector('.goto-allpost a')?.setAttribute('href',`${this.path}allpost.html`);
-        doc.querySelector('.footer')?.insertAdjacentHTML('afterbegin',`©${date.nowYear()} <a href="${this.path}">${CNFST.value}</a>`);
+        if (pageChest) {
+          const data = await HandlePage.allData();
+          for (const d of data) doc.querySelector('.page-list').innerHTML += `<li><a href="${this.path}page/${d[0]}">${d[1]}</a></li>\n`;
+        } else doc.querySelector('.page-list').remove();
+        const allps = doc.querySelectorAll('.link-allpost');
+        for (const allp of allps) allp.setAttribute('href',`${this.path}allpost.html`);
+        const serhs = doc.querySelectorAll('.link-search');
+        for (const serh of serhs) serh.setAttribute('href',`${this.path}search.html`);
+        doc.querySelector('.copyright').insertAdjacentHTML('afterbegin',`©${date.nowYear()} <a href="${this.path}">${CNFST.value}</a>`);
       };
       insertHeadTitle(doc,value) {
         doc.head.querySelector('title').textContent = value;
@@ -539,8 +552,8 @@ document.addEventListener('DOMContentLoaded', () => {
         doc.head.querySelector('[property="og:url"]').setAttribute('content',value);
       };
       async makeHTMLCommon() {
-        const doc = this.removeTempIf();
-        this.checkRequiredElems(doc);
+        const doc = this.templateToDoc();
+        this.existsRequiredElems(doc);
         await this.insertCommonElems(doc);
         return doc;
       };
@@ -551,7 +564,7 @@ document.addEventListener('DOMContentLoaded', () => {
       };
       async preview() {
         const doc = await this.makeHTMLCommon();
-        await this.makeHTMLOriginal(doc);
+        await this.makeHTMLSpecial(doc);
         const elems =[['[rel=stylesheet]','href','site/style.css'],['script','src','site/main.js'],['[rel=icon]','href','site/favicon.svg']];
         for (const elem of elems ) doc.head.querySelector(elem[0]).setAttribute(elem[1],elem[2]);
         const imgs = doc.querySelectorAll('img');
@@ -566,7 +579,7 @@ document.addEventListener('DOMContentLoaded', () => {
       };
       async save() {
         const doc = await this.makeHTMLCommon();
-        await this.makeHTMLOriginal(doc);
+        await this.makeHTMLSpecial(doc);
         const str = this.docToHTMLStr(doc);
         await this.write(str);
       };
@@ -577,18 +590,18 @@ document.addEventListener('DOMContentLoaded', () => {
         this.fileName = 'index.html';
         this.chest = singleChest;
         this.class = 'index';
-        this.title = CONF.elements['site-subtitle'];
-        this.desc = CONF.elements['index-desc'];
+        this.title = SETT.elements['site-subtitle'];
+        this.desc = SETT.elements['index-desc'];
         this.req = ['.latest-posts'];
         this.path = './';
       };
-      async makeHTMLOriginal(doc) {
+      async makeHTMLSpecial(doc) {
         this.insertHeadTitle(doc,`${CNFST.value} - ${this.title.value}`);
         this.insertDescription(doc,this.desc.value);
         this.insertOGPUrl(doc,normal.url());
         const lat = doc.querySelector('.latest-posts');
-        const num = CONF.elements['latest-posts'].value;
-        if (num > 0 && num < 21) await postLister.insertLatestNumber(num,lat);
+        const num = SETT.elements['latest-posts'].value;
+        if (num > 0 && num < 21) await HandlePost.insertLatestPostsNum(num,lat);
         const imgs = lat.querySelectorAll('img');
         for (const img of imgs) {
           const src = img.getAttribute('src');
@@ -603,20 +616,20 @@ document.addEventListener('DOMContentLoaded', () => {
         this.fileName = 'allpost.html';
         this.chest = singleChest;
         this.class = 'allpost';
-        this.title = CONF.elements['allpost-title'];
-        this.desc = CONF.elements['allpost-desc'];
+        this.title = SETT.elements['allpost-title'];
+        this.desc = SETT.elements['allpost-desc'];
         this.req = ['.allpost-btns','.latest-posts'];
         this.path = './';
       };
-      async makeHTMLOriginal(doc) {
+      async makeHTMLSpecial(doc) {
         this.insertHeadTitle(doc,`${this.title.value} - ${CNFST.value}`);
         this.insertDescription(doc,this.desc.value);
         this.insertOGPUrl(doc,normal.url() + this.fileName);
         this.insertBodyTitle(doc,this.title.value);
         const mabp = doc.querySelector('.allpost-btns').querySelectorAll('*');
-        const flds = postLister.sortLatestFolder();
+        const flds = HandlePost.sortLatestDir();
         for (const fld of flds) mabp[0].insertAdjacentHTML('beforeend',`<U data-btn="fld-${fld}" class="on">${fld}</U>`);
-        const str = CONF.elements['tags'].value;
+        const str = SETT.elements['tags'].value;
         const dom = DOMP.parseFromString(str,'text/html');
         const tags = dom.querySelectorAll('i');
         for (const tag of tags) {
@@ -624,7 +637,7 @@ document.addEventListener('DOMContentLoaded', () => {
           mabp[1].insertAdjacentHTML('afterbegin',`<span data-btn="tag-${editag}" class="on">${tag.textContent}</span>`);
         }
         const lat = doc.querySelector('.latest-posts');
-        await postLister.insertLatestAll(lat);
+        await HandlePost.insertLatestPostsAll(lat);
         const imgs = lat.querySelectorAll('img');
         for (const img of imgs) {
           const src = img.getAttribute('src');
@@ -640,11 +653,11 @@ document.addEventListener('DOMContentLoaded', () => {
         this.fileName = 'search.html';
         this.chest = singleChest;
         this.class = 'search';
-        this.title = CONF.elements['search-title'];
-        this.desc = CONF.elements['search-desc'];
+        this.title = SETT.elements['search-title'];
+        this.desc = SETT.elements['search-desc'];
         this.path = './';
       };
-      makeHTMLOriginal(doc) {
+      makeHTMLSpecial(doc) {
         this.insertHeadTitle(doc,`${this.title.value} - ${CNFST.value}`);
         this.insertDescription(doc,this.desc.value);
         this.insertOGPUrl(doc,normal.url() + this.fileName);
@@ -686,7 +699,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const doc = await this.makeHTMLCommon();
         const beforeDoc = await this.document();
         await this.transHTMLCommon(doc,beforeDoc);
-        await this.transHTMLOriginal(doc,beforeDoc);
+        await this.transHTMLSpecial(doc,beforeDoc);
         const str = this.docToHTMLStr(doc);
         await this.write(str);
       };
@@ -715,7 +728,7 @@ document.addEventListener('DOMContentLoaded', () => {
       loadContents(doc) {
         const cnt = doc.querySelector('.contents');
         const h23 = cnt.querySelectorAll('h2,h3');
-        if (h23.length == true) for (const h of h23) h.removeAttribute('id');
+        if (h23.length) for (const h of h23) h.removeAttribute('id');
         return doc.querySelector('.contents').innerHTML?? '';
       };
       loadImg(doc) {
@@ -723,7 +736,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return src.replace(this.path,'');
       };
       loadTime(doc) {
-        return doc.querySelector('time')?.getAttribute('datetime')?? '';
+        return doc.querySelector('.time')?.getAttribute('datetime')?? '';
       };
       loadTags(doc) {
         return doc.querySelector('.tags')?.innerHTML?? '';
@@ -737,12 +750,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const spans = doc.querySelectorAll('.tags span');
         for (const span of spans) POSTG.querySelector(`[data-tag="${span.textContent}"]`)?.setAttribute('class','on');
         for (const part of POSPA) {
-          if (doc.querySelector(`.${part}`) === null) POST.elements[part].checked = false;
+          if (!doc.querySelector(`.${part}`)) POST.elements[part].checked = false;
         }
       };
       insertTime(doc,value) {
         const elems = doc.querySelectorAll('time');
-        if (elems[0] === null) return;
+        if (!elems) return;
         elems[0].innerHTML = date.changeFormat(value);
         elems[0].setAttribute('datetime',value);
         if (date.nowYmd() === value.slice(0,10)) {
@@ -755,8 +768,8 @@ document.addEventListener('DOMContentLoaded', () => {
       };
       insertImg(doc,value,title) {
         const elem = doc.querySelector('.top-image');
-        if (elem === null) return;
-        if (value == false) {
+        if (!elem) return;
+        if (!value) {
           elem.remove();
           return;
         }
@@ -765,8 +778,8 @@ document.addEventListener('DOMContentLoaded', () => {
       };
       insertAuther(doc,value) {
         const elems = doc.querySelectorAll('.auther');
-        if (elems[0] === null) return;
-        if (value == false) {
+        if (!elems) return;
+        if (!value) {
           for (const elem of elems) elem.remove();
           return;
         }
@@ -774,57 +787,85 @@ document.addEventListener('DOMContentLoaded', () => {
       };
       insertTags(doc,value) {
         const elems = doc.querySelectorAll('.tags');
-        if (elems[0] === null) return;
-        if (value == false) {
+        if (!elems) return;
+        if (!value) {
           for (const elem of elems) elem.remove();
           return;
         }
         for (const elem of elems) elem.innerHTML = value;
       };
+      findIndex(data) {
+        for (let i = 0; i < data.length; i++) {
+          if (data[i][0] === this.fileName) return i;
+        }
+      };
+      async setPrevNextLink(doc) {
+        const prev = doc.querySelector('.link-prev');
+        const next = doc.querySelector('.link-next');
+        const data = await HandlePost.allLatestData();
+        const index = this.findIndex(data);
+        console.log(index)
+        if (data[index + 1]) {
+          const path = `${this.path}post/${data[index + 1][2]}/${data[index + 1][0]}`;
+          prev.setAttribute('href',path);
+          prev.setAttribute('title',data[index + 1][1]);
+        }
+        else prev.classList.add('isDisabled');
+        if (data[index - 1]) {
+          const path = `${this.path}post/${data[index - 1][2]}/${data[index - 1][0]}`;
+          next.setAttribute('href',path);
+          next.setAttribute('title',data[index - 1][1]);
+        }
+        else next.classList.add('isDisabled');
+      };
       editParts(doc) {
         for(const part of POSPA) {
-          if (POST.elements[part].checked === false) doc.querySelector(`.${part}`).remove();
+          if (!POST.elements[part].checked) doc.querySelector(`.${part}`).remove();
         }
+        //table of contents
         const elem = doc.querySelector('.table-of-contents');
-        if (elem === null) return;
+        if (!elem) return;
         const cnt = doc.querySelector('.contents');
         const h23 = cnt.querySelectorAll('h2,h3');
-        if (h23.length == false) {
+        if (!h23) {
           elem.remove();
           return;
         }
         elem.innerHTML += '<ul></ul>';
-        const ul = elem.querySelector('ul');
+        const h2Ul = elem.querySelector('ul');
         for (let i = 0; i < h23.length; i++) {
           const htx = h23[i].textContent;
           const tgn = h23[i].tagName;
-          if (tgn === 'H2') ul.innerHTML += `<li><a href="#index${i}">${htx}</a></li>\n<ul></ul>\n`;
+          if (tgn === 'H2') h2Ul.innerHTML += `<li><a href="#index${i}">${htx}</a></li>\n<ul></ul>\n`;
           if (tgn === 'H3') {
-            const myul = ul.querySelectorAll('ul');
-            myul[myul.length -1].innerHTML += `<li><a href="#index${i}">${htx}</a></li>\n`;
+            const preUl = h2Ul.querySelector('ul:last-child');
+            const h3Li = `<li><a href="#index${i}">${htx}</a></li>\n`;
+            if (preUl) preUl.innerHTML += h3Li;
+            else h2Ul.innerHTML += h3Li;
           }
           h23[i].setAttribute('id',`index${i}`);
         }
-        const checkUl = ul.querySelectorAll('ul');
-        for(const cul of checkUl) {
-          if(cul.textContent === '') cul.remove();
+        const h3Uls = h2Ul.querySelectorAll('ul');
+        for (const h3Ul of h3Uls) {
+          if (!h3Ul.textContent) h3Ul.remove();
         }
       };
-      async makeHTMLOriginal(doc) {
+      async makeHTMLSpecial(doc) {
         this.insertHeadTitle(doc,`${this.title.value} - ${CNFST.value}`);
         this.insertDescription(doc,this.desc.value);
         this.insertBodyTitle(doc,this.title.value);
         this.insertContents(doc,this.ta.value);
         this.insertTime(doc,this.time.value);
         this.insertImg(doc,this.img.value,this.title.value);
-        this.insertAuther(doc,CONF.elements['auther'].value);
+        this.insertAuther(doc,SETT.elements['auther'].value);
         this.insertTags(doc,this.tags.value);
         this.editParts(doc);
       };
       async save() {
         const doc = await this.makeHTMLCommon();
-        await this.makeHTMLOriginal(doc);
+        await this.makeHTMLSpecial(doc);
         this.insertOGPUrl(doc,await this.fullURL());
+        await this.setPrevNextLink(doc);
         const str = this.docToHTMLStr(doc);
         await this.write(str);
       };
@@ -836,15 +877,97 @@ document.addEventListener('DOMContentLoaded', () => {
         await this.save();
         for (const input of POSNW.elements) input.value = '';
       };
-      async transHTMLOriginal(doc,beforeDoc) {
+      async transHTMLSpecial(doc,beforeDoc) {
         this.insertOGPUrl(doc,await this.fullURL());
         this.insertTime(doc,this.loadTime(beforeDoc));
         this.insertImg(doc,this.loadImg(beforeDoc),this.loadTitle(beforeDoc));
-        this.insertAuther(doc,CONF.elements['auther'].value);
+        this.insertAuther(doc,SETT.elements['auther'].value);
         this.insertTags(doc,this.loadTags(beforeDoc));
+        await this.setPrevNextLink(doc);
         for(const part of POSPA) {
           const elem = beforeDoc.querySelector(`.${part}`);
-          if (elem === null) doc.querySelector(`.${part}`).remove();
+          if (!elem) doc.querySelector(`.${part}`).remove();
+        }
+      };
+      static sortLatestDir()  {
+        return postFolders.sort((a, b) => b - a);
+      };
+      static addDirsList()  {
+        const dirs = this.sortLatestDir();
+        for (const dir of dirs) {
+          POST.elements['years'].insertAdjacentHTML('beforeend',`<option value="${dir}" class="years">${dir}</option>`);
+        }
+        POST.elements['years'].value = date.nowYear();
+      };
+      static async getPostData(fileName,dirName) {
+        const post = new HandlePost(fileName);
+        const doc = await post.document();
+        const tit = post.loadTitle(doc);
+        const dti = post.loadTime(doc);
+        const rti = dti.replace('T','.').replace(/[^0-9\.]/g,'');
+        const img = post.loadImg(doc);
+        const tgs = post.loadTags(doc);
+        const dsc = post.loadDescription(doc);
+        return [fileName,tit,dirName,dti,rti,img,tgs,dsc]; //0:filename, 1:title, 2:dirctory name, 3:datetime, 4:datetime(num), 5:image 6:tags 7:description
+      };
+      static async dirLatestData(dirName) {
+        const dHandle = postChest.find(({name}) => name === dirName);
+        const data = [];
+        for await (const file of dHandle.values()) {
+          if (file.kind === 'file') {
+            const array = await this.getPostData(file.name,dirName);
+            data.push(array);
+          }
+        }
+        return data.sort((a, b) => b[4] - a[4]);
+      };
+      static async allLatestData() {
+        const flds = this.sortLatestDir();
+        const allData = [];
+        for (const fld of flds) {
+          const data = await this.dirLatestData(fld);
+          allData.push(...data);
+        }
+        console.log(allData)
+        return allData;
+      };
+      static async addListInDir(dirName) {
+        POSBO.classList.add('hide');
+        POSLI.textContent = '';
+        POSNW.elements['btn'].classList.remove('btn-close');
+        const data = await this.dirLatestData(dirName);
+        for (const d of data) {
+          POSLI.insertAdjacentHTML('beforeend',`<fieldset data-name="${d[0]}"><input value="${d[1]}"><input type="datetime-local" value="${d[3]}"><u>${d[0]}</u><button type="button" class="btn-edit"></button></fieldset>`);
+        }
+      };
+      static async insertLatestPostsNum(num,elem) {
+        const d = await this.allLatestData();
+        for (let i = 0; i < num; i++) {
+          let mid = '';
+          if (d[i][5]) mid = `<img src="${d[i][5]}" alt="${d[i][1]}" />`;
+          else {
+            if (d[i][7]) mid = `<p class="headline">${d[i][7]}</p>`;
+          }
+          elem.insertAdjacentHTML('beforeend',`<div><a href="./post/${d[i][2]}/${d[i][0]}"><h3>${d[i][1]}</h3>${mid}<p class="time"><time>${date.changeFormat(d[i][3])}</time>${d[i][6]}</p></a></div>\n`);
+        }
+      };
+      static async insertLatestPostsAll(elem) {
+        const data = await this.allLatestData();
+        for (const d of data) {
+          const tagHTML = d[7];
+          let classes = '';
+          if (!tagHTML) classes = 'tag-No-Tag';
+          else {
+            const sht = DOMP.parseFromString(tagHTML,'text/html');
+            const spans = sht.querySelectorAll('span');
+            for (const span of spans) classes += ` tag-${span.textContent.replace(/ /g,'-')}`;
+          }
+          let mid = '';
+          if (d[5]) mid = `<img src="${d[5]}" alt="${d[1]}" />`;
+          else {
+            if (d[7]) mid = `<p class="headline">${d[7]}</p>`;
+          }
+          elem.insertAdjacentHTML('beforeend',`<div class="${classes.trim()} fld-${d[2]}"><a href="./post/${d[2]}/${d[0]}"><h3>${d[1]}</h3>${mid}<p class="time"><time>${date.changeFormat(d[3])}</time>${d[6]}</p></a></div>\n`);
         }
       };
     };
@@ -866,7 +989,7 @@ document.addEventListener('DOMContentLoaded', () => {
         this.ta.value = this.loadContents(doc);
         this.desc.value = this.loadDescription(doc);
       };
-      makeHTMLOriginal(doc) {
+      makeHTMLSpecial(doc) {
         this.insertHeadTitle(doc,this.title.value);
         this.insertDescription(doc,this.desc.value);
         this.insertOGPUrl(doc,this.fullURL());
@@ -880,110 +1003,32 @@ document.addEventListener('DOMContentLoaded', () => {
         await this.save();
         for (const input of PAGNW.elements) input.value = '';
       };
-      async transHTMLOriginal(doc) {
+      async transHTMLSpecial(doc) {
         this.insertOGPUrl(doc,this.fullURL());
       };
-    };
-    //post lister obj
-    const postLister = {
-      sortLatestFolder: () => {
-        return postFolders.sort((a, b) => b - a);
-      },
-      addFoldersToSelect: () => {
-        const flds = postLister.sortLatestFolder();
-        for (const fld of flds) {
-          POST.elements['years'].insertAdjacentHTML('beforeend',`<option value="${fld}" class="years">${fld}</option>`);
-        }
-        POST.elements['years'].value = date.nowYear();
-      },
-      makePostData: async(fileName,dirName) => {
-        const post = new HandlePost(fileName);
-        const doc = await post.document();
-        const tit = post.loadTitle(doc);
-        const dti = post.loadTime(doc);
-        const rti = dti.replace('T','.').replace(/[^0-9\.]/g,'');
-        const img = post.loadImg(doc);
-        const tgs = post.loadTags(doc);
-        const dsc = post.loadDescription(doc);
-        return [fileName,tit,dirName,dti,rti,img,tgs,dsc];//0:file name, 1:title, 2:dirctory name, 3:datetime, 4:datetime(num), 5:image 6:tags 7:description
-      },
-      makeLatestData: async(dirName) => {
-        const dHandle = postChest.find(({name}) => name === dirName);
-        let data = [];
-        for await (const file of dHandle.values()) {
+      static async allData() {
+        const data = [];
+        for (const file of pageChest.values()) {
           if (file.kind === 'file') {
-            const array = await postLister.makePostData(file.name,dirName);
-            data.push(array);
+            const page = new HandlePage(file.name);
+            const doc = await page.document();
+            const title = page.loadTitle(doc);
+            data.push([file.name,title]); //0:filename 1:title
           }
         }
-        return data.sort((a, b) => b[0] - a[0]);
-      },
-      makeLatestAllData: async() => {
-        const flds = postLister.sortLatestFolder();
-        let allData = [];
-        for (const fld of flds) {
-          const data = await postLister.makeLatestData(fld)
-          allData.push(...data);
-        }
-        console.log(allData)
-        return allData;
-      },
-      addListOfDir: async(dirName) => {
-        POSBO.classList.add('hide');
-        POSLI.textContent = '';
-        POSNW.elements['btn'].classList.remove('btn-close');
-        const data = await postLister.makeLatestData(dirName);
-        for (const d of data) {
-          POSLI.insertAdjacentHTML('beforeend',`<fieldset data-name="${d[0]}"><input value="${d[1]}"><input type="datetime-local" value="${d[3]}"><u>${d[0]}</u><button type="button" class="btn-edit"></button></fieldset>`);
-        }
-      },
-      insertLatestNumber: async(num,elem) => {
-        const d = await postLister.makeLatestAllData();
-        for (let i = 0; i < num; i++) {
-          let mid = '';
-          if (d[i][5] !== '') mid = `<img src="${d[i][5]}" alt="${d[i][1]}" />`;
-          else {
-            if (d[i][7] !== '') mid = `<p class="headline">${d[i][7]}</p>`;
-          }
-          elem.insertAdjacentHTML('beforeend',`<div><a href="./post/${d[i][2]}/${d[i][0]}"><h3>${d[i][1]}</h3>${mid}<p class="time"><time>${date.changeFormat(d[i][3])}</time>${d[i][6]}</p></a></div>\n`);
-        }
-      },
-      insertLatestAll: async(elem) => {
-        const data = await postLister.makeLatestAllData();
-        for (const d of data) {
-          const tagHTML = d[7];
-          let classes = '';
-          if (tagHTML === '') classes = 'tag-No-Tag';
-          else {
-            const sht = DOMP.parseFromString(tagHTML,'text/html');
-            const spans = sht.querySelectorAll('span');
-            for (const span of spans) classes += ` tag-${span.textContent.replace(/ /g,'-')}`;
-          }
-          let mid = '';
-          if (d[5] !== '') mid = `<img src="${d[5]}" alt="${d[1]}" />`;
-          else {
-            if (d[7] !== '') mid = `<p class="headline">${d[7]}</p>`;
-          }
-          elem.insertAdjacentHTML('beforeend',`<div class="${classes.trim()} fld-${d[2]}"><a href="./post/${d[2]}/${d[0]}"><h3>${d[1]}</h3>${mid}<p class="time"><time>${date.changeFormat(d[3])}</time>${d[6]}</p></a></div>\n`);
-        }
-      }
-    };
-    //page lister
-    addPageList = async () => {
-      PAGBO.classList.add('hide');
-      PAGLI.textContent = '';
-      PAGNW.elements['btn'].classList.remove('btn-close');
-      for (const page of pageChest.values()) {
-        if (page.kind === 'file') {
-          const pfile = new HandlePage(page.name);
-          const pdoc = await pfile.document();
-          const title = pfile.loadTitle(pdoc);
-          PAGLI.insertAdjacentHTML('beforeend',`<fieldset data-name="${page.name}"><input value="${title}"><u>${page.name}</u><button type="button" class="btn-edit"></button></fieldset>`);
-        }
-      }
+        return data;
+      };
+      static async addPageList() {
+        PAGBO.classList.add('hide');
+        PAGLI.textContent = '';
+        PAGNW.elements['btn'].classList.remove('btn-close');
+        const data = await this.allData();
+        for (const d of data)
+        PAGLI.insertAdjacentHTML('beforeend',`<fieldset data-name="${d[0]}"><input value="${d[1]}"><u>${d[0]}</u><button type="button" class="btn-edit"></button></fieldset>`);
+      };
     };
     //tetx editor exe
-    class AList extends Editor {
+    class AList extends TextEditor {
       addA() {
         LINKS.classList.toggle('hide');
         IMAGS.classList.add('hide');
@@ -996,7 +1041,7 @@ document.addEventListener('DOMContentLoaded', () => {
       };
       static async addList(dirName) {
         LINKS.querySelector('div').textContent ='';
-        const data = await postLister.makeLatestData(dirName);
+        const data = await HandlePost.dirLatestData(dirName);
         for (const d of data) LINKS.querySelector('div').insertAdjacentHTML('beforeend',`<p data-name="${d[0]}" data-title="${d[1]}">${d[3]}<br />${d[1]}<br />${d[0]}</p>`);
         LINKS.elements['flds'].value = dirName;
       };
@@ -1008,7 +1053,7 @@ document.addEventListener('DOMContentLoaded', () => {
         LINKS.elements['flds'].value = date.nowYear();
       };
     };
-    class ImgList extends Editor {
+    class ImgList extends TextEditor {
       addImgTag() {
         IMAGS.classList.toggle('hide');
         LINKS.classList.add('hide');
@@ -1050,20 +1095,20 @@ document.addEventListener('DOMContentLoaded', () => {
         IMAGS.elements['flds'].value = date.nowYear();
       };
     };
-    class Custom extends Editor {
+    class Custom extends TextEditor {
       addCustomTag(tag) {
         this.insertText(tag);
       };
       static replaceBtn() {
-        const ctm = CONF.elements['custom-editor'].value;
+        const ctm = SETT.elements['custom-editor'].value;
         document.getElementById('post-panel').innerHTML = ctm;
         document.getElementById('page-panel').innerHTML = ctm;
       };
     };
-  //Event
+  //// Event ////
     document.getElementById('home').onclick = async () => await index.preview();
     document.getElementById('map').onclick = async () => await allpost.preview();
-    //Save button
+    //click Save button
     SAVE.onclick = async () => {
       const section = H2SE.dataset.section;
       const fileName = SAVE.dataset.file;
@@ -1073,10 +1118,12 @@ document.addEventListener('DOMContentLoaded', () => {
       if (section === 'post') saveName += ', index.html, allpost.html'
       dialog.confirmSave(saveName);
       if (section === 'post') {
-        if (POSNW.classList.contains('hide') === false) {
+        if (!POSNW.classList.contains('hide')) {
           const newName = `${POSNW.elements['name'].value}.html`
           await new HandlePost(newName).saveNew();
-          await postLister.addListOfDir(date.nowYear());
+          const data = await HandlePost.dirLatestData(date.nowYear());
+          await new HandlePost(data[1][0]).saveTransfer();
+          await HandlePost.addListInDir(date.nowYear());
         } else {
           await new HandlePost(fileName).save();
         }
@@ -1087,40 +1134,32 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       }
       else if (section === 'page') {
-        if (PAGNW.classList.contains('hide') === false) {
+        if (!PAGNW.classList.contains('hide')) {
           const newName = `${PAGNW.elements['name'].value}.html`
           await new HandlePage(newName).saveNew();
-          await addPageList();
+          await HandlePage.addPageList();
         } else {
           await new HandlePage(fileName).save();
         }
       }
       else if (section === 'style')  await style.save();
       else if (section === 'template') await template.save();
-      else if (section === 'config') await config.save();
+      else if (section === 'setting') await setting.save();
       dialog.successSave(saveName);
     };
-    //preview button
+    //click Preview button
     PREV.onclick = async () => {
       const fileName = SAVE.dataset.file;
       const section = H2SE.dataset.section;
       if (section === 'post') await new HandlePost(fileName).preview();
       else if (section === 'page') await new HandlePage(fileName).preview();
     };
-  //POST
+  //Post
     POST.elements['years'].addEventListener('input', async () => {
       const dirName = POST.elements['years'].value;
-      await postLister.addListOfDir(dirName);
+      await HandlePost.addListInDir(dirName);
     });
     POST.elements['img-open'].onclick = () => new ImgList(POST).addImgPath();
-    //click tags
-    POSTG.onclick = (e) => {
-      if (e.target.tagName === 'I') e.target.classList.toggle('on');
-      const ons = POSTG.querySelectorAll('.on');
-      let tagsHtml = '';
-      for(const on of ons) tagsHtml += `<span>${on.textContent}</span>`
-      POST.elements['tags'].value = tagsHtml;
-    };
     ( async () => {
     //Post, Page
       const elems = [[POSLI,POSBO,POSNW,'post',HandlePost,POST],[PAGLI,PAGBO,PAGNW,'page',HandlePage,PAGE]];
@@ -1134,7 +1173,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const fileName = e.target.parentNode.dataset.name;
             const fs = document.querySelectorAll(`#${elem[3]}-list fieldset:not([data-name="${fileName}"])`);
             for (const f of fs) f.classList.toggle('hide');
-            if (elem[1].classList.contains('hide') === false) await new elem[4](fileName).loadElements();
+            if (!elem[1].classList.contains('hide')) await new elem[4](fileName).loadElements();
           }
         };
         //click new button
@@ -1154,7 +1193,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         //click text editor panel
         document.getElementById(`${elem[3]}-panel`).onclick = (e) => {
-          if (e.target.tagName === 'I') new Editor().addTag(e.target.textContent);
+          if (e.target.tagName === 'I') new TextEditor().addTag(e.target.textContent);
           else if (e.target.title === 'link') new AList(elem[5]).addA();
           else if (e.target.title === 'img') new ImgList(elem[5]).addImgTag();
           else if (e.target.tagName === 'U') new Custom(elem[5]).addCustomTag(e.target.title);
@@ -1172,9 +1211,14 @@ document.addEventListener('DOMContentLoaded', () => {
         list[1].addList(date.nowYear());
         list[1].addFolders();
       }
+      //check if parts exsits in the template
+      const tmpDoc = await template.document();
+      for (const part of POSPA) {
+        if (!tmpDoc.querySelector(`.${part}`)) POST.elements[part].parentNode.classList.add('disable');
+      }
     })();
-  //renews
-    //add number
+  //allsave
+    //append number
     RENW.elements['post'].parentNode.insertAdjacentHTML('beforeend',`(${postChest.length - postFolders.length})`);
     RENW.elements['page'].parentNode.insertAdjacentHTML('beforeend',`(${pageChest.length})`);
     //click start saving
@@ -1183,13 +1227,13 @@ document.addEventListener('DOMContentLoaded', () => {
       log.textContent = '';
       dialog.confirmSave('checked files');
       for (const file of [['index',index],['allpost',allpost],['search',search]]) {
-        if (RENW.elements[file[0]].checked === true) {
+        if (RENW.elements[file[0]].checked) {
           await file[1].save();
           log.insertAdjacentHTML('beforeend',`<p>Succeeded in saving ${file[1].fileName}</p>`);
         }
       }
       for (const art of [['post',postChest,HandlePost],['page',pageChest,HandlePage]]) {
-        if (RENW.elements[art[0]].checked === true) {
+        if (RENW.elements[art[0]].checked) {
           for (const file of art[1].values()) {
             if (file.kind === 'file') {
               await new art[2](file.name).saveTransfer();
@@ -1203,17 +1247,139 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     document.getElementById('guide').classList.add('hide');
     //load files
-    for (const file of [template,style,config]) await file.load();
+    for (const file of [template,style,setting]) await file.load();
     POSNW.elements['date'].value = date.nowYmdTime();
-    postLister.addFoldersToSelect();
-    await postLister.addListOfDir(date.nowYear());
-    await addPageList();
-    if (CONF.elements['custom-editor'].value !== '') Custom.replaceBtn();
+    HandlePost.addDirsList();
+    await HandlePost.addListInDir(date.nowYear());
+    await HandlePage.addPageList();
+    if (SETT.elements['custom-editor'].value) Custom.replaceBtn();
     for (const file of [style,favicon,mainjs]) {
-      if (await file.txt() === '') await file.writeURLToFile();
+      const txt = await file.txt();
+      if (!txt) await file.writeURLToFile();
     }
   };
 });
+
+    //page lister
+    // addPageList = async () => {
+    //   PAGBO.classList.add('hide');
+    //   PAGLI.textContent = '';
+    //   PAGNW.elements['btn'].classList.remove('btn-close');
+    //   for (const file of pageChest.values()) {
+    //     if (file.kind === 'file') {
+    //       const page = new HandlePage(file.name);
+    //       const pdoc = await page.document();
+    //       const title = page.loadTitle(pdoc);
+    //       PAGLI.insertAdjacentHTML('beforeend',`<fieldset data-name="${file.name}"><input value="${title}"><u>${file.name}</u><button type="button" class="btn-edit"></button></fieldset>`);
+    //     }
+    //   }
+    // };
+
+    //post lister obj
+    // const latestPosts = {
+    //   sortLatestDir: () => {
+    //     return postFolders.sort((a, b) => b - a);
+    //   },
+    //   addDirsList: () => {
+    //     const flds = latestPosts.sortLatestDir();
+    //     for (const fld of flds) {
+    //       POST.elements['years'].insertAdjacentHTML('beforeend',`<option value="${fld}" class="years">${fld}</option>`);
+    //     }
+    //     POST.elements['years'].value = date.nowYear();
+    //   },
+    //   getPostData: async(fileName,dirName) => {
+    //     const post = new HandlePost(fileName);
+    //     const doc = await post.document();
+    //     const tit = post.loadTitle(doc);
+    //     const dti = post.loadTime(doc);
+    //     const rti = dti.replace('T','.').replace(/[^0-9\.]/g,'');
+    //     const img = post.loadImg(doc);
+    //     const tgs = post.loadTags(doc);
+    //     const dsc = post.loadDescription(doc);
+    //     return [fileName,tit,dirName,dti,rti,img,tgs,dsc];//0:filename, 1:title, 2:dirctory name, 3:datetime, 4:datetime(num), 5:image 6:tags 7:description
+    //   },
+    //   makeOneDirData: async(dirName) => {
+    //     const dHandle = postChest.find(({name}) => name === dirName);
+    //     const data = [];
+    //     for await (const file of dHandle.values()) {
+    //       if (file.kind === 'file') {
+    //         const array = await latestPosts.getPostData(file.name,dirName);
+    //         data.push(array);
+    //       }
+    //     }
+    //     return data.sort((a, b) => b[4] - a[4]);
+    //   },
+    //   makeAllData: async() => {
+    //     const flds = latestPosts.sortLatestDir();
+    //     const allData = [];
+    //     for (const fld of flds) {
+    //       const data = await latestPosts.makeOneDirData(fld);
+    //       allData.push(...data);
+    //     }
+    //     console.log(allData)
+    //     return allData;
+    //   },
+    //   addListOfDir: async(dirName) => {
+    //     POSBO.classList.add('hide');
+    //     POSLI.textContent = '';
+    //     POSNW.elements['btn'].classList.remove('btn-close');
+    //     const data = await latestPosts.makeOneDirData(dirName);
+    //     for (const d of data) {
+    //       POSLI.insertAdjacentHTML('beforeend',`<fieldset data-name="${d[0]}"><input value="${d[1]}"><input type="datetime-local" value="${d[3]}"><u>${d[0]}</u><button type="button" class="btn-edit"></button></fieldset>`);
+    //     }
+    //   },
+    //   insertNumber: async(num,elem) => {
+    //     const d = await latestPosts.makeAllData();
+    //     for (let i = 0; i < num; i++) {
+    //       let mid = '';
+    //       if (d[i][5]) mid = `<img src="${d[i][5]}" alt="${d[i][1]}" />`;
+    //       else {
+    //         if (d[i][7]) mid = `<p class="headline">${d[i][7]}</p>`;
+    //       }
+    //       elem.insertAdjacentHTML('beforeend',`<div><a href="./post/${d[i][2]}/${d[i][0]}"><h3>${d[i][1]}</h3>${mid}<p class="time"><time>${date.changeFormat(d[i][3])}</time>${d[i][6]}</p></a></div>\n`);
+    //     }
+    //   },
+    //   insertAll: async(elem) => {
+    //     const data = await latestPosts.makeAllData();
+    //     for (const d of data) {
+    //       const tagHTML = d[7];
+    //       let classes = '';
+    //       if (!tagHTML) classes = 'tag-No-Tag';
+    //       else {
+    //         const sht = DOMP.parseFromString(tagHTML,'text/html');
+    //         const spans = sht.querySelectorAll('span');
+    //         for (const span of spans) classes += ` tag-${span.textContent.replace(/ /g,'-')}`;
+    //       }
+    //       let mid = '';
+    //       if (d[5]) mid = `<img src="${d[5]}" alt="${d[1]}" />`;
+    //       else {
+    //         if (d[7]) mid = `<p class="headline">${d[7]}</p>`;
+    //       }
+    //       elem.insertAdjacentHTML('beforeend',`<div class="${classes.trim()} fld-${d[2]}"><a href="./post/${d[2]}/${d[0]}"><h3>${d[1]}</h3>${mid}<p class="time"><time>${date.changeFormat(d[3])}</time>${d[6]}</p></a></div>\n`);
+    //     }
+    //   }
+    // };
+
+// const index = data.findIndex(([name]) => name === this.fileName);
+
+      // setPreviousLink(doc,value) {
+      //   const elem = doc.querySelector('.link-prev');
+      //   if (!elem) return;
+      //   if (!value) {
+      //     elem.setAttribute('class','isDisabled');
+      //     return;
+      //   }
+      //   elem.setAttribute('href',`${this.path}post/${value}`);
+      // };
+      // setNextLink(doc,value) {
+      //   const elem = doc.querySelector('.link-next');
+      //   if (!elem) return;
+      //   if (!value) {
+      //     elem.setAttribute('class','isDisabled');
+      //     return;
+      //   }
+      //   elem.setAttribute('href',`${this.path}post/${value}`);
+      // };
 
         // elem.innerHTML += '<ul></ul>';
         // const ul = elem.querySelector('ul');
@@ -1283,7 +1449,7 @@ document.addEventListener('DOMContentLoaded', () => {
     //   return `${this.ymd()}T${this.hours()}:${this.minutes()}`;
     // };
         // dateType() {
-    //   const dt = CONF.elements['date-type'].value;
+    //   const dt = SETT.elements['date-type'].value;
     //   if (dt === 'yyyy-mm-dd') return this.ymd();
     //   else if (dt === 'dd-mm-yyyy') return this.dmy();
     //   else if (dt === 'mm-dd-yyyy') return this.mdy();
@@ -1301,7 +1467,7 @@ document.addEventListener('DOMContentLoaded', () => {
         //   console.log(name)
         //   const fileName = name.replace(/　/g,' ').trim();
         //   const parentName = await new HandlePost(fileName).parentName();
-        //   const data = await postLister.makePostData(fileName,parentName);
+        //   const data = await latestPosts.getPostData(fileName,parentName);
         //   elem.insertAdjacentHTML('beforeend',`<div><a href="../../post/${data[4]}/${data[1]}">${data[6]}<h3>${data[3]}</h3><p><time>${data[2]}</time>${data[7]}</p></a></div>\n`);
         // }
       // },
@@ -1341,7 +1507,7 @@ document.addEventListener('DOMContentLoaded', () => {
 //     console.log(name)
 //     const fileName = name.replace(/　/g,' ').trim();
 //     const parentName = await new HandlePost(fileName).parentName();
-//     const data = await postLister.makePostData(fileName,parentName);
+//     const data = await latestPosts.getPostData(fileName,parentName);
 //     elem.insertAdjacentHTML('beforeend',`<div><a href="../../post/${data[4]}/${data[1]}">${data[6]}<h3>${data[3]}</h3><p><time>${data[2]}</time>${data[7]}</p></a></div>\n`);
 //   }
 // },
@@ -1388,7 +1554,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // };
     
     //spellcheck
-    // if (CONF.elements['spellcheck'].value === 'off') {
+    // if (SETT.elements['spellcheck'].value === 'off') {
     //   const frms = ['input','textarea'];
     //   for (const frm of frms) {
     //     const inps = document.querySelectorAll(frm);
@@ -1423,17 +1589,17 @@ document.addEventListener('DOMContentLoaded', () => {
     //   constructor() {
     //     this.postFolders = postFolders;
     //   };
-    //   sortLatestFolder() {
+    //   sortLatestDir() {
     //     return this.postFolders.sort((a, b) => b - a);
     //   };
     //   insertFolders() {
-    //     const flds = this.sortLatestFolder();
+    //     const flds = this.sortLatestDir();
     //     for (const fld of flds) {
     //       POST.elements['years'].insertAdjacentHTML('beforeend',`<option value="${fld}" class="years">${fld}</option>`);
     //     }
     //     POST.elements['years'].value = date.syear();
     //   };
-    //   async makePostData(fileName,dirName) {
+    //   async getPostData(fileName,dirName) {
     //     const doc = await new HandlePost(fileName).document();
     //     const tit = doc.querySelector('.title')?.textContent?? '';
     //     const dti = doc.querySelector('time')?.getAttribute('datetime')?? '';
@@ -1443,29 +1609,29 @@ document.addEventListener('DOMContentLoaded', () => {
     //     const tgs = doc.querySelector('.tags')?.innerHTML?? '';
     //     return [rti,fileName,tim,tit,dirName,dti,tif,tgs];
     //   };
-    //   async makeLatestData(dirName) {
+    //   async makeOneDirData(dirName) {
     //     const fldHandle = postChest.find(({name}) => name === dirName);
     //     let data = [];
     //     for await (const file of fldHandle.values()) {
     //       if (file.kind === 'file') {
-    //         const arr = await this.makePostData(file.name,dirName);
+    //         const arr = await this.getPostData(file.name,dirName);
     //         data.push(arr);
     //       }
     //     }
     //     return data.sort((a, b) => b[0] - a[0]);
     //   };
-    //   async makeLatestAllData() {
-    //     const flds = this.sortLatestFolder();
-    //     let allData = [];
+    //   async makeAllData() {
+    //     const flds = this.sortLatestDir();
+    //     let makeAllData = [];
     //     for (const fld of flds) {
-    //       const data = await this.makeLatestData(fld)
-    //       allData.push(...data);
+    //       const data = await this.makeOneDirData(fld)
+    //       makeAllData.push(...data);
     //     }
-    //     console.log(allData)
-    //     return allData;
+    //     console.log(makeAllData)
+    //     return makeAllData;
     //   };
     //   async addListOfDir(dirName) {
-    //     const data = await this.makeLatestData(dirName);
+    //     const data = await this.makeOneDirData(dirName);
     //     for (const d of data) {
     //       POSLI.insertAdjacentHTML('beforeend',`<fieldset data-name="${d[1]}"><input value="${d[3]}"><input value="${d[2]}" title="${d[5]}"><u>${d[1]}</u><button type="button" class="btn-edit"></button></fieldset>`);
     //     }
@@ -1482,18 +1648,18 @@ document.addEventListener('DOMContentLoaded', () => {
     //       console.log(name)
     //       const fileName = name.replace(/　/g,' ').trim();
     //       const parentName = await new HandlePost(fileName).parentName();
-    //       const data = await this.makePostData(fileName,parentName);
+    //       const data = await this.getPostData(fileName,parentName);
     //       elem.insertAdjacentHTML('beforeend',`<div><a href="../../post/${data[4]}/${data[1]}">${data[6]}<h3>${data[3]}</h3><p><time>${data[2]}</time>${data[7]}</p></a></div>\n`);
     //     }
     //   };
-    //   async insertLatestNumber(num,elem) {
-    //     const data = await this.makeLatestAllData();
+    //   async insertNumber(num,elem) {
+    //     const data = await this.makeAllData();
     //     for (let i = 0; i < num; i++) {
     //       elem.insertAdjacentHTML('beforeend',`<div><a href="./post/${data[i][4]}/${data[i][1]}">${data[i][6]}<h3>${data[i][3]}</h3><p><time>${data[i][2]}</time>${data[i][7]}</p></a></div>\n`);
     //     }
     //   };
-    //   async insertLatestAll(elem) {
-    //     const data = await this.makeLatestAllData();
+    //   async insertAll(elem) {
+    //     const data = await this.allData();
     //     for (let i = 0; i < data.length; i++) {
     //       const tagHTML = data[i][7];
     //       let classes = '';
@@ -1507,7 +1673,7 @@ document.addEventListener('DOMContentLoaded', () => {
     //     }
     //   };
     // };
-    // const postLister = new PostLister();
+    // const latestPosts = new PostLister();
 
     // class AllpostJS extends HandleFile {
     //   constructor(fileName,chest) {
@@ -1635,23 +1801,23 @@ document.addEventListener('DOMContentLoaded', () => {
 // });
 
         // const aut = doc.getElementById('auther')?.textContent?? '';
-        // CONF.elements['auther'].value = aut;
+        // SETT.elements['auther'].value = aut;
         // const tit = doc.getElementById('site-title')?.textContent?? '';
-        // CONF.elements['site-title'].value = tit;
+        // SETT.elements['site-title'].value = tit;
         // const sub = doc.getElementById('site-subtitle')?.textContent?? '';
-        // CONF.elements['site-subtitle'].value = sub;
+        // SETT.elements['site-subtitle'].value = sub;
         // const url = doc.getElementById('url')?.textContent?? '';
-        // CONF.elements['url'].value = url;
+        // SETT.elements['url'].value = url;
         // const dat = doc.getElementById('date-type')?.textContent?? '';
-        // CONF.elements['date-type'].value = dat;
+        // SETT.elements['date-type'].value = dat;
 
-//         const spl = CONF.elements['spellcheck'].value;
-//         const aut = CONF.elements['auther'].value;
-//         const dat = CONF.elements['date-type'].value;
-//         const tgs = CONF.elements['tags'].value;
-//         const idc = CONF.elements['index-desc'].value;
-//         const num = CONF.elements['latest-posts'].value;
-//         const ctm = CONF.elements['custom-editor'].value;
+//         const spl = SETT.elements['spellcheck'].value;
+//         const aut = SETT.elements['auther'].value;
+//         const dat = SETT.elements['date-type'].value;
+//         const tgs = SETT.elements['tags'].value;
+//         const idc = SETT.elements['index-desc'].value;
+//         const num = SETT.elements['latest-posts'].value;
+//         const ctm = SETT.elements['custom-editor'].value;
 //         const str = `<p id="site-title">${CNFST.value}</p>
 // <p id="site-subtitle">${CNFST.value}</p>
 // <p id="url">${CNFUR.value}</p>
@@ -1668,7 +1834,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 //e.preventDefault();
     // dateType() {
-    //   const dt = CONF.elements['date-type'].value;
+    //   const dt = SETT.elements['date-type'].value;
     //   if (dt === 'ymd') return this.ymd();
     //   if (dt === 'dmy') return this.dmy();
     //   if (dt === 'mdy') return this.mdy();
@@ -1718,7 +1884,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 //text editor
   //original code from https://www.annytab.com/create-html-editor-with-pure-javascript/
-  // class Editor {
+  // class TextEditor {
   //   constructor(panel,textarea) {
   //     this.panel = panel;
   //     this.ta = textarea;
@@ -1849,7 +2015,7 @@ document.addEventListener('DOMContentLoaded', () => {
   //   };
   // };
   
-  // //const editor = new Editor(pagpanel,pagtxta);
+  // //const editor = new TextEditor(pagpanel,pagtxta);
   // document.getElementById('page-panel').onclick = (e) => {
   //   if (e.target.tagName === 'B') {
   //     //e.preventDefault();
@@ -1857,7 +2023,7 @@ document.addEventListener('DOMContentLoaded', () => {
   //     const pagtxta = PAGE.elements['ta'];
   //     const txt = e.target.textContent;
   //     console.log(txt)
-  //     new Editor(pagpanel,pagtxta).addTag(txt);
+  //     new TextEditor(pagpanel,pagtxta).addTag(txt);
   //   }
   // };
         // const ncs = doc.head.querySelectorAll(`:not(.${className})`);
@@ -2007,7 +2173,7 @@ document.addEventListener('DOMContentLoaded', () => {
     //         ACTF.insertAdjacentHTML('afterbegin',n);
     //       }
     //     }
-    //     if (i === 'config') {
+    //     if (i === 'setting') {
     //       SAVE.setAttribute('class',i+'.html');
     //       ACTF.insertAdjacentHTML('afterbegin',i+'.html');
     //     }
