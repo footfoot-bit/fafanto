@@ -3,7 +3,17 @@ document.addEventListener('DOMContentLoaded', () => {
   if (window.showOpenFilePicker) console.log('File System is available');
   else document.querySelector('#guide div').innerHTML = '<span class="exclamation">Oops...This app works with Chromium-based browsers for PC. (Google Chrome, MS Edge, etc.)</span>';
   // Registering Service Worker
-  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
+  // if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js')
+    .then((reg) => {
+      // registration worked
+      console.log('Registration succeeded. Scope is ' + reg.scope);
+    }).catch((error) => {
+      // registration failed
+      console.log('Registration failed with ' + error);
+    });
+  }
   // global constant
   const DOMP = new DOMParser();
   const DATE = new Date().toISOString();
