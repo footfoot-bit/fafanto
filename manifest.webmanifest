@@ -8,6 +8,11 @@
   "icons": [
     {
       "src": "favicon.svg",
+      "sizes": "32x32",
+      "purpose": "any"
+    },
+    {
+      "src": "favicon.png",
       "sizes": "144x144",
       "purpose": "any"
     }
