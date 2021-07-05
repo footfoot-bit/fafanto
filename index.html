@@ -1,10 +1,9 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="en">
 <head>
 <title>fafanto | Create a static site with minimality.</title>
 <link href="fafanto.css" rel="stylesheet">
 <script src="https://kit.fontawesome.com/8725e8d35f.js" crossorigin="anonymous"></script>
-<link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <!-- <link rel="preconnect" href="https://fonts.gstatic.com"> -->
 <!-- <link href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap" rel="stylesheet"> -->
@@ -46,6 +45,12 @@
         </div>
         <div class="box-right">
           <fieldset>
+            <h3 title="Use for meta description and OGP description">Description<b></b></h3>
+            <div>
+              <textarea name="desc" placeholder="description text"></textarea>
+            </div>
+          </fieldset>
+          <fieldset>
             <h3>Image<b></b></h3>
             <div>
               <textarea name="img" placeholder="media/2021/xxx.jpg"></textarea>
@@ -82,12 +87,6 @@ do nothing or remove'>Freespace<input type="checkbox" name="freespace" checked><
               <i>ひらがな</i>
             </div>
             <textarea name="tags" class="hide"></textarea>
-          </fieldset>
-          <fieldset>
-            <h3 title="Use for meta description and OGP description">Description<b></b></h3>
-            <div>
-              <textarea name="desc" placeholder="description text"></textarea>
-            </div>
           </fieldset>
         </div>
       </div>
