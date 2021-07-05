@@ -7,7 +7,7 @@ const appFiles = [
   'favicon.svg',
   'favicon.png',
   'default-template.html',
-  'default-style.html',
+  'default-style.css',
   'default-main.js',
 ];
 // Installing Service Worker
