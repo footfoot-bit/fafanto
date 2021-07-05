@@ -1,8 +1,10 @@
 document.addEventListener('DOMContentLoaded', () => {
-  //Check user's browser supports (file API)
+  // Check user's browser supports (file API)
   if (window.showOpenFilePicker) console.log('File System is available');
   else document.querySelector('#guide div').innerHTML = '<span class="exclamation">Oops...This app works with Chromium-based browsers for PC. (Google Chrome, MS Edge, etc.)</span>';
-  //global constant
+  // Registering Service Worker
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
+  // global constant
   const DOMP = new DOMParser();
   const DATE = new Date().toISOString();
   const SAVE = document.getElementById('save');
@@ -27,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const CNFST = SETT.elements['site-title'];
   const LINKS = document.getElementById('links');
   const IMAGS = document.getElementById('images');
-  //load default template and style
+  // load default template and style
   fetch('default-template.html').then((response) => {
     return response.text();
   }).then((html) => {
@@ -38,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }).then((css) => {
     STYL.elements['ta'].value = css;
   });
-  //all file handle into array
+  // all file handle into array
   listAll = async (dir) => {
     const files = [];
     for await (const entry of dir.values()) {
