@@ -381,17 +381,6 @@ document.addEventListener('DOMContentLoaded', () => {
     for (const folder of mediaChest.values()) {
       if (folder.kind === 'directory') mediaFolders.push(folder.name);
     };
-    class ViewImg {
-      constructor(fileName) {
-        this.fileName = fileName;
-        this.chest = mediaChest;
-      };
-      async Url() {
-        const handle = this.chest.find(({name}) => name === this.fileName);
-        const get = await handle.getFile();
-        return URL.createObjectURL(get);
-      };
-    };
     //file handler class
     class HandleFile {
       constructor(fileName,chest) {
@@ -584,22 +573,16 @@ document.addEventListener('DOMContentLoaded', () => {
       async preview() {
         const doc = await this.makeHTMLCommon();
         await this.makeHTMLSpecial(doc);
-        // const elems =[['[rel=stylesheet]','href','site/style.css'],['script','src','site/main.js'],['[rel=icon]','href','site/favicon.svg']];
-        // for (const elem of elems ) doc.head.querySelector(elem[0]).setAttribute(elem[1],elem[2]);
-        // const imgs = doc.querySelectorAll('img');
-        // for (const img of imgs) {
-        //   const src = img.getAttribute('src');
-        //   const presrc = src.replace('media','site/media');
-        //   img.setAttribute('src',presrc);
-        // }
+        doc.head.insertAdjacentHTML('beforeend','<style></style>');
         const css = STYL.elements['ta'].value;
-        doc.head.insertAdjacentHTML('beforebegin',css);
+        doc.head.querySelector('style').innerHTML = css;
         const imgs = doc.querySelectorAll('img');
         for (const img of imgs) {
           const src = img.getAttribute('src');
           const arr = src.split("/");
-          const filename = arr[arr.length -1];
-          const url = await new ViewImg(filename).Url();
+          const fileName = arr[arr.length -1];
+          const dirName = arr[arr.length -2];
+          const url = await new ViewImg(fileName,dirName).Url();
           img.setAttribute('src',url);
         }
         const str = this.docToHTMLStr(doc);
@@ -1056,6 +1039,23 @@ document.addEventListener('DOMContentLoaded', () => {
         PAGLI.insertAdjacentHTML('beforeend',`<fieldset data-name="${d[0]}"><input value="${d[1]}"><u>${d[0]}</u><button type="button" class="btn-edit"></button></fieldset>`);
       };
     };
+    class ViewImg {
+      constructor(fileName,dirName) {
+        this.fileName = fileName;
+        this.dirName = dirName;
+      };
+      async Url() {
+        const dirHdl = mediaChest.find(({name}) => name === this.dirName);
+        for await (const img of dirHdl.values()) {
+          if(img.kind === 'file') {
+            if (img.name === this.fileName) {
+              const get = await img.getFile();
+              return URL.createObjectURL(get);
+            }
+          }
+        }
+      };
+    };
     //tetx editor exe
     class AList extends TextEditor {
       addA() {
@@ -1288,6 +1288,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 });
+        // const elems =[['[rel=stylesheet]','href','site/style.css'],['script','src','site/main.js'],['[rel=icon]','href','site/favicon.svg']];
+        // for (const elem of elems ) doc.head.querySelector(elem[0]).setAttribute(elem[1],elem[2]);
+        // const imgs = doc.querySelectorAll('img');
+        // for (const img of imgs) {
+        //   const src = img.getAttribute('src');
+        //   const presrc = src.replace('media','site/media');
+        //   img.setAttribute('src',presrc);
+        // }
 
     //page lister
     // addPageList = async () => {
