@@ -592,6 +592,8 @@ document.addEventListener('DOMContentLoaded', () => {
         //   const presrc = src.replace('media','site/media');
         //   img.setAttribute('src',presrc);
         // }
+        const str = STYL.elements['ta'].value;
+        doc.head.insertAdjacentHTML('beforeend','str');
         const imgs = doc.querySelectorAll('img');
         for (const img of imgs) {
           const src = img.getAttribute('src');
