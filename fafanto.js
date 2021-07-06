@@ -1,9 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
   // Check user's browser supports (file API)
   if (window.showOpenFilePicker) console.log('File System is available');
-  else document.querySelector('#guide div').innerHTML = '<span class="exclamation">Oops...This app works with Chromium-based browsers for PC. (Google Chrome, MS Edge, etc.)</span>';
+  else document.querySelector('#guide div').innerHTML = '<span class="exclamation">Oops...This app works with Google Chrome, MS Edge and Opera for PC.</span>';
   // Registering Service Worker
-  // if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js')
     .then((reg) => {
@@ -382,6 +381,17 @@ document.addEventListener('DOMContentLoaded', () => {
     for (const folder of mediaChest.values()) {
       if (folder.kind === 'directory') mediaFolders.push(folder.name);
     };
+    class ViewImg {
+      constructor(fileName) {
+        this.fileName = fileName;
+        this.chest = mediaChest;
+      };
+      async Url() {
+        const handle = this.chest.find(({name}) => name === this.fileName);
+        const get = await handle.getFile();
+        return URL.createObjectURL(get);
+      };
+    };
     //file handler class
     class HandleFile {
       constructor(fileName,chest) {
@@ -574,16 +584,24 @@ document.addEventListener('DOMContentLoaded', () => {
       async preview() {
         const doc = await this.makeHTMLCommon();
         await this.makeHTMLSpecial(doc);
-        const elems =[['[rel=stylesheet]','href','site/style.css'],['script','src','site/main.js'],['[rel=icon]','href','site/favicon.svg']];
-        for (const elem of elems ) doc.head.querySelector(elem[0]).setAttribute(elem[1],elem[2]);
+        // const elems =[['[rel=stylesheet]','href','site/style.css'],['script','src','site/main.js'],['[rel=icon]','href','site/favicon.svg']];
+        // for (const elem of elems ) doc.head.querySelector(elem[0]).setAttribute(elem[1],elem[2]);
+        // const imgs = doc.querySelectorAll('img');
+        // for (const img of imgs) {
+        //   const src = img.getAttribute('src');
+        //   const presrc = src.replace('media','site/media');
+        //   img.setAttribute('src',presrc);
+        // }
         const imgs = doc.querySelectorAll('img');
         for (const img of imgs) {
           const src = img.getAttribute('src');
-          const presrc = src.replace('media','site/media');
-          img.setAttribute('src',presrc);
+          const arr = src.split("/");
+          const filename = arr[arr.length -1];
+          const url = await new ViewImg(filename).Url();
+          img.setAttribute('src',url);
         }
         const str = this.docToHTMLStr(doc);
-        const ope = window.open();
+        const ope = window.open('preview',this.fileName,`height=${window.screen.height},width=${window.screen.width},scrollbars=yes,`);
         ope.document.write(str);
       };
       async save() {
