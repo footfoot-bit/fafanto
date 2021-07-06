@@ -593,7 +593,7 @@ document.addEventListener('DOMContentLoaded', () => {
         //   img.setAttribute('src',presrc);
         // }
         const str = STYL.elements['ta'].value;
-        doc.head.insertAdjacentHTML('beforeend',str);
+        doc.head.insertAdjacentHTML('beforebegin',str);
         const imgs = doc.querySelectorAll('img');
         for (const img of imgs) {
           const src = img.getAttribute('src');
