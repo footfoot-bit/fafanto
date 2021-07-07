@@ -582,7 +582,7 @@ document.addEventListener('DOMContentLoaded', () => {
           const arr = src.split("/");
           const fileName = arr[arr.length -1];
           const dirName = arr[arr.length -2];
-          const url = await new HandleMedia(fileName).url(dirName);
+          const url = await HandleMedia.searchToUrl(fileName,dirName);
           img.setAttribute('src',url);
         }
         const str = this.docToHTMLStr(doc);
@@ -1040,18 +1040,13 @@ document.addEventListener('DOMContentLoaded', () => {
       };
     };
     class HandleMedia {
-      constructor(fileName) {
-        this.fileName = fileName;
-      };
-      async url(dirName) {
+      // constructor(fileName) {
+      //   this.fileName = fileName;
+      // };
+      static async searchToUrl(fileName,dirName) {
         const dirHdl = mediaChest.find(({name}) => name === dirName);
         for await (const img of dirHdl.values()) {
-          if(img.kind === 'file') {
-            if (img.name === this.fileName) {
-              const get = await img.getFile();
-              return URL.createObjectURL(get);
-            }
-          }
+          if (img.name === fileName) return await this.localUrl(img);
         }
       };
       static dirsHdls() {
