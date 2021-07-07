@@ -1042,10 +1042,9 @@ document.addEventListener('DOMContentLoaded', () => {
     class HandleMedia {
       constructor(fileName) {
         this.fileName = fileName;
-        this.chest = mediaChest;
       };
       async url(dirName) {
-        const dirHdl = this.chest.find(({name}) => name === dirName);
+        const dirHdl = mediaChest.find(({name}) => name === dirName);
         for await (const img of dirHdl.values()) {
           if(img.kind === 'file') {
             if (img.name === this.fileName) {
@@ -1057,14 +1056,14 @@ document.addEventListener('DOMContentLoaded', () => {
       };
       static dirsHdls() {
         const dirsHdls = [];
-        for (const dir of this.chest.values()) {
+        for (const dir of mediaChest.values()) {
           if (dir.kind === 'directory') dirsHdls.push(dir);
         }
         return dirsHdls;
       };
       static async dirImgHdls(dirName) {
         const imgHdls = [];
-        const dirHdl = this.chest.find(({name}) => name === dirName);
+        const dirHdl = mediaChest.find(({name}) => name === dirName);
         for await (const img of dirHdl.values()) {
           if(img.kind === 'file') {
             if (img.name.match(/(.jpg|.jpeg|.png|.gif|.apng|.svg|.jfif|.pjpeg|.pjp|.ico|.cur)/i)) imgHdls.push(img);
