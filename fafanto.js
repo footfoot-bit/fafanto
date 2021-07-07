@@ -377,10 +377,10 @@ document.addEventListener('DOMContentLoaded', () => {
     for (const folder of postChest.values()) {
       if (folder.kind === 'directory') postFolders.push(folder.name);
     };
-    const mediaFolders = [];
-    for (const folder of mediaChest.values()) {
-      if (folder.kind === 'directory') mediaFolders.push(folder.name);
-    };
+    // const mediaFolders = [];
+    // for (const folder of mediaChest.values()) {
+    //   if (folder.kind === 'directory') mediaFolders.push(folder.name);
+    // };
     //file handler class
     class HandleFile {
       constructor(fileName,chest) {
@@ -582,7 +582,7 @@ document.addEventListener('DOMContentLoaded', () => {
           const arr = src.split("/");
           const fileName = arr[arr.length -1];
           const dirName = arr[arr.length -2];
-          const url = await new ViewImg(fileName,dirName).Url();
+          const url = await new HandleMedia(fileName).url(dirName);
           img.setAttribute('src',url);
         }
         const str = this.docToHTMLStr(doc);
@@ -1039,13 +1039,13 @@ document.addEventListener('DOMContentLoaded', () => {
         PAGLI.insertAdjacentHTML('beforeend',`<fieldset data-name="${d[0]}"><input value="${d[1]}"><u>${d[0]}</u><button type="button" class="btn-edit"></button></fieldset>`);
       };
     };
-    class ViewImg {
-      constructor(fileName,dirName) {
+    class HandleMedia {
+      constructor(fileName) {
         this.fileName = fileName;
-        this.dirName = dirName;
+        this.chest = mediaChest;
       };
-      async Url() {
-        const dirHdl = mediaChest.find(({name}) => name === this.dirName);
+      async url(dirName) {
+        const dirHdl = this.chest.find(({name}) => name === dirName);
         for await (const img of dirHdl.values()) {
           if(img.kind === 'file') {
             if (img.name === this.fileName) {
@@ -1054,6 +1054,42 @@ document.addEventListener('DOMContentLoaded', () => {
             }
           }
         }
+      };
+      static dirsHdls() {
+        const dirsHdls = [];
+        for (const dir of this.chest.values()) {
+          if (dir.kind === 'directory') dirsHdls.push(dir);
+        }
+        return dirsHdls;
+      };
+      static async dirImgHdls(dirName) {
+        const imgHdls = [];
+        const dirHdl = this.chest.find(({name}) => name === dirName);
+        for await (const img of dirHdl.values()) {
+          if(img.kind === 'file') {
+            if (img.name.match(/(.jpg|.jpeg|.png|.gif|.apng|.svg|.jfif|.pjpeg|.pjp|.ico|.cur)/i)) imgHdls.push(img);
+          }
+        }
+        return imgHdls;
+      };
+      static async localUrl(fileHandle) {
+        const getFile = await fileHandle.getFile();
+        return URL.createObjectURL(getFile);
+      };
+      static addDirs() {
+        IMAGS.elements['flds'].textContent ='';
+        const dirHdls = this.dirsHdls();
+        for (const dir of dirHdls) IMAGS.elements['flds'].insertAdjacentHTML('beforeend',`<option value="${dir.name}">${dir.name}</option>`);
+        IMAGS.elements['flds'].value = date.nowYear();
+      };
+      static async addList(dirName) {
+        IMAGS.querySelector('div').textContent ='';
+          const imgHdls = await this.dirImgHdls(dirName);
+          for (const img of imgHdls ) {
+            const url = await this.localUrl(img);
+            IMAGS.querySelector('div').innerHTML += `<img src="${url}" title="${img.name}" loading="lazy" />`;
+          }
+        IMAGS.elements['flds'].value = dirName;
       };
     };
     //tetx editor exe
@@ -1074,7 +1110,7 @@ document.addEventListener('DOMContentLoaded', () => {
         for (const d of data) LINKS.querySelector('div').insertAdjacentHTML('beforeend',`<p data-name="${d[0]}" data-title="${d[1]}">${d[3]}<br />${d[1]}<br />${d[0]}</p>`);
         LINKS.elements['flds'].value = dirName;
       };
-       static addFolders() {
+      static addDirs() {
         LINKS.elements['flds'].textContent ='';
         for (const handle of postChest.values()) {
           if (handle.kind === 'directory') LINKS.elements['flds'].insertAdjacentHTML('beforeend',`<option value="${handle.name}">${handle.name}</option>`);
@@ -1096,32 +1132,13 @@ document.addEventListener('DOMContentLoaded', () => {
       async addImgPath() {
         IMAGS.classList.toggle('hide');
         LINKS.classList.add('hide');
-        ImgList.addFolders();
-        await ImgList.addList(date.nowYear());
+        HandleMedia.addDirs();
+        await HandleMedia.addList(date.nowYear());
         IMAGS.querySelector('div').onclick = (e) => {
           if (e.target.tagName === 'IMG') {
             POST.elements['img'].value = `media/${IMAGS.elements['flds'].value}/${e.target.title}`;
           }
         }
-      };
-      static async addList(dirName) {
-        IMAGS.querySelector('div').textContent ='';
-        const dHandle = mediaChest.find(({name}) => name === dirName);
-        for await (const file of dHandle.values()) {
-          if (file.kind === 'file') {
-            if (file.name.match(/(.jpg|.jpeg|.png|.gif|.apng|.svg|.jfif|.pjpeg|.pjp|.ico|.cur)/i)) {
-              IMAGS.querySelector('div').innerHTML += `<img src="site/media/${dirName}/${file.name}" title="${file.name}" loading="lazy" />`;
-            }
-          }
-        }
-        IMAGS.elements['flds'].value = dirName;
-      };
-      static addFolders() {
-        IMAGS.elements['flds'].textContent ='';
-        for (const handle of mediaChest.values()) {
-          if (handle.kind === 'directory') IMAGS.elements['flds'].insertAdjacentHTML('beforeend',`<option value="${handle.name}">${handle.name}</option>`);
-        }
-        IMAGS.elements['flds'].value = date.nowYear();
       };
     };
     class Custom extends TextEditor {
@@ -1230,7 +1247,7 @@ document.addEventListener('DOMContentLoaded', () => {
         elem[1].classList.toggle('hide');
       }
       //A list, Img list
-      const lists = [[LINKS,AList],[IMAGS,ImgList]];
+      const lists = [[LINKS,AList],[IMAGS,HandleMedia]];
       for (const list of lists) {
         list[0].elements['flds'].addEventListener('input', async () => {
           const dirName = list[0].elements['flds'].value;
@@ -1238,7 +1255,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         list[0].elements['btn'].onclick = () => list[0].classList.add('hide');
         list[1].addList(date.nowYear());
-        list[1].addFolders();
+        list[1].addDirs();
       }
       //load files
       for (const file of [template,style,setting]) await file.load();
@@ -1288,6 +1305,27 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 });
+      // static async addList(dirName) {
+      //   IMAGS.querySelector('div').textContent ='';
+      //   const dHandle = mediaChest.find(({name}) => name === dirName);
+      //   for await (const file of dHandle.values()) {
+      //     if (file.kind === 'file') {
+      //       if (file.name.match(/(.jpg|.jpeg|.png|.gif|.apng|.svg|.jfif|.pjpeg|.pjp|.ico|.cur)/i)) {
+      //         const url = await new ViewImg(file.name).url(dirName);
+      //         IMAGS.querySelector('div').innerHTML += `<img src="${url}" title="${file.name}" loading="lazy" />`;
+      //       }
+      //     }
+      //   }
+      //   IMAGS.elements['flds'].value = dirName;
+      // };
+      // static addFolders() {
+      //   IMAGS.elements['flds'].textContent ='';
+      //   for (const handle of mediaChest.values()) {
+      //     if (handle.kind === 'directory') IMAGS.elements['flds'].insertAdjacentHTML('beforeend',`<option value="${handle.name}">${handle.name}</option>`);
+      //   }
+      //   IMAGS.elements['flds'].value = date.nowYear();
+      // };
+
         // const elems =[['[rel=stylesheet]','href','site/style.css'],['script','src','site/main.js'],['[rel=icon]','href','site/favicon.svg']];
         // for (const elem of elems ) doc.head.querySelector(elem[0]).setAttribute(elem[1],elem[2]);
         // const imgs = doc.querySelectorAll('img');
