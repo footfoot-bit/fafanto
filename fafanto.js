@@ -354,16 +354,16 @@ document.addEventListener('DOMContentLoaded', () => {
     //create file and folder
     const tmpHandle = await dirHandle.getFileHandle('template.html',{create:true});
     const setHandle = await dirHandle.getFileHandle('setting.html',{create:true});
-    const blgHandle = await dirHandle.getDirectoryHandle('site',{create:true});
-    const idxHandle = await blgHandle.getFileHandle('index.html',{create:true});
-    const styHandle = await blgHandle.getFileHandle('style.css',{create:true});
-    const allHandle = await blgHandle.getFileHandle('allpost.html',{create:true});
-    const srhHandle = await blgHandle.getFileHandle('search.html',{create:true});
-    const icoHandle = await blgHandle.getFileHandle('favicon.svg',{create:true});
-    const mjsHandle = await blgHandle.getFileHandle('main.js',{create:true});
-    const posHandle = await blgHandle.getDirectoryHandle('post',{create:true});
-    const pagHandle = await blgHandle.getDirectoryHandle('page',{create:true});
-    const medHandle = await blgHandle.getDirectoryHandle('media',{create:true});
+    const webHandle = await dirHandle.getDirectoryHandle('webfiles',{create:true});
+    const idxHandle = await webHandle.getFileHandle('index.html',{create:true});
+    const styHandle = await webHandle.getFileHandle('style.css',{create:true});
+    const allHandle = await webHandle.getFileHandle('allpost.html',{create:true});
+    const srhHandle = await webHandle.getFileHandle('search.html',{create:true});
+    const icoHandle = await webHandle.getFileHandle('favicon.svg',{create:true});
+    const mjsHandle = await webHandle.getFileHandle('main.js',{create:true});
+    const posHandle = await webHandle.getDirectoryHandle('post',{create:true});
+    const pagHandle = await webHandle.getDirectoryHandle('page',{create:true});
+    const medHandle = await webHandle.getDirectoryHandle('media',{create:true});
     await posHandle.getDirectoryHandle(date.nowYear(),{create:true});
     await medHandle.getDirectoryHandle(date.nowYear(),{create:true});
     //store file and directory handles
@@ -377,10 +377,6 @@ document.addEventListener('DOMContentLoaded', () => {
     for (const folder of postChest.values()) {
       if (folder.kind === 'directory') postFolders.push(folder.name);
     };
-    // const mediaFolders = [];
-    // for (const folder of mediaChest.values()) {
-    //   if (folder.kind === 'directory') mediaFolders.push(folder.name);
-    // };
     //file handler class
     class HandleFile {
       constructor(fileName,chest) {
@@ -518,7 +514,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return doc;
       };
       existsRequiredElems(doc) {
-        const reqElems = ['title','[rel=stylesheet]','script','[name=description]','[rel=icon]','.site-title','.page-list','.link-allpost','.link-search','.copyright'];
+        const reqElems = ['title','[rel=stylesheet]','script','[name=description]','[rel=icon]','.link-allpost','.link-search'];
         if (this.req) for (const word of this.req) reqElems.push(word);
         console.log(reqElems,this.req)
         for (const elem of reqElems) {
@@ -526,24 +522,34 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       };
       async insertCommonElems(doc) {
-        const elems = [
+        // Required elems
+        const reqElems = [
           ['[rel=stylesheet]','href',`${this.path}style.css`],
           ['script','src',`${this.path}main.js`],
-          ['[rel=icon]','href',`${this.path}favicon.svg`],
-          ['[property="og:site_name"]','content',CNFST.value],
-          ['[property="og:image"]','content',normal.url() + SETT.elements['image'].value]
+          ['[rel=icon]','href',`${this.path}favicon.svg`]
         ];
-        for (const elem of elems) doc.head.querySelector(elem[0]).setAttribute(elem[1],elem[2]);
-        doc.querySelector('.site-title').innerHTML = `<a href="${this.path}">${CNFST.value}</a>`;
-        if (pageChest) {
-          const data = await HandlePage.allData();
-          for (const d of data) doc.querySelector('.page-list').innerHTML += `<li><a href="${this.path}page/${d[0]}">${d[1]}</a></li>\n`;
-        } else doc.querySelector('.page-list').remove();
+        for (const elem of reqElems) doc.head.querySelector(elem[0]).setAttribute(elem[1],elem[2]);
         const allps = doc.querySelectorAll('.link-allpost');
         for (const allp of allps) allp.setAttribute('href',`${this.path}allpost.html`);
         const serhs = doc.querySelectorAll('.link-search');
         for (const serh of serhs) serh.setAttribute('href',`${this.path}search.html`);
-        doc.querySelector('.copyright').insertAdjacentHTML('afterbegin',`©${date.nowYear()} <a href="${this.path}">${CNFST.value}</a>`);
+        // non-Required elems
+        const nreqElems = [
+          ['[property="og:site_name"]','content',CNFST.value],
+          ['[property="og:image"]','content',normal.url() + SETT.elements['image'].value]
+        ];
+        for (const elem of nreqElems) doc.head.querySelector(elem[0]).setAttribute(elem[1],elem[2]);
+        const siteTitle = doc.querySelector('.site-title');
+        if (siteTitle) siteTitle.innerHTML = `<a href="${this.path}">${CNFST.value}</a>`;
+        const pageList = doc.querySelector('.page-list');
+        if (pageList) {
+          if (pageChest) {
+            const data = await HandlePage.allData();
+            for (const d of data) pageList.innerHTML += `<li><a href="${this.path}page/${d[0]}">${d[1]}</a></li>\n`;
+          } else pageList.remove();
+        } 
+        const copyright = doc.querySelector('.copyright');
+        if (copyright) copyright.insertAdjacentHTML('afterbegin',`©${date.nowYear()} <a href="${this.path}">${CNFST.value}</a>`);
       };
       insertHeadTitle(doc,value) {
         doc.head.querySelector('title').textContent = value;
@@ -701,6 +707,41 @@ document.addEventListener('DOMContentLoaded', () => {
       insertContents(doc,value) {
           doc.querySelector('.contents').insertAdjacentHTML('afterbegin',value);
       };
+      editParts(doc) {
+        for(const part of this.parts) {
+          const elem = doc.querySelector(`.${part}`);
+          if (elem) {
+            if (!this.form.elements[part].checked) elem.remove();
+          }
+        }
+        //table of contents
+        const toc = doc.querySelector('.table-of-contents');
+        if (!toc) return;
+        const cnt = doc.querySelector('.contents');
+        const h23 = cnt.querySelectorAll('h2,h3');
+        if (!h23) {
+          toc.remove();
+          return;
+        }
+        toc.innerHTML += '<ul></ul>';
+        const h2Ul = toc.querySelector('ul');
+        for (let i = 0; i < h23.length; i++) {
+          const htx = h23[i].textContent;
+          const tgn = h23[i].tagName;
+          if (tgn === 'H2') h2Ul.innerHTML += `<li><a href="#index${i}">${htx}</a></li>\n<ul></ul>\n`;
+          if (tgn === 'H3') {
+            const preUl = h2Ul.querySelector('ul:last-child');
+            const h3Li = `<li><a href="#index${i}">${htx}</a></li>\n`;
+            if (preUl) preUl.innerHTML += h3Li;
+            else h2Ul.innerHTML += h3Li;
+          }
+          h23[i].setAttribute('id',`index${i}`);
+        }
+        const h3Uls = h2Ul.querySelectorAll('ul');
+        for (const h3Ul of h3Uls) {
+          if (!h3Ul.textContent) h3Ul.remove();
+        }
+      };
       transHTMLCommon(doc,beforeDoc) {
         this.insertDescription(doc,this.loadDescription(beforeDoc));
         this.insertHeadTitle(doc,`${this.loadTitle(beforeDoc)} - ${CNFST.value}`);
@@ -722,6 +763,8 @@ document.addEventListener('DOMContentLoaded', () => {
         this.chest = postChest;
         this.class = 'post';
         this.path = '../../';
+        this.parts = ['table-of-contents','comment','freespace'];
+        this.form = POST;
         this.title = POST.querySelector(`[data-name="${this.fileName}"] input`);
         this.time = POST.querySelectorAll(`[data-name="${this.fileName}"] input`)[1];
         this.ta = POST.elements['ta'];
@@ -829,38 +872,6 @@ document.addEventListener('DOMContentLoaded', () => {
           next.setAttribute('title',data[index - 1][1]);
         }
         else next.classList.add('isDisabled');
-      };
-      editParts(doc) {
-        for(const part of POSPA) {
-          if (!POST.elements[part].checked) doc.querySelector(`.${part}`).remove();
-        }
-        //table of contents
-        const elem = doc.querySelector('.table-of-contents');
-        if (!elem) return;
-        const cnt = doc.querySelector('.contents');
-        const h23 = cnt.querySelectorAll('h2,h3');
-        if (!h23) {
-          elem.remove();
-          return;
-        }
-        elem.innerHTML += '<ul></ul>';
-        const h2Ul = elem.querySelector('ul');
-        for (let i = 0; i < h23.length; i++) {
-          const htx = h23[i].textContent;
-          const tgn = h23[i].tagName;
-          if (tgn === 'H2') h2Ul.innerHTML += `<li><a href="#index${i}">${htx}</a></li>\n<ul></ul>\n`;
-          if (tgn === 'H3') {
-            const preUl = h2Ul.querySelector('ul:last-child');
-            const h3Li = `<li><a href="#index${i}">${htx}</a></li>\n`;
-            if (preUl) preUl.innerHTML += h3Li;
-            else h2Ul.innerHTML += h3Li;
-          }
-          h23[i].setAttribute('id',`index${i}`);
-        }
-        const h3Uls = h2Ul.querySelectorAll('ul');
-        for (const h3Ul of h3Uls) {
-          if (!h3Ul.textContent) h3Ul.remove();
-        }
       };
       async makeHTMLSpecial(doc) {
         this.insertHeadTitle(doc,`${this.title.value} - ${CNFST.value}`);
@@ -989,6 +1000,8 @@ document.addEventListener('DOMContentLoaded', () => {
         this.chest = pageChest;
         this.class = 'page';
         this.path = '../';
+        this.parts = ['table-of-contents'];
+        this.form = PAGE;
         this.title = PAGE.querySelector(`[data-name="${this.fileName}"] input`);
         this.ta = PAGE.elements['ta'];
         this.desc = PAGE.elements['desc'];
@@ -1007,6 +1020,7 @@ document.addEventListener('DOMContentLoaded', () => {
         this.insertOGPUrl(doc,this.fullURL());
         this.insertBodyTitle(doc,this.title.value);
         this.insertContents(doc,this.ta.value);
+        this.editParts(doc);
       };
       async saveNew() {
         this.checkNewFileName();
@@ -1239,6 +1253,14 @@ document.addEventListener('DOMContentLoaded', () => {
           else if (e.target.tagName === 'U') new Custom(elem[5]).addCustomTag(e.target.title);
         };
         elem[1].classList.toggle('hide');
+        //load files
+        for (const file of [template,style,setting]) await file.load();
+        //check if parts exsits in template
+        const article = new elem[4]();
+        const tmpDoc = await article.templateToDoc();
+        for (const part of article.parts) {
+          if (!tmpDoc.querySelector(`.${part}`)) elem[5].elements[part].parentNode.classList.add('disable');
+        }
       }
       //A list, Img list
       const lists = [[LINKS,AList],[IMAGS,HandleMedia]];
@@ -1250,13 +1272,6 @@ document.addEventListener('DOMContentLoaded', () => {
         list[0].elements['btn'].onclick = () => list[0].classList.add('hide');
         list[1].addList(date.nowYear());
         list[1].addDirs();
-      }
-      //load files
-      for (const file of [template,style,setting]) await file.load();
-      //check if parts exsits in template
-      const tmpDoc = await template.document();
-      for (const part of POSPA) {
-        if (!tmpDoc.querySelector(`.${part}`)) POST.elements[part].parentNode.classList.add('disable');
       }
     })();
   //allsave
@@ -1299,6 +1314,49 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 });
+
+// const postFolders = [];
+// for (const folder of postChest.values()) {
+//   if (folder.kind === 'directory') postFolders.push(folder.name);
+// };
+// const mediaFolders = [];
+// for (const folder of mediaChest.values()) {
+//   if (folder.kind === 'directory') mediaFolders.push(folder.name);
+// };
+
+      // editParts(doc) {
+      //   for(const part of POSPA) {
+      //     if (!POST.elements[part].checked) doc.querySelector(`.${part}`).remove();
+      //   }
+      //   //table of contents
+      //   const elem = doc.querySelector('.table-of-contents');
+      //   if (!elem) return;
+      //   const cnt = doc.querySelector('.contents');
+      //   const h23 = cnt.querySelectorAll('h2,h3');
+      //   if (!h23) {
+      //     elem.remove();
+      //     return;
+      //   }
+      //   elem.innerHTML += '<ul></ul>';
+      //   const h2Ul = elem.querySelector('ul');
+      //   for (let i = 0; i < h23.length; i++) {
+      //     const htx = h23[i].textContent;
+      //     const tgn = h23[i].tagName;
+      //     if (tgn === 'H2') h2Ul.innerHTML += `<li><a href="#index${i}">${htx}</a></li>\n<ul></ul>\n`;
+      //     if (tgn === 'H3') {
+      //       const preUl = h2Ul.querySelector('ul:last-child');
+      //       const h3Li = `<li><a href="#index${i}">${htx}</a></li>\n`;
+      //       if (preUl) preUl.innerHTML += h3Li;
+      //       else h2Ul.innerHTML += h3Li;
+      //     }
+      //     h23[i].setAttribute('id',`index${i}`);
+      //   }
+      //   const h3Uls = h2Ul.querySelectorAll('ul');
+      //   for (const h3Ul of h3Uls) {
+      //     if (!h3Ul.textContent) h3Ul.remove();
+      //   }
+      // };
+
       // static async addList(dirName) {
       //   IMAGS.querySelector('div').textContent ='';
       //   const dHandle = mediaChest.find(({name}) => name === dirName);
@@ -1581,7 +1639,7 @@ document.addEventListener('DOMContentLoaded', () => {
 //   }
 // },
 
-    // const sitHandle = await blgHandle.getFileHandle('sitemap.xml',{create:true});
+    // const sitHandle = await webHandle.getFileHandle('sitemap.xml',{create:true});
 
         // class HandleSitemap extends HandleText {
     //   constructor(fileName,chest) {
