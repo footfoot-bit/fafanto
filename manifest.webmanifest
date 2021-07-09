@@ -1,9 +1,9 @@
 {
   "name": "fafanto",
   "description": "Create a static site with minimality",
-  "background_color": "#ffffff",
+  "background_color": "#000000",
   "display": "fullscreen",
-  "short_name": "ffnt",
+  "short_name": "fafa",
   "start_url": "/",
   "icons": [
     {
