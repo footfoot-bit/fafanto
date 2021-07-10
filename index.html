@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<title>fafanto | Static Blog Builder</title>
+<title>fafanto | Create a static site with minimal energy</title>
 <link href="fafanto.css" rel="stylesheet">
 <script src="https://kit.fontawesome.com/8725e8d35f.js" crossorigin="anonymous"></script>
 <link rel="manifest" href="manifest.webmanifest">
@@ -36,86 +36,87 @@
   </header>
   <main>
     <form id="post" class="show">
-      <fieldset id="post-new"><input name="title" title="into title:calss" placeholder="Add Title"><input type="datetime-local" name="date"><input name="name" placeholder="Add Filename"><button name="btn" type="button" class="btn-new"></button></fieldset>
+      <fieldset name="new"><input name="title" title="into title:calss" placeholder="Add Title"><input type="datetime-local" name="date"><input name="name" placeholder="Add Filename"><button name="btn" type="button" class="btn-new"></button></fieldset>
       <select name="years" class="hide"></select>
-      <div id="post-list"></div>
-      <div id="post-box">
-        <div class="box-left">
-          <div id="post-panel"><i>b</i><i>small</i><i>mark</i><i>br</i><i>p</i><i>h2</i><i>h3</i><i>h4</i><i>a</i><i>ul</i><i>table</i><s title="link"></s><s title="img"></s></div>
+      <fieldset name="list"></fieldset>
+      <fieldset name="main">
+        <fieldset name="left">
+          <fieldset name="panel"><i>b</i><i>small</i><i>mark</i><i>br</i><i>p</i><i>h2</i><i>h3</i><i>h4</i><i>a</i><i>ul</i><i>table</i><s title="link"></s><s title="img"></s></fieldset>
           <textarea name="ta" placeholder="Add Contents" id="post-txt"></textarea>
-        </div>
-        <div class="box-right">
+        </fieldset>
+        <fieldset name="right">
           <fieldset>
             <h3 title="Use for meta description and OGP description">Description<b></b></h3>
-            <div>
-              <textarea name="desc" placeholder="description text"></textarea>
-            </div>
+            <fieldset>
+              <textarea name="desc" placeholder="Add Description"></textarea>
+            </fieldset>
           </fieldset>
           <fieldset>
             <h3>Image<b></b></h3>
-            <div>
+            <fieldset>
               <textarea name="img" placeholder="media/2021/xxx.jpg"></textarea>
               <button type="button" name="img-open"></button>
-            </div>
+            </fieldset>
           </fieldset>
-          <fieldset id="parts">
+          <fieldset>
             <h3>Parts<b></b></h3>
-            <div>
+            <fieldset name="parts">
               <label title="teble-of-contents:class
 Create anchor links of h2 h3 or remove">Table Of Contents<input type="checkbox" name="table-of-contents" checked></label>
               <label title='comment:class
 do nothing or remove'>Comment<input type="checkbox" name="comment" checked></label>
               <label title='freespace:class
 do nothing or remove'>Freespace<input type="checkbox" name="freespace" checked></label>
-            </div>
+            </fieldset>
           </fieldset>
           <fieldset>
             <h3>Tags<b></b></h3>
-            <div id="post-tagbox">
-              <i class="on">Static Site Builder</i>
+            <fieldset name="tagbtns">
+              <i class="on">Static Site</i>
+              <i class="on">CMS</i>
+              <i>GUI</i>
               <i>Blog</i>
               <i class="on">Lightweight</i>
               <i>Clean</i>
               <i>Minimal</i>
-              <i class="on">Fast</i>
               <i>One Template</i>
               <i class="on">Easy</i>
               <i>Offline</i>
               <i>Local</i>
+              <i>Github</i>
               <i>Vanilla JS</i>
               <i>Open Source</i>
               <i>漢字</i>
-              <i>ひらがな</i>
-            </div>
+            </fieldset>
             <textarea name="tags" class="hide"></textarea>
           </fieldset>
-        </div>
-      </div>
+        </fieldset>
+      </fieldset>
     </form>
     <form id="page">
-      <fieldset id="page-new"><input name="title" placeholder="Add Title"><input name="name" placeholder="Add Filename"><button name="btn" type="button" class="btn-new"></button></fieldset>
-      <div id="page-list"></div>
-      <div id="page-box">
-        <div class="box-left">
-          <div id="page-panel"><i>b</i><i>i</i><i>mark</i><i>br</i><i>p</i><i>h2</i><i>h3</i><i>h4</i><i>a</i><i>ul</i><i>table</i><s title="link"></s><s title="img"></s></div>
+      <fieldset name="new"><input name="title" placeholder="Add Title"><input name="name" placeholder="Add Filename"><button name="btn" type="button" class="btn-new"></button></fieldset>
+      <fieldset name="list"></fieldset>
+      <fieldset name="main">
+        <fieldset name="left">
+          <fieldset name="panel"><i>b</i><i>i</i><i>mark</i><i>br</i><i>p</i><i>h2</i><i>h3</i><i>h4</i><i>a</i><i>ul</i><i>table</i><s title="link"></s><s title="img"></s></fieldset>
           <textarea name="ta" placeholder="Add Contents"></textarea>
-        </div>
-        <div class="box-right">
+        </fieldset>
+        <fieldset name="right">
           <fieldset>
             <h3 title="Use for meta description and OGP description">Description<b></b></h3>
-            <div>
+            <fieldset>
               <textarea name="desc" placeholder="Add Description"></textarea>
-            </div>
+            </fieldset>
           </fieldset>
-          <fieldset id="parts">
+          <fieldset>
             <h3>Parts<b></b></h3>
-            <div>
+            <fieldset name="parts">
               <label title="teble-of-contents:class
 Create anchor links of h2 h3 or remove">Table Of Contents<input type="checkbox" name="table-of-contents" checked></label>
-            </div>
+            </fieldset>
           </fieldset>
-        </div>
-      </div>
+        </fieldset>
+      </fieldset>
     </form>
     <form id="style">
       <textarea name="ta"></textarea>

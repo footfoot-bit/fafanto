@@ -15,7 +15,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   // global constant
   const DOMP = new DOMParser();
-  const DATE = new Date().toISOString();
   const SAVE = document.getElementById('save');
   const PREV = document.getElementById('preview');
   const ACTF = document.getElementById('actfile');
@@ -27,14 +26,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const TEMP = document.forms['template'];
   const SETT = document.forms['setting'];
   const RENW = document.forms['allsave'];
-  const POSNW = document.getElementById('post-new');
-  const POSTG = document.getElementById('post-tagbox');
-  const POSLI = document.getElementById('post-list');
-  const POSBO = document.getElementById('post-box');
+  const POSNW = POST.elements['new'];
+  const POSTG = POST.elements['tagbtns'];
+  const POSLI = POST.elements['list'];
+  const POSBO = POST.elements['main'];
   const POSPA = ['table-of-contents','comment','freespace'];
-  const PAGNW = document.getElementById('page-new');
-  const PAGLI = document.getElementById('page-list');
-  const PAGBO = document.getElementById('page-box');
+  const PAGNW = PAGE.elements['new'];
+  const PAGLI = PAGE.elements['list'];
+  const PAGBO = PAGE.elements['main'];
   const CNFST = SETT.elements['site-title'];
   const LINKS = document.getElementById('links');
   const IMAGS = document.getElementById('images');
@@ -97,30 +96,46 @@ document.addEventListener('DOMContentLoaded', () => {
   };
   //date
   const date = {
-    nowYmdTime: () => {
-      return DATE.slice(0,16); //2021-05-26T14:00
+    d: () => {
+      return new Date();
     },
-    nowYmd: () => {
-      return DATE.slice(0,10); //2021-05-26
+    year: () => {
+      return String(date.d().getFullYear());
     },
-    nowYear: () => {
-      return DATE.slice(0,4); //2021
+    month: () => {
+      return ('0'+ (date.d().getMonth()+1)).slice(-2);
     },
-    changeFormat: (ymd) => {
-      if(!ymd) return '';
-      const year = ymd.slice(0,4);
-      const month = ymd.slice(5,7);
+    day: () => {
+      return ('0'+ date.d().getDate()).slice(-2);
+    },
+    hours: () => {
+      return ('0'+ date.d().getHours()).slice(-2);
+    },
+    minutes: () => {
+      return ('0'+ date.d().getMinutes()).slice(-2);
+    },
+    ymd: () => {
+      return `${date.year()}-${date.month()}-${date.day()}`; //2021-05-26
+    },
+    ymdTime: () => {
+      return `${date.year()}-${date.month()}-${date.day()}T${date.hours()}:${date.minutes()}`; //2021-05-26T14:00
+    },
+    changeFormat: (ymdTime) => {
+      if(!ymdTime) return '';
+      const year = ymdTime.slice(0,4);
+      const month = ymdTime.slice(5,7);
+      const day = ymdTime.slice(8,10);
       const monthInt = month.replace(/\b0+/, '');
       const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
       const monthName = monthNames[monthInt];
-      const day = ymd.slice(8,10);
       const dt = SETT.elements['date-type'].value;
       if (dt === 'yyyy-mm-dd') return `${year}-${month}-${day}`;
       else if (dt === 'dd-mm-yyyy') return `${day} ${monthName}, ${year}`;
       else if (dt === 'mm-dd-yyyy') return `${monthName} ${day}, ${year}`;
     }
   };
-  POSNW.elements['date'].value = date.nowYmdTime();
+  POSNW.elements['date'].value = date.ymdTime();
+  console.log(date.ymdTime())
 //Text Editor
   class TextEditor {
     constructor() {
@@ -189,7 +204,7 @@ document.addEventListener('DOMContentLoaded', () => {
     PREV.classList.add('disable');
     const section = H2SE.dataset.section;
     if (section === 'post' || section === 'page') {
-      if(document.getElementById(`${section}-box`).className !== 'hide') {
+      if(document.querySelector(`#${section} [name=main]`).className !== 'hide') {
         const fileName = document.getElementById(section).querySelector('fieldset:not(.hide)').dataset.name;
         SAVE.dataset.file = fileName;
         ACTF.textContent = fileName;
@@ -215,7 +230,7 @@ document.addEventListener('DOMContentLoaded', () => {
       PREV.classList.add('disable');
       POST.elements['years'].classList.remove('hide');
       ACTF.textContent = '';
-      const txtas = document.querySelectorAll('.box-right textarea');
+      const txtas = document.querySelectorAll('[name=right] textarea');
       for (const txta of txtas) txta.value = '';
       for (const part of POSPA) POST.elements[part].checked = true;
       for (const part of POSPA) POST.elements[part].value = '';
@@ -296,13 +311,13 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelector('main').classList.toggle('dark');
   };
   //click text editor panel
-  for (const panel of ['post-panel','page-panel']) {
-    document.getElementById(panel).onclick = (e) => {
+  for (const panel of ['#post [name=panel]','#page [name=panel]']) {
+    document.querySelector(panel).onclick = (e) => {
       if (e.target.tagName === 'I') new TextEditor().addTag(e.target.textContent);
     };
   }
   //click right block title
-  for (const boxr of document.querySelectorAll('.box-right h3')) {
+  for (const boxr of document.querySelectorAll('[name=right] h3')) {
     boxr.onclick = (e) => {
       if (e.target.tagName === 'B') {
         e.target.parentNode.nextElementSibling.classList.toggle('hide');
@@ -322,12 +337,12 @@ document.addEventListener('DOMContentLoaded', () => {
     //adjust Height
     const fh = document.querySelector('form').offsetHeight;
     const nh = POSNW.offsetHeight;
-    const ph = document.getElementById('post-panel').offsetHeight;
+    const ph = document.querySelector('[name=panel]').offsetHeight;
     const ch = fh - (nh + ph) + 'px';
     POST.elements['ta'].style.height = ch;
     PAGE.elements['ta'].style.height = ch;
     //set translate="no"
-    const elems = ['nav','header','#post-panel','#page-panel','#post-tagbox','#custom'];
+    const elems = ['nav','header','#post [name=panel]','#page [name=panel]','#post [name=tagbtns]','#custom'];
     for (const elem of elems) document.querySelector(elem).setAttribute('translate','no');
     //draggable element
     let dragStartX, dragStartY;
@@ -364,8 +379,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const posHandle = await webHandle.getDirectoryHandle('post',{create:true});
     const pagHandle = await webHandle.getDirectoryHandle('page',{create:true});
     const medHandle = await webHandle.getDirectoryHandle('media',{create:true});
-    await posHandle.getDirectoryHandle(date.nowYear(),{create:true});
-    await medHandle.getDirectoryHandle(date.nowYear(),{create:true});
+    await posHandle.getDirectoryHandle(date.year(),{create:true});
+    await medHandle.getDirectoryHandle(date.year(),{create:true});
     //store file and directory handles
     const singleChest = [];
     singleChest.push(tmpHandle,setHandle,idxHandle,styHandle,allHandle,srhHandle,icoHandle,mjsHandle);
@@ -522,7 +537,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       };
       async insertCommonElems(doc) {
-        // Required elems
+        // Required elements
         const reqElems = [
           ['[rel=stylesheet]','href',`${this.path}style.css`],
           ['script','src',`${this.path}main.js`],
@@ -533,12 +548,15 @@ document.addEventListener('DOMContentLoaded', () => {
         for (const allp of allps) allp.setAttribute('href',`${this.path}allpost.html`);
         const serhs = doc.querySelectorAll('.link-search');
         for (const serh of serhs) serh.setAttribute('href',`${this.path}search.html`);
-        // non-Required elems
+        // non-Required elements
         const nreqElems = [
           ['[property="og:site_name"]','content',CNFST.value],
           ['[property="og:image"]','content',normal.url() + SETT.elements['image'].value]
         ];
-        for (const elem of nreqElems) doc.head.querySelector(elem[0]).setAttribute(elem[1],elem[2]);
+        for (const elem of nreqElems) {
+          const slct = doc.head.querySelector(elem[0]);
+          if (slct) slct.setAttribute(elem[1],elem[2]);
+        }
         const siteTitle = doc.querySelector('.site-title');
         if (siteTitle) siteTitle.innerHTML = `<a href="${this.path}">${CNFST.value}</a>`;
         const pageList = doc.querySelector('.page-list');
@@ -549,21 +567,24 @@ document.addEventListener('DOMContentLoaded', () => {
           } else pageList.remove();
         } 
         const copyright = doc.querySelector('.copyright');
-        if (copyright) copyright.insertAdjacentHTML('afterbegin',`©${date.nowYear()} <a href="${this.path}">${CNFST.value}</a>`);
+        if (copyright) copyright.insertAdjacentHTML('afterbegin',`©${date.year()} <a href="${this.path}">${CNFST.value}</a>`);
       };
       insertHeadTitle(doc,value) {
         doc.head.querySelector('title').textContent = value;
-        doc.head.querySelector('[property="og:title"]').setAttribute('content',value);
+        const ogTitle = doc.head.querySelector('[property="og:title"]');
+        if (ogTitle) ogTitle.setAttribute('content',value);
       };
       insertBodyTitle(doc,value) {
         doc.querySelector('.title').insertAdjacentHTML('afterbegin',value);
       };
       insertDescription(doc,value) {
         doc.head.querySelector('[name=description]').setAttribute('content',value);
-        doc.head.querySelector('[property="og:description"]').setAttribute('content',value);
+        const ogDesc = doc.head.querySelector('[property="og:description"]');
+        if (ogDesc) ogDesc.setAttribute('content',value);
       };
       insertOGPUrl(doc,value) {
-        doc.head.querySelector('[property="og:url"]').setAttribute('content',value);
+        const ogUrl = doc.head.querySelector('[property="og:url"]');
+        if (ogUrl) ogUrl.setAttribute('content',value);
       };
       async makeHTMLCommon() {
         const doc = this.templateToDoc();
@@ -808,18 +829,24 @@ document.addEventListener('DOMContentLoaded', () => {
           if (!doc.querySelector(`.${part}`)) POST.elements[part].checked = false;
         }
       };
-      insertTime(doc,value) {
-        const elems = doc.querySelectorAll('time');
-        if (!elems) return;
-        elems[0].innerHTML = date.changeFormat(value);
-        elems[0].setAttribute('datetime',value);
-        if (date.nowYmd() === value.slice(0,10)) {
-          elems[1].remove();
-          return;
+      insertTime(doc,ymdTime) {
+        const time = doc.querySelector('.time');
+        if (!time) return;
+        if (ymdTime) {
+          time.innerHTML = date.changeFormat(ymdTime);
+          time.setAttribute('datetime',ymdTime);
+        } else time.remove();
+        const modTime = doc.querySelector('time[itemprop=modified]');
+        console.log(date.ymd().replaceAll('-',''),ymdTime.slice(0,10).replaceAll('-',''))
+        if (modTime) {
+          if (date.ymd().replaceAll('-','') <= ymdTime.slice(0,10).replaceAll('-','')) {
+            modTime.remove();
+            return;
+          }
         }
-        const cTime = date.changeFormat(date.nowYmdTime())
-        elems[1].insertAdjacentHTML('beforeend',cTime);
-        elems[1].setAttribute('datetime',date.nowYmdTime());
+        const cTime = date.changeFormat(date.ymdTime())
+        modTime.insertAdjacentHTML('beforeend',cTime);
+        modTime.setAttribute('datetime',date.ymdTime());
       };
       insertImg(doc,value,title) {
         const elem = doc.querySelector('.top-image');
@@ -860,18 +887,20 @@ document.addEventListener('DOMContentLoaded', () => {
         const data = await HandlePost.allLatestData();
         const index = this.findIndex(data);
         console.log(index)
-        if (data[index + 1]) {
-          const path = `${this.path}post/${data[index + 1][2]}/${data[index + 1][0]}`;
-          prev.setAttribute('href',path);
-          prev.setAttribute('title',data[index + 1][1]);
+        if (prev) {
+          if (data[index + 1]) {
+            const path = `${this.path}post/${data[index + 1][2]}/${data[index + 1][0]}`;
+            prev.setAttribute('href',path);
+            prev.setAttribute('title',data[index + 1][1]);
+          } else prev.classList.add('isDisabled');
         }
-        else prev.classList.add('isDisabled');
-        if (data[index - 1]) {
-          const path = `${this.path}post/${data[index - 1][2]}/${data[index - 1][0]}`;
-          next.setAttribute('href',path);
-          next.setAttribute('title',data[index - 1][1]);
+        if (next) {
+          if (data[index - 1]) {
+            const path = `${this.path}post/${data[index - 1][2]}/${data[index - 1][0]}`;
+            next.setAttribute('href',path);
+            next.setAttribute('title',data[index - 1][1]);
+          } else next.classList.add('isDisabled');
         }
-        else next.classList.add('isDisabled');
       };
       async makeHTMLSpecial(doc) {
         this.insertHeadTitle(doc,`${this.title.value} - ${CNFST.value}`);
@@ -894,7 +923,7 @@ document.addEventListener('DOMContentLoaded', () => {
       };
       async saveNew() {
         this.checkNewFileName();
-        const thisYear = this.chest.find(({name}) => name === date.nowYear());
+        const thisYear = this.chest.find(({name}) => name === date.year());
         const newFile = await thisYear.getFileHandle(this.fileName,{create:true});
         this.chest.push(newFile);
         await this.save();
@@ -920,7 +949,7 @@ document.addEventListener('DOMContentLoaded', () => {
         for (const dir of dirs) {
           POST.elements['years'].insertAdjacentHTML('beforeend',`<option value="${dir}" class="years">${dir}</option>`);
         }
-        POST.elements['years'].value = date.nowYear();
+        POST.elements['years'].value = date.year();
       };
       static async getPostData(fileName,dirName) {
         const post = new HandlePost(fileName);
@@ -1054,9 +1083,6 @@ document.addEventListener('DOMContentLoaded', () => {
       };
     };
     class HandleMedia {
-      // constructor(fileName) {
-      //   this.fileName = fileName;
-      // };
       static async searchToUrl(fileName,dirName) {
         const dirHdl = mediaChest.find(({name}) => name === dirName);
         for await (const img of dirHdl.values()) {
@@ -1088,7 +1114,7 @@ document.addEventListener('DOMContentLoaded', () => {
         IMAGS.elements['flds'].textContent ='';
         const dirHdls = this.dirsHdls();
         for (const dir of dirHdls) IMAGS.elements['flds'].insertAdjacentHTML('beforeend',`<option value="${dir.name}">${dir.name}</option>`);
-        IMAGS.elements['flds'].value = date.nowYear();
+        IMAGS.elements['flds'].value = date.year();
       };
       static async addList(dirName) {
         IMAGS.querySelector('div').textContent ='';
@@ -1123,7 +1149,7 @@ document.addEventListener('DOMContentLoaded', () => {
         for (const handle of postChest.values()) {
           if (handle.kind === 'directory') LINKS.elements['flds'].insertAdjacentHTML('beforeend',`<option value="${handle.name}">${handle.name}</option>`);
         }
-        LINKS.elements['flds'].value = date.nowYear();
+        LINKS.elements['flds'].value = date.year();
       };
     };
     class ImgList extends TextEditor {
@@ -1141,7 +1167,7 @@ document.addEventListener('DOMContentLoaded', () => {
         IMAGS.classList.toggle('hide');
         LINKS.classList.add('hide');
         HandleMedia.addDirs();
-        await HandleMedia.addList(date.nowYear());
+        await HandleMedia.addList(date.year());
         IMAGS.querySelector('div').onclick = (e) => {
           if (e.target.tagName === 'IMG') {
             POST.elements['img'].value = `media/${IMAGS.elements['flds'].value}/${e.target.title}`;
@@ -1155,8 +1181,8 @@ document.addEventListener('DOMContentLoaded', () => {
       };
       static replaceBtn() {
         const ctm = SETT.elements['custom-editor'].value;
-        document.getElementById('post-panel').innerHTML = ctm;
-        document.getElementById('page-panel').innerHTML = ctm;
+        POST.elements['panel'].innerHTML = ctm;
+        PAGE.elements['panel'].innerHTML = ctm;
       };
     };
   //// Event ////
@@ -1175,9 +1201,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!POSNW.classList.contains('hide')) {
           const newName = `${POSNW.elements['name'].value}.html`
           await new HandlePost(newName).saveNew();
-          const data = await HandlePost.dirLatestData(date.nowYear());
+          const data = await HandlePost.dirLatestData(date.year());
           await new HandlePost(data[1][0]).saveTransfer();
-          await HandlePost.addListInDir(date.nowYear());
+          await HandlePost.addListInDir(date.year());
         } else {
           await new HandlePost(fileName).save();
         }
@@ -1216,7 +1242,7 @@ document.addEventListener('DOMContentLoaded', () => {
     POST.elements['img-open'].onclick = () => new ImgList(POST).addImgPath();
     ( async () => {
     //Post, Page
-      const elems = [[POSLI,POSBO,POSNW,'post',HandlePost,POST],[PAGLI,PAGBO,PAGNW,'page',HandlePage,PAGE]];
+      const elems = [[POSLI,POSBO,POSNW,HandlePost,POST],[PAGLI,PAGBO,PAGNW,HandlePage,PAGE]];
       for (const elem of elems) {
         //click edit/close button
         elem[0].onclick = async (e) => {
@@ -1225,14 +1251,14 @@ document.addEventListener('DOMContentLoaded', () => {
             e.target.classList.toggle('btn-close');
             elem[2].classList.toggle('hide');
             const fileName = e.target.parentNode.dataset.name;
-            const fs = document.querySelectorAll(`#${elem[3]}-list fieldset:not([data-name="${fileName}"])`);
+            const fs = elem[4].querySelectorAll(`[name=list] fieldset:not([data-name="${fileName}"])`);
             for (const f of fs) f.classList.toggle('hide');
-            if (!elem[1].classList.contains('hide')) await new elem[4](fileName).loadElements();
+            if (!elem[1].classList.contains('hide')) await new elem[3](fileName).loadElements();
           }
         };
         //click new button
         elem[2].elements['btn'].onclick = (e) => {
-          elem[5].elements['ta'].value = '';
+          elem[4].elements['ta'].value = '';
           elem[1].classList.toggle('hide');
           e.target.classList.toggle('btn-close');
           const fs = elem[0].querySelectorAll('fieldset');
@@ -1246,21 +1272,25 @@ document.addEventListener('DOMContentLoaded', () => {
           elem[2].dataset.name = `${filename}.html`;
         });
         //click text editor panel
-        document.getElementById(`${elem[3]}-panel`).onclick = (e) => {
+        elem[4].querySelector('[name=panel]').onclick = (e) => {
           if (e.target.tagName === 'I') new TextEditor().addTag(e.target.textContent);
-          else if (e.target.title === 'link') new AList(elem[5]).addA();
-          else if (e.target.title === 'img') new ImgList(elem[5]).addImgTag();
-          else if (e.target.tagName === 'U') new Custom(elem[5]).addCustomTag(e.target.title);
+          else if (e.target.title === 'link') new AList(elem[4]).addA();
+          else if (e.target.title === 'img') new ImgList(elem[4]).addImgTag();
+          else if (e.target.tagName === 'U') new Custom(elem[4]).addCustomTag(e.target.title);
         };
         elem[1].classList.toggle('hide');
         //load files
         for (const file of [template,style,setting]) await file.load();
-        //check if parts exsits in template
-        const article = new elem[4]();
+        //check if exsits in template
+        const article = new elem[3]();
         const tmpDoc = await article.templateToDoc();
         for (const part of article.parts) {
-          if (!tmpDoc.querySelector(`.${part}`)) elem[5].elements[part].parentNode.classList.add('disable');
+          if (!tmpDoc.querySelector(`.${part}`)) {
+            elem[4].elements[part].parentNode.classList.add('noexist');
+            elem[4].elements[part].parentNode.setAttribute('title','This class does not exist in the template');
+          }
         }
+        // if (!tmpDoc.querySelector('.top-image')) POST.elements['img'].parentNode.classList.add('noexist');
       }
       //A list, Img list
       const lists = [[LINKS,AList],[IMAGS,HandleMedia]];
@@ -1270,7 +1300,7 @@ document.addEventListener('DOMContentLoaded', () => {
           await list[1].addList(dirName);
         });
         list[0].elements['btn'].onclick = () => list[0].classList.add('hide');
-        list[1].addList(date.nowYear());
+        list[1].addList(date.year());
         list[1].addDirs();
       }
     })();
@@ -1303,9 +1333,9 @@ document.addEventListener('DOMContentLoaded', () => {
       dialog.completeSave();
     };
     document.getElementById('guide').classList.add('hide');
-    POSNW.elements['date'].value = date.nowYmdTime();
+    POSNW.elements['date'].value = date.ymdTime();
     HandlePost.addDirsList();
-    await HandlePost.addListInDir(date.nowYear());
+    await HandlePost.addListInDir(date.year());
     await HandlePage.addPageList();
     if (SETT.elements['custom-editor'].value) Custom.replaceBtn();
     for (const file of [style,favicon,mainjs]) {
@@ -1314,6 +1344,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 });
+
+      // const monthInt = date.month().replace(/\b0+/, '');
+
+// const DATE = new Date().toISOString();
+// nowYmdTime: () => {
+//   return DATE.slice(0,16); //2021-05-26T14:00
+// },
+// nowYmd: () => {
+//   return DATE.slice(0,10); //2021-05-26
+// },
+// nowYear: () => {
+//   return DATE.slice(0,4); //2021
+// },
 
 // const postFolders = [];
 // for (const folder of postChest.values()) {
