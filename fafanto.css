@@ -65,7 +65,7 @@ form button {
 form button:hover {
     background-color: var(--green);
 }
-button,select,label,nav p,[name=panel] *,[name=tagbtns] i,[name=right] h3 b,#links p,#images img {
+button,select,label,nav p,[name=panel] *,[name=tagbtns] i,.right h3 b,#links p,#images img {
     cursor:pointer;
 }
 #parts [title] {
@@ -246,17 +246,17 @@ main {
     padding: var(--gap);
 }
 /* Post, Page */
-[name=list] fieldset, [name=new] {
+.list fieldset, [name=new] {
     display: grid;
     grid-template-columns: calc(70% - 20rem - 1.4rem) 20rem 1fr var(--btnWidth);
     column-gap: var(--gap);
     align-items: center;
     padding-bottom: var(--gap);
 }
-[name=list] button,[type=datetime-local],[name=new] button {
+.list button,[type=datetime-local],[name=new] button {
     height: 44px;
 }
-[name=list] u {
+.list u {
     overflow: hidden;
     text-decoration: none;
     font-size: 1.4rem;
@@ -269,13 +269,13 @@ main {
     font-weight: bold;
     margin-bottom: var(--gap);
 }
-[name=main] {
+.edits {
     display: grid;
     grid-template-columns: 70% 1fr;
     column-gap: var(--gap);
     grid-template-rows: 1fr;
 }
-[name=left] {
+.left {
     overflow: auto;
 }
 [name=panel] {
@@ -296,7 +296,7 @@ main {
     background-color: var(--black);
     color: #fff;
 }
-[name=right] h3 {
+.right h3 {
     display: grid;
     grid-template-columns: 1fr var(--btnWidth);
     padding-left: 1.4rem;
@@ -306,14 +306,14 @@ main {
     align-items: center;
     color: var(--black);
 }
-[name=right] h3 b {
+.right h3 b {
     text-align: center;
     padding: 1.4rem 0;
 }
-[name=right] > fieldset {
+.right > div {
     margin-bottom: var(--gap);
 }
-[name=right] fieldset fieldset {
+.right fieldset {
     padding: 1.8rem;
     background-color: #fff;
     border-top: 1px dashed var(--lightgreen);
@@ -323,7 +323,7 @@ main {
     background-color: transparent;
     padding: 0;
 }
-[name=right] textarea {
+.right textarea {
     min-height: 4rem;
     resize: vertical;
     padding: 0;
@@ -352,7 +352,7 @@ main {
     color: #000;
 }
 /* Page  */
-#page [name=list] fieldset,#page [name=new] {
+#page .list fieldset,#page [name=new] {
     grid-template-columns: 70% 1fr var(--btnWidth);
 }
 /* Template, Style */
@@ -480,7 +480,7 @@ main {
 nav p,
 #spellcheck,#mode,
 .btn-new,.btn-edit,.btn-close,
-[name=panel],[name=right] h3 b,[name=tagbtns] i.on::before,
+[name=panel],.right h3 b,[name=tagbtns] i.on::before,
 #allseve,
 #links button,#images button,[name=img-open] {
     font-family:'Font Awesome 5 Free';
@@ -512,7 +512,7 @@ nav [data-nav=allsave]::before {content:"\f0c7";font-weight: 900;}
 [title=link]::before, #rated button::before {content:"\f0c1";}
 [title=img]::before, [name=img-open]::before {content:"\f302";}
 .arrdown::before {content:"\f078" !important;}
-[name=right] h3 b::before {content:"\f077";text-align: center;font-size: 1.1rem;}
+.right h3 b::before {content:"\f077";text-align: center;font-size: 1.1rem;}
 [name=parts] label:nth-of-type(1)::before {content:"\f0ca";font-family:'Font Awesome 5 Free';font-weight: 900;}
 [name=parts] label:nth-of-type(2)::before {content:"\f075";font-family:'Font Awesome 5 Free';}
 [name=parts] label:nth-of-type(3)::before {content:"\f0c8";font-family:'Font Awesome 5 Free';}

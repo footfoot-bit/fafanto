@@ -28,12 +28,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const RENW = document.forms['allsave'];
   const POSNW = POST.elements['new'];
   const POSTG = POST.elements['tagbtns'];
-  const POSLI = POST.elements['list'];
-  const POSBO = POST.elements['main'];
-  const POSPA = ['table-of-contents','comment','freespace'];
+  const POSLI = POST.querySelector('.list');
+  const POSMA = POST.querySelector('.edits');
   const PAGNW = PAGE.elements['new'];
-  const PAGLI = PAGE.elements['list'];
-  const PAGBO = PAGE.elements['main'];
+  const PAGLI = PAGE.querySelector('.list');
+  const PAGBO = PAGE.querySelector('.edits');
   const CNFST = SETT.elements['site-title'];
   const LINKS = document.getElementById('links');
   const IMAGS = document.getElementById('images');
@@ -204,8 +203,8 @@ document.addEventListener('DOMContentLoaded', () => {
     PREV.classList.add('disable');
     const section = H2SE.dataset.section;
     if (section === 'post' || section === 'page') {
-      if(document.querySelector(`#${section} [name=main]`).className !== 'hide') {
-        const fileName = document.getElementById(section).querySelector('fieldset:not(.hide)').dataset.name;
+      if(document.querySelector(`#${section} .edits`).className !== 'hide') {
+        const fileName = document.getElementById(section).querySelector('.portal fieldset:not(.hide)').dataset.name;
         SAVE.dataset.file = fileName;
         ACTF.textContent = fileName;
         SAVE.classList.remove('disable');
@@ -224,20 +223,21 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
   obsPost = () => {
-    if (POSBO.classList.contains('hide')) {
+    if (POSMA.classList.contains('hide')) {
       SAVE.removeAttribute('data-file');
       SAVE.classList.add('disable');
       PREV.classList.add('disable');
       POST.elements['years'].classList.remove('hide');
       ACTF.textContent = '';
-      const txtas = document.querySelectorAll('[name=right] textarea');
+      const txtas = POST.querySelectorAll('.right textarea');
       for (const txta of txtas) txta.value = '';
-      for (const part of POSPA) POST.elements[part].checked = true;
-      for (const part of POSPA) POST.elements[part].value = '';
+      const parts = ['table-of-contents','comment','freespace'];
+      for (const part of parts) POST.elements[part].checked = true;
+      // for (const part of parts) POST.elements[part].value = '';
       for (const span of POSTG.querySelectorAll('i')) span.removeAttribute('class');
       return;
     }
-    const fileName = document.querySelector('#post fieldset:not(.hide)').dataset.name;
+    const fileName = POST.querySelector('.portal fieldset:not(.hide)').dataset.name;
     SAVE.dataset.file = fileName;
     ACTF.textContent = fileName;
     SAVE.classList.remove('disable');
@@ -250,9 +250,14 @@ document.addEventListener('DOMContentLoaded', () => {
       SAVE.classList.add('disable');
       PREV.classList.add('disable');
       ACTF.textContent = '';
+      const txtas = PAGE.querySelectorAll('.right textarea');
+      for (const txta of txtas) txta.value = '';
+      const parts = ['table-of-contents'];
+      for (const part of parts) POST.elements[part].checked = true;
+      // for (const part of parts) POST.elements[part].value = '';
       return;
     }
-    const fileName = document.querySelector('#page fieldset:not(.hide)').dataset.name;
+    const fileName = PAGE.querySelector('.portal fieldset:not(.hide)').dataset.name;
     SAVE.dataset.file = fileName;
     ACTF.textContent = fileName;
     SAVE.classList.remove('disable');
@@ -270,7 +275,7 @@ document.addEventListener('DOMContentLoaded', () => {
     attributeFilter: ['class']
   };
   activeSection.observe(H2SE, obsConfig1);
-  activePostFile.observe(POSBO, obsConfig2);
+  activePostFile.observe(POSMA, obsConfig2);
   activePageFile.observe(PAGBO, obsConfig2);
 //event
   //click left menu
@@ -317,7 +322,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   }
   //click right block title
-  for (const boxr of document.querySelectorAll('[name=right] h3')) {
+  for (const boxr of document.querySelectorAll('.right h3')) {
     boxr.onclick = (e) => {
       if (e.target.tagName === 'B') {
         e.target.parentNode.nextElementSibling.classList.toggle('hide');
@@ -825,7 +830,7 @@ document.addEventListener('DOMContentLoaded', () => {
         this.tags.value = this.loadTags(doc);
         const spans = doc.querySelectorAll('.tags span');
         for (const span of spans) POSTG.querySelector(`[data-tag="${span.textContent}"]`)?.setAttribute('class','on');
-        for (const part of POSPA) {
+        for (const part of this.parts) {
           if (!doc.querySelector(`.${part}`)) POST.elements[part].checked = false;
         }
       };
@@ -936,7 +941,7 @@ document.addEventListener('DOMContentLoaded', () => {
         this.insertAuther(doc,SETT.elements['auther'].value);
         this.insertTags(doc,this.loadTags(beforeDoc));
         await this.setPrevNextLink(doc);
-        for(const part of POSPA) {
+        for(const part of this.parts) {
           const elem = beforeDoc.querySelector(`.${part}`);
           if (!elem) doc.querySelector(`.${part}`).remove();
         }
@@ -984,7 +989,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return allData;
       };
       static async addListInDir(dirName) {
-        POSBO.classList.add('hide');
+        POSMA.classList.add('hide');
         POSLI.textContent = '';
         POSNW.elements['btn'].classList.remove('btn-close');
         const data = await this.dirLatestData(dirName);
@@ -1242,7 +1247,7 @@ document.addEventListener('DOMContentLoaded', () => {
     POST.elements['img-open'].onclick = () => new ImgList(POST).addImgPath();
     ( async () => {
     //Post, Page
-      const elems = [[POSLI,POSBO,POSNW,HandlePost,POST],[PAGLI,PAGBO,PAGNW,HandlePage,PAGE]];
+      const elems = [[POSLI,POSMA,POSNW,HandlePost,POST],[PAGLI,PAGBO,PAGNW,HandlePage,PAGE]];
       for (const elem of elems) {
         //click edit/close button
         elem[0].onclick = async (e) => {
@@ -1251,7 +1256,7 @@ document.addEventListener('DOMContentLoaded', () => {
             e.target.classList.toggle('btn-close');
             elem[2].classList.toggle('hide');
             const fileName = e.target.parentNode.dataset.name;
-            const fs = elem[4].querySelectorAll(`[name=list] fieldset:not([data-name="${fileName}"])`);
+            const fs = elem[4].querySelectorAll(`.list fieldset:not([data-name="${fileName}"])`);
             for (const f of fs) f.classList.toggle('hide');
             if (!elem[1].classList.contains('hide')) await new elem[3](fileName).loadElements();
           }
@@ -1490,7 +1495,7 @@ document.addEventListener('DOMContentLoaded', () => {
     //     return allData;
     //   },
     //   addListOfDir: async(dirName) => {
-    //     POSBO.classList.add('hide');
+    //     POSMA.classList.add('hide');
     //     POSLI.textContent = '';
     //     POSNW.elements['btn'].classList.remove('btn-close');
     //     const data = await latestPosts.makeOneDirData(dirName);
@@ -1917,19 +1922,19 @@ document.addEventListener('DOMContentLoaded', () => {
     //Edit-Close button
     // POSLI.onclick = async (e) => {
     //   if (e.target.tagName === 'BUTTON') {
-    //     POSBO.classList.toggle('hide');
+    //     POSMA.classList.toggle('hide');
     //     e.target.classList.toggle('btn-close');
     //     POSNW.classList.toggle('hide');
     //     POST.elements['years'].classList.toggle('hide');
     //     const fileName = e.target.parentNode.dataset.name;
     //     const fs = document.querySelectorAll(`#post-list fieldset:not([data-name="${fileName}"])`);
     //     for (const f of fs) f.classList.toggle('hide');
-    //     if (POSBO.classList.contains('hide') === false) await new HandlePost(fileName).loadElements();
+    //     if (POSMA.classList.contains('hide') === false) await new HandlePost(fileName).loadElements();
     //   }
     // };
     // POSNW.elements['btn'].onclick = (e) => {
     //   POST.elements['ta'].value = '';
-    //   POSBO.classList.toggle('hide');
+    //   POSMA.classList.toggle('hide');
     //   POST.elements['years'].classList.toggle('hide');
     //   e.target.classList.toggle('btn-close');
     //   const fs = POSLI.querySelectorAll('fieldset');
@@ -2238,7 +2243,7 @@ document.addEventListener('DOMContentLoaded', () => {
     //     }
     //     data.sort((a, b) => b[0] - a[0]);
     //   }
-    //   if (POSBO.classList.contains('hide') === true) {
+    //   if (POSMA.classList.contains('hide') === true) {
     //     for (const d of data) {
     //       elem.insertAdjacentHTML('beforeend',`<fieldset data-name="${d[1]}"><input value="${d[3]}"><input value="${d[2]}" title="${d[5]}"><u>${d[1]}</u><button type="button" class="btn-edit"></button></fieldset>`);
     //     }

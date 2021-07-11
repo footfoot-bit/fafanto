@@ -6,8 +6,6 @@
 <script src="https://kit.fontawesome.com/8725e8d35f.js" crossorigin="anonymous"></script>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
-<!-- <link rel="preconnect" href="https://fonts.gstatic.com"> -->
-<!-- <link href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap" rel="stylesheet"> -->
 </head>
 <body>
 <script src="fafanto.js"></script>
@@ -31,34 +29,36 @@
     <button class="disable" id="save" type="button"> Save</button>
     <button class="disable" type="button" id="preview"> Preview</button>
     <span id="actfile"></span>
-    <button title="Spellcheck ON/OFF" id="spellcheck"></button>
+    <button title="Spellcheck" id="spellcheck"></button>
     <button title="Dark Mode" id="mode"></button>
   </header>
   <main>
     <form id="post" class="show">
-      <fieldset name="new"><input name="title" title="into title:calss" placeholder="Add Title"><input type="datetime-local" name="date"><input name="name" placeholder="Add Filename"><button name="btn" type="button" class="btn-new"></button></fieldset>
-      <select name="years" class="hide"></select>
-      <fieldset name="list"></fieldset>
-      <fieldset name="main">
-        <fieldset name="left">
+      <div class="portal">
+        <fieldset name="new"><input name="title" title="into title:calss" placeholder="Add Title"><input type="datetime-local" name="date"><input name="name" placeholder="Add Filename"><button name="btn" type="button" class="btn-new"></button></fieldset>
+        <select name="years" class="hide"></select>
+        <div class="list"></div>
+      </div>
+      <div class="edits">
+        <div class="left">
           <fieldset name="panel"><i>b</i><i>small</i><i>mark</i><i>br</i><i>p</i><i>h2</i><i>h3</i><i>h4</i><i>a</i><i>ul</i><i>table</i><s title="link"></s><s title="img"></s></fieldset>
-          <textarea name="ta" placeholder="Add Contents" id="post-txt"></textarea>
-        </fieldset>
-        <fieldset name="right">
-          <fieldset>
+          <textarea name="ta" placeholder="Add Contents"></textarea>
+        </div>
+        <div class="right">
+          <div>
             <h3 title="Use for meta description and OGP description">Description<b></b></h3>
             <fieldset>
               <textarea name="desc" placeholder="Add Description"></textarea>
             </fieldset>
-          </fieldset>
-          <fieldset>
+          </div>
+          <div>
             <h3>Image<b></b></h3>
             <fieldset>
               <textarea name="img" placeholder="media/2021/xxx.jpg"></textarea>
               <button type="button" name="img-open"></button>
             </fieldset>
-          </fieldset>
-          <fieldset>
+          </div>
+          <div>
             <h3>Parts<b></b></h3>
             <fieldset name="parts">
               <label title="teble-of-contents:class
@@ -68,8 +68,8 @@ do nothing or remove'>Comment<input type="checkbox" name="comment" checked></lab
               <label title='freespace:class
 do nothing or remove'>Freespace<input type="checkbox" name="freespace" checked></label>
             </fieldset>
-          </fieldset>
-          <fieldset>
+          </div>
+          <div>
             <h3>Tags<b></b></h3>
             <fieldset name="tagbtns">
               <i class="on">Static Site</i>
@@ -89,34 +89,36 @@ do nothing or remove'>Freespace<input type="checkbox" name="freespace" checked><
               <i>漢字</i>
             </fieldset>
             <textarea name="tags" class="hide"></textarea>
-          </fieldset>
-        </fieldset>
-      </fieldset>
+          </div>
+        </div>
+      </div>
     </form>
     <form id="page">
-      <fieldset name="new"><input name="title" placeholder="Add Title"><input name="name" placeholder="Add Filename"><button name="btn" type="button" class="btn-new"></button></fieldset>
-      <fieldset name="list"></fieldset>
-      <fieldset name="main">
-        <fieldset name="left">
+      <div class="portal">
+        <fieldset name="new"><input name="title" placeholder="Add Title"><input name="name" placeholder="Add Filename"><button name="btn" type="button" class="btn-new"></button></fieldset>
+        <div class="list"></div>
+      </div>
+      <div class="edits">
+        <div class="left">
           <fieldset name="panel"><i>b</i><i>i</i><i>mark</i><i>br</i><i>p</i><i>h2</i><i>h3</i><i>h4</i><i>a</i><i>ul</i><i>table</i><s title="link"></s><s title="img"></s></fieldset>
           <textarea name="ta" placeholder="Add Contents"></textarea>
-        </fieldset>
-        <fieldset name="right">
-          <fieldset>
+        </div>
+        <div class="right">
+          <div>
             <h3 title="Use for meta description and OGP description">Description<b></b></h3>
             <fieldset>
               <textarea name="desc" placeholder="Add Description"></textarea>
             </fieldset>
-          </fieldset>
-          <fieldset>
+          </div>
+          <div>
             <h3>Parts<b></b></h3>
             <fieldset name="parts">
               <label title="teble-of-contents:class
 Create anchor links of h2 h3 or remove">Table Of Contents<input type="checkbox" name="table-of-contents" checked></label>
             </fieldset>
-          </fieldset>
-        </fieldset>
-      </fieldset>
+          </div>
+        </div>
+      </div>
     </form>
     <form id="style">
       <textarea name="ta"></textarea>
@@ -132,7 +134,7 @@ Create anchor links of h2 h3 or remove">Table Of Contents<input type="checkbox" 
           <span>Site Title</span><input name="site-title" placeholder="site title" type="text">
           <span>Site Subtitle</span><input name="site-subtitle" placeholder="site subtitle" type="text">
           <span>URL</span><input name="url" placeholder="https://www.example.com/" type="text">
-          <span>Image</span><input name="image" placeholder="image.png" type="text">
+          <span>Site Image</span><input name="image" placeholder="image.png" type="text">
         </div>
         <h3>index.html</h3>
         <div>
