@@ -29,10 +29,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const POSNW = POST.elements['new'];
   const POSTG = POST.elements['tagbtns'];
   const POSLI = POST.querySelector('.list');
-  const POSMA = POST.querySelector('.edits');
+  const POSMA = POST.querySelector('.bench');
   const PAGNW = PAGE.elements['new'];
   const PAGLI = PAGE.querySelector('.list');
-  const PAGBO = PAGE.querySelector('.edits');
+  const PAGBO = PAGE.querySelector('.bench');
   const CNFST = SETT.elements['site-title'];
   const LINKS = document.getElementById('links');
   const IMAGS = document.getElementById('images');
@@ -203,7 +203,7 @@ document.addEventListener('DOMContentLoaded', () => {
     PREV.classList.add('disable');
     const section = H2SE.dataset.section;
     if (section === 'post' || section === 'page') {
-      if(document.querySelector(`#${section} .edits`).className !== 'hide') {
+      if(document.querySelector(`#${section} .bench`).className !== 'hide') {
         const fileName = document.getElementById(section).querySelector('.portal fieldset:not(.hide)').dataset.name;
         SAVE.dataset.file = fileName;
         ACTF.textContent = fileName;
@@ -229,7 +229,7 @@ document.addEventListener('DOMContentLoaded', () => {
       PREV.classList.add('disable');
       POST.elements['years'].classList.remove('hide');
       ACTF.textContent = '';
-      const txtas = POST.querySelectorAll('.right textarea');
+      const txtas = POST.querySelectorAll('.side textarea');
       for (const txta of txtas) txta.value = '';
       const parts = ['table-of-contents','comment','freespace'];
       for (const part of parts) POST.elements[part].checked = true;
@@ -250,7 +250,7 @@ document.addEventListener('DOMContentLoaded', () => {
       SAVE.classList.add('disable');
       PREV.classList.add('disable');
       ACTF.textContent = '';
-      const txtas = PAGE.querySelectorAll('.right textarea');
+      const txtas = PAGE.querySelectorAll('.side textarea');
       for (const txta of txtas) txta.value = '';
       const parts = ['table-of-contents'];
       for (const part of parts) POST.elements[part].checked = true;
@@ -322,7 +322,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   }
   //click right block title
-  for (const boxr of document.querySelectorAll('.right h3')) {
+  for (const boxr of document.querySelectorAll('.side h3')) {
     boxr.onclick = (e) => {
       if (e.target.tagName === 'B') {
         e.target.parentNode.nextElementSibling.classList.toggle('hide');
@@ -339,13 +339,6 @@ document.addEventListener('DOMContentLoaded', () => {
     POST.elements['tags'].value = tagsHtml;
   };
   (() => {
-    //adjust Height
-    const fh = document.querySelector('form').offsetHeight;
-    const nh = POSNW.offsetHeight;
-    const ph = document.querySelector('[name=panel]').offsetHeight;
-    const ch = fh - (nh + ph) + 'px';
-    POST.elements['ta'].style.height = ch;
-    PAGE.elements['ta'].style.height = ch;
     //set translate="no"
     const elems = ['nav','header','#post [name=panel]','#page [name=panel]','#post [name=tagbtns]','#custom'];
     for (const elem of elems) document.querySelector(elem).setAttribute('translate','no');
@@ -712,10 +705,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const allpost = new HandleAllpost();
     const search = new HandleSearch();
     class HandleArticle extends HandleHTML {
-      constructor(fileName,chest) {
-        super(fileName,chest);
-        this.req = ['.title','.contents'];
-      };
+      // constructor(fileName,chest) {
+      //   super(fileName,chest);
+      //   this.req = ['.title','.contents'];
+      // };
       checkNewFileName() {
         if (this.fileName === '.html') dialog.nameEmpty();
         const result = this.chest.findIndex(({name}) => name === this.fileName);
@@ -789,6 +782,7 @@ document.addEventListener('DOMContentLoaded', () => {
         this.chest = postChest;
         this.class = 'post';
         this.path = '../../';
+        this.req = ['.title','.contents','.time'];
         this.parts = ['table-of-contents','comment','freespace'];
         this.form = POST;
         this.title = POST.querySelector(`[data-name="${this.fileName}"] input`);
@@ -1034,6 +1028,7 @@ document.addEventListener('DOMContentLoaded', () => {
         this.chest = pageChest;
         this.class = 'page';
         this.path = '../';
+        this.req = ['.title','.contents'];
         this.parts = ['table-of-contents'];
         this.form = PAGE;
         this.title = PAGE.querySelector(`[data-name="${this.fileName}"] input`);
@@ -1349,6 +1344,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 });
+
+    //adjust Height
+    // const fh = document.querySelector('form').offsetHeight;
+    // const nh = POSNW.offsetHeight;
+    // const ph = document.querySelector('[name=panel]').offsetHeight;
+    // const ch = fh - (nh + ph) + 'px';
+    // POST.elements['ta'].style.height = ch;
+    // PAGE.elements['ta'].style.height = ch;
 
       // const monthInt = date.month().replace(/\b0+/, '');
 
