@@ -25,14 +25,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const STYL = document.forms['style'];
   const TEMP = document.forms['template'];
   const SETT = document.forms['setting'];
-  const RENW = document.forms['allsave'];
+  const ALLS = document.forms['allsave'];
   const POSNW = POST.elements['new'];
   const POSTG = POST.elements['tagbtns'];
   const POSLI = POST.querySelector('.list');
-  const POSMA = POST.querySelector('.bench');
+  const POSBE = POST.querySelector('.bench');
   const PAGNW = PAGE.elements['new'];
   const PAGLI = PAGE.querySelector('.list');
-  const PAGBO = PAGE.querySelector('.bench');
+  const PAGBE = PAGE.querySelector('.bench');
   const CNFST = SETT.elements['site-title'];
   const LINKS = document.getElementById('links');
   const IMAGS = document.getElementById('images');
@@ -139,7 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
   class TextEditor {
     constructor() {
       const section = H2SE.dataset.section;
-      this.ta = document.getElementById(section).elements['ta'];
+      this.ta = document.querySelector(`#${section} .text textarea:not(.hide)`);
       let path = '../../'
       if (section === 'page') path = '../';
       this.path = path;
@@ -223,7 +223,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
   obsPost = () => {
-    if (POSMA.classList.contains('hide')) {
+    if (POSBE.classList.contains('hide')) {
       SAVE.removeAttribute('data-file');
       SAVE.classList.add('disable');
       PREV.classList.add('disable');
@@ -245,7 +245,7 @@ document.addEventListener('DOMContentLoaded', () => {
     POST.elements['years'].classList.add('hide');
   };
   obsPage = () => {
-    if (PAGBO.classList.contains('hide')) {
+    if (PAGBE.classList.contains('hide')) {
       SAVE.removeAttribute('data-file');
       SAVE.classList.add('disable');
       PREV.classList.add('disable');
@@ -275,8 +275,8 @@ document.addEventListener('DOMContentLoaded', () => {
     attributeFilter: ['class']
   };
   activeSection.observe(H2SE, obsConfig1);
-  activePostFile.observe(POSMA, obsConfig2);
-  activePageFile.observe(PAGBO, obsConfig2);
+  activePostFile.observe(POSBE, obsConfig2);
+  activePageFile.observe(PAGBE, obsConfig2);
 //event
   //click left menu
   document.querySelector('nav').onclick = (e) => {
@@ -316,7 +316,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelector('main').classList.toggle('dark');
   };
   //click text editor panel
-  for (const panel of ['#post [name=panel]','#page [name=panel]']) {
+  for (const panel of ['#post [name=panelbtns]']) {
     document.querySelector(panel).onclick = (e) => {
       if (e.target.tagName === 'I') new TextEditor().addTag(e.target.textContent);
     };
@@ -338,9 +338,18 @@ document.addEventListener('DOMContentLoaded', () => {
     for(const on of ons) tagsHtml += `<span>${on.textContent}</span>`
     POST.elements['tags'].value = tagsHtml;
   };
+  // click panel tab
+  POST.elements['paneltab'].onclick = (e) => {
+    const inputs = POST.elements['paneltab'].querySelectorAll('input');
+    for (const input of inputs) input.classList.remove('on');
+    if (e.target.tagName === 'INPUT') e.target.classList.toggle('on');
+    const tas = POST.querySelectorAll('.text textarea');
+    for (const ta of tas) ta.classList.add('hide');
+    POST.elements[e.target.value.toLowerCase()].classList.remove('hide');
+  };
   (() => {
     //set translate="no"
-    const elems = ['nav','header','#post [name=panel]','#page [name=panel]','#post [name=tagbtns]','#custom'];
+    const elems = ['nav','header','#post .panel','#page .panel','#post [name=tagbtns]','#custom'];
     for (const elem of elems) document.querySelector(elem).setAttribute('translate','no');
     //draggable element
     let dragStartX, dragStartY;
@@ -705,10 +714,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const allpost = new HandleAllpost();
     const search = new HandleSearch();
     class HandleArticle extends HandleHTML {
-      // constructor(fileName,chest) {
-      //   super(fileName,chest);
-      //   this.req = ['.title','.contents'];
-      // };
       checkNewFileName() {
         if (this.fileName === '.html') dialog.nameEmpty();
         const result = this.chest.findIndex(({name}) => name === this.fileName);
@@ -738,7 +743,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!toc) return;
         const cnt = doc.querySelector('.contents');
         const h23 = cnt.querySelectorAll('h2,h3');
-        if (!h23) {
+        if (!h23.length) {
           toc.remove();
           return;
         }
@@ -787,7 +792,8 @@ document.addEventListener('DOMContentLoaded', () => {
         this.form = POST;
         this.title = POST.querySelector(`[data-name="${this.fileName}"] input`);
         this.time = POST.querySelectorAll(`[data-name="${this.fileName}"] input`)[1];
-        this.ta = POST.elements['ta'];
+        this.hl = POST.elements['headline'];
+        this.ta = POST.elements['contents'];
         this.img = POST.elements['img'];
         this.tags = POST.elements['tags'];
         this.desc = POST.elements['desc'];
@@ -799,6 +805,9 @@ document.addEventListener('DOMContentLoaded', () => {
       async fullURL() {
         const dir = await this.dirName();
         return `${normal.url()}post/${dir}/${this.fileName}`;
+      };
+      loadHeadline(doc) {
+        return doc.querySelector('.headline')?.innerHTML?? '';
       };
       loadContents(doc) {
         const cnt = doc.querySelector('.contents');
@@ -818,6 +827,7 @@ document.addEventListener('DOMContentLoaded', () => {
       };
       async loadElements() {
         const doc = await this.document();
+        this.hl.value = this.loadHeadline(doc);
         this.ta.value = this.loadContents(doc);
         this.img.value = this.loadImg(doc);
         this.desc.value = this.loadDescription(doc);
@@ -827,6 +837,15 @@ document.addEventListener('DOMContentLoaded', () => {
         for (const part of this.parts) {
           if (!doc.querySelector(`.${part}`)) POST.elements[part].checked = false;
         }
+      };
+      insertHeadline(doc,value) {
+        const hl = doc.querySelector('.headline');
+        if (!hl) return;
+        if (!value) {
+          hl.remove();
+          return;
+        }
+        hl.insertAdjacentHTML('afterbegin',value);
       };
       insertTime(doc,ymdTime) {
         const time = doc.querySelector('.time');
@@ -859,7 +878,7 @@ document.addEventListener('DOMContentLoaded', () => {
       };
       insertAuther(doc,value) {
         const elems = doc.querySelectorAll('.auther');
-        if (!elems) return;
+        if (!elems.length) return;
         if (!value) {
           for (const elem of elems) elem.remove();
           return;
@@ -868,15 +887,15 @@ document.addEventListener('DOMContentLoaded', () => {
       };
       insertTags(doc,value) {
         const elems = doc.querySelectorAll('.tags');
-        if (!elems) return;
+        if (!elems.length) return;
         if (!value) {
           for (const elem of elems) elem.remove();
           return;
         }
         for (const elem of elems) elem.innerHTML = value;
       };
-      findIndex(data) {
-        for (let i = 0; i < data.length; i++) {
+      findIndex(allData) {
+        for (let i = 0; i < allData.length; i++) {
           if (data[i][0] === this.fileName) return i;
         }
       };
@@ -905,6 +924,7 @@ document.addEventListener('DOMContentLoaded', () => {
         this.insertHeadTitle(doc,`${this.title.value} - ${CNFST.value}`);
         this.insertDescription(doc,this.desc.value);
         this.insertBodyTitle(doc,this.title.value);
+        this.insertHeadline(doc,this.hl.value);
         this.insertContents(doc,this.ta.value);
         this.insertTime(doc,this.time.value);
         this.insertImg(doc,this.img.value,this.title.value);
@@ -930,6 +950,7 @@ document.addEventListener('DOMContentLoaded', () => {
       };
       async transHTMLSpecial(doc,beforeDoc) {
         this.insertOGPUrl(doc,await this.fullURL());
+        this.insertHeadline(doc,this.loadHeadline(beforeDoc));
         this.insertTime(doc,this.loadTime(beforeDoc));
         this.insertImg(doc,this.loadImg(beforeDoc),this.loadTitle(beforeDoc));
         this.insertAuther(doc,SETT.elements['auther'].value);
@@ -983,7 +1004,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return allData;
       };
       static async addListInDir(dirName) {
-        POSMA.classList.add('hide');
+        POSBE.classList.add('hide');
         POSLI.textContent = '';
         POSNW.elements['btn'].classList.remove('btn-close');
         const data = await this.dirLatestData(dirName);
@@ -1032,7 +1053,7 @@ document.addEventListener('DOMContentLoaded', () => {
         this.parts = ['table-of-contents'];
         this.form = PAGE;
         this.title = PAGE.querySelector(`[data-name="${this.fileName}"] input`);
-        this.ta = PAGE.elements['ta'];
+        this.ta = PAGE.elements['contents'];
         this.desc = PAGE.elements['desc'];
       };
       fullURL() {
@@ -1074,7 +1095,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return data;
       };
       static async addPageList() {
-        PAGBO.classList.add('hide');
+        PAGBE.classList.add('hide');
         PAGLI.textContent = '';
         PAGNW.elements['btn'].classList.remove('btn-close');
         const data = await this.allData();
@@ -1181,8 +1202,8 @@ document.addEventListener('DOMContentLoaded', () => {
       };
       static replaceBtn() {
         const ctm = SETT.elements['custom-editor'].value;
-        POST.elements['panel'].innerHTML = ctm;
-        PAGE.elements['panel'].innerHTML = ctm;
+        POST.elements['panelbtns'].innerHTML = ctm;
+        PAGE.elements['panelbtns'].innerHTML = ctm;
       };
     };
   //// Event ////
@@ -1242,7 +1263,7 @@ document.addEventListener('DOMContentLoaded', () => {
     POST.elements['img-open'].onclick = () => new ImgList(POST).addImgPath();
     ( async () => {
     //Post, Page
-      const elems = [[POSLI,POSMA,POSNW,HandlePost,POST],[PAGLI,PAGBO,PAGNW,HandlePage,PAGE]];
+      const elems = [[POSLI,POSBE,POSNW,HandlePost,POST],[PAGLI,PAGBE,PAGNW,HandlePage,PAGE]];
       for (const elem of elems) {
         //click edit/close button
         elem[0].onclick = async (e) => {
@@ -1258,7 +1279,9 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         //click new button
         elem[2].elements['btn'].onclick = (e) => {
-          elem[4].elements['ta'].value = '';
+          const tas = elem[4].querySelectorAll('.text textarea');
+          for (const ta of tas) ta.value = ''
+          // elem[4].elements['contents'].value = '';
           elem[1].classList.toggle('hide');
           e.target.classList.toggle('btn-close');
           const fs = elem[0].querySelectorAll('fieldset');
@@ -1272,7 +1295,7 @@ document.addEventListener('DOMContentLoaded', () => {
           elem[2].dataset.name = `${filename}.html`;
         });
         //click text editor panel
-        elem[4].querySelector('[name=panel]').onclick = (e) => {
+        elem[4].elements['panelbtns'].onclick = (e) => {
           if (e.target.tagName === 'I') new TextEditor().addTag(e.target.textContent);
           else if (e.target.title === 'link') new AList(elem[4]).addA();
           else if (e.target.title === 'img') new ImgList(elem[4]).addImgTag();
@@ -1305,22 +1328,22 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     })();
   //allsave
-    //append number
-    RENW.elements['post'].parentNode.insertAdjacentHTML('beforeend',`(${postChest.length - postFolders.length})`);
-    RENW.elements['page'].parentNode.insertAdjacentHTML('beforeend',`(${pageChest.length})`);
+    //append article number
+    ALLS.elements['post'].parentNode.insertAdjacentHTML('beforeend',`(${postChest.length - postFolders.length})`);
+    ALLS.elements['page'].parentNode.insertAdjacentHTML('beforeend',`(${pageChest.length})`);
     //click start saving
-    RENW.elements['save'].onclick = async () => {
-      const log = RENW.querySelector('.log');
+    ALLS.elements['save'].onclick = async () => {
+      const log = ALLS.querySelector('.log');
       log.textContent = '';
       dialog.confirmSave('checked files');
       for (const file of [['index',index],['allpost',allpost],['search',search]]) {
-        if (RENW.elements[file[0]].checked) {
+        if (ALLS.elements[file[0]].checked) {
           await file[1].save();
           log.insertAdjacentHTML('beforeend',`<p>Succeeded in saving ${file[1].fileName}</p>`);
         }
       }
       for (const art of [['post',postChest,HandlePost],['page',pageChest,HandlePage]]) {
-        if (RENW.elements[art[0]].checked) {
+        if (ALLS.elements[art[0]].checked) {
           for (const file of art[1].values()) {
             if (file.kind === 'file') {
               await new art[2](file.name).saveTransfer();
@@ -1348,7 +1371,7 @@ document.addEventListener('DOMContentLoaded', () => {
     //adjust Height
     // const fh = document.querySelector('form').offsetHeight;
     // const nh = POSNW.offsetHeight;
-    // const ph = document.querySelector('[name=panel]').offsetHeight;
+    // const ph = document.querySelector('.panel').offsetHeight;
     // const ch = fh - (nh + ph) + 'px';
     // POST.elements['ta'].style.height = ch;
     // PAGE.elements['ta'].style.height = ch;
@@ -1440,7 +1463,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     //page lister
     // addPageList = async () => {
-    //   PAGBO.classList.add('hide');
+    //   PAGBE.classList.add('hide');
     //   PAGLI.textContent = '';
     //   PAGNW.elements['btn'].classList.remove('btn-close');
     //   for (const file of pageChest.values()) {
@@ -1498,7 +1521,7 @@ document.addEventListener('DOMContentLoaded', () => {
     //     return allData;
     //   },
     //   addListOfDir: async(dirName) => {
-    //     POSMA.classList.add('hide');
+    //     POSBE.classList.add('hide');
     //     POSLI.textContent = '';
     //     POSNW.elements['btn'].classList.remove('btn-close');
     //     const data = await latestPosts.makeOneDirData(dirName);
@@ -1925,19 +1948,19 @@ document.addEventListener('DOMContentLoaded', () => {
     //Edit-Close button
     // POSLI.onclick = async (e) => {
     //   if (e.target.tagName === 'BUTTON') {
-    //     POSMA.classList.toggle('hide');
+    //     POSBE.classList.toggle('hide');
     //     e.target.classList.toggle('btn-close');
     //     POSNW.classList.toggle('hide');
     //     POST.elements['years'].classList.toggle('hide');
     //     const fileName = e.target.parentNode.dataset.name;
     //     const fs = document.querySelectorAll(`#post-list fieldset:not([data-name="${fileName}"])`);
     //     for (const f of fs) f.classList.toggle('hide');
-    //     if (POSMA.classList.contains('hide') === false) await new HandlePost(fileName).loadElements();
+    //     if (POSBE.classList.contains('hide') === false) await new HandlePost(fileName).loadElements();
     //   }
     // };
     // POSNW.elements['btn'].onclick = (e) => {
     //   POST.elements['ta'].value = '';
-    //   POSMA.classList.toggle('hide');
+    //   POSBE.classList.toggle('hide');
     //   POST.elements['years'].classList.toggle('hide');
     //   e.target.classList.toggle('btn-close');
     //   const fs = POSLI.querySelectorAll('fieldset');
@@ -2246,7 +2269,7 @@ document.addEventListener('DOMContentLoaded', () => {
     //     }
     //     data.sort((a, b) => b[0] - a[0]);
     //   }
-    //   if (POSMA.classList.contains('hide') === true) {
+    //   if (POSBE.classList.contains('hide') === true) {
     //     for (const d of data) {
     //       elem.insertAdjacentHTML('beforeend',`<fieldset data-name="${d[1]}"><input value="${d[3]}"><input value="${d[2]}" title="${d[5]}"><u>${d[1]}</u><button type="button" class="btn-edit"></button></fieldset>`);
     //     }
