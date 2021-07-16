@@ -316,7 +316,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelector('main').classList.toggle('dark');
   };
   //click text editor panel
-  for (const panel of ['#post [name=panelbtns]']) {
+  for (const panel of ['#post [name=panelbtns]','#page [name=panelbtns]']) {
     document.querySelector(panel).onclick = (e) => {
       if (e.target.tagName === 'I') new TextEditor().addTag(e.target.textContent);
     };
@@ -395,10 +395,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const pageChest = await listAll(pagHandle);
     const mediaChest = await listAll(medHandle);
     console.log(singleChest,postChest,pageChest,mediaChest);
-    const postFolders = [];
-    for (const folder of postChest.values()) {
-      if (folder.kind === 'directory') postFolders.push(folder.name);
-    };
     //file handler class
     class HandleFile {
       constructor(fileName,chest) {
@@ -673,8 +669,8 @@ document.addEventListener('DOMContentLoaded', () => {
         this.insertOGPUrl(doc,normal.url() + this.fileName);
         this.insertBodyTitle(doc,this.title.value);
         const mabp = doc.querySelector('.allpost-btns').querySelectorAll('*');
-        const flds = HandlePost.sortLatestDir();
-        for (const fld of flds) mabp[0].insertAdjacentHTML('beforeend',`<U data-btn="fld-${fld}" class="on">${fld}</U>`);
+        const dirs = HandlePost.latestDirs();
+        for (const dir of dirs) mabp[0].insertAdjacentHTML('beforeend',`<U data-btn="fld-${dir}" class="on">${dir}</U>`);
         const str = SETT.elements['tags'].value;
         const dom = DOMP.parseFromString(str,'text/html');
         const tags = dom.querySelectorAll('i');
@@ -896,7 +892,7 @@ document.addEventListener('DOMContentLoaded', () => {
       };
       findIndex(allData) {
         for (let i = 0; i < allData.length; i++) {
-          if (data[i][0] === this.fileName) return i;
+          if (allData[i][0] === this.fileName) return i;
         }
       };
       async setPrevNextLink(doc) {
@@ -961,11 +957,15 @@ document.addEventListener('DOMContentLoaded', () => {
           if (!elem) doc.querySelector(`.${part}`).remove();
         }
       };
-      static sortLatestDir()  {
-        return postFolders.sort((a, b) => b - a);
+      static latestDirs()  {
+        const postDirs = [];
+        for (const dir of postChest.values()) {
+          if (dir.kind === 'directory') postDirs.push(dir.name);
+        };
+        return postDirs.sort((a, b) => b - a);
       };
       static addDirsList()  {
-        const dirs = this.sortLatestDir();
+        const dirs = this.latestDirs();
         for (const dir of dirs) {
           POST.elements['years'].insertAdjacentHTML('beforeend',`<option value="${dir}" class="years">${dir}</option>`);
         }
@@ -994,7 +994,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return data.sort((a, b) => b[4] - a[4]);
       };
       static async allLatestData() {
-        const flds = this.sortLatestDir();
+        const flds = this.latestDirs();
         const allData = [];
         for (const fld of flds) {
           const data = await this.dirLatestData(fld);
@@ -1329,7 +1329,7 @@ document.addEventListener('DOMContentLoaded', () => {
     })();
   //allsave
     //append article number
-    ALLS.elements['post'].parentNode.insertAdjacentHTML('beforeend',`(${postChest.length - postFolders.length})`);
+    ALLS.elements['post'].parentNode.insertAdjacentHTML('beforeend',`(${postChest.length - HandlePost.latestDirs().length})`);
     ALLS.elements['page'].parentNode.insertAdjacentHTML('beforeend',`(${pageChest.length})`);
     //click start saving
     ALLS.elements['save'].onclick = async () => {
@@ -1367,7 +1367,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 });
-
+    // const postFolders = [];
+    // for (const folder of postChest.values()) {
+    //   if (folder.kind === 'directory') postFolders.push(folder.name);
+    // };
+    
     //adjust Height
     // const fh = document.querySelector('form').offsetHeight;
     // const nh = POSNW.offsetHeight;
@@ -1478,11 +1482,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     //post lister obj
     // const latestPosts = {
-    //   sortLatestDir: () => {
+    //   latestDirs: () => {
     //     return postFolders.sort((a, b) => b - a);
     //   },
     //   addDirsList: () => {
-    //     const flds = latestPosts.sortLatestDir();
+    //     const flds = latestPosts.latestDirs();
     //     for (const fld of flds) {
     //       POST.elements['years'].insertAdjacentHTML('beforeend',`<option value="${fld}" class="years">${fld}</option>`);
     //     }
@@ -1511,7 +1515,7 @@ document.addEventListener('DOMContentLoaded', () => {
     //     return data.sort((a, b) => b[4] - a[4]);
     //   },
     //   makeAllData: async() => {
-    //     const flds = latestPosts.sortLatestDir();
+    //     const flds = latestPosts.latestDirs();
     //     const allData = [];
     //     for (const fld of flds) {
     //       const data = await latestPosts.makeOneDirData(fld);
@@ -1790,11 +1794,11 @@ document.addEventListener('DOMContentLoaded', () => {
     //   constructor() {
     //     this.postFolders = postFolders;
     //   };
-    //   sortLatestDir() {
+    //   latestDirs() {
     //     return this.postFolders.sort((a, b) => b - a);
     //   };
     //   insertFolders() {
-    //     const flds = this.sortLatestDir();
+    //     const flds = this.latestDirs();
     //     for (const fld of flds) {
     //       POST.elements['years'].insertAdjacentHTML('beforeend',`<option value="${fld}" class="years">${fld}</option>`);
     //     }
@@ -1822,7 +1826,7 @@ document.addEventListener('DOMContentLoaded', () => {
     //     return data.sort((a, b) => b[0] - a[0]);
     //   };
     //   async makeAllData() {
-    //     const flds = this.sortLatestDir();
+    //     const flds = this.latestDirs();
     //     let makeAllData = [];
     //     for (const fld of flds) {
     //       const data = await this.makeOneDirData(fld)
