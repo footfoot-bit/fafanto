@@ -6,16 +6,21 @@
 <script src="https://kit.fontawesome.com/8725e8d35f.js" crossorigin="anonymous"></script>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
+
+<!-- <link rel="stylesheet" href="codemirror/lib/codemirror.css">
+<script src="codemirror/lib/codemirror.js"></script>
+<script src="codemirror/mode/javascript/javascript.js"></script>
+<script src="codemirror/mode/htmlmixed/htmlmixed.js"></script>
+<script src="codemirror/mode/css/css.js"></script> -->
 </head>
 <body>
 <script src="fafanto.js"></script>
   <nav>
-    <h1><img src="favicon.svg">fafanto</h1>
+    <h1><img src="favicon.svg" alt="fafanto logo"/>fafanto</h1>
     <div>
       <p data-nav="post" class="on">Post</p>
       <p data-nav="page">Page</p>
-      <p data-nav="style">Style</p>
-      <p data-nav="template">Template</p>
+      <p data-nav="thema">Thema</p>
       <p data-nav="setting">Setting</p>
       <p data-nav="allsave">Allsave</p>
       <p data-nav="info">Info</p>
@@ -43,15 +48,24 @@
   <main>
     <form id="post" class="show">
       <div class="portal">
-        <fieldset name="new"><input name="title" title="into title:calss" placeholder="Add Title"><input type="datetime-local" name="date"><input name="name" placeholder="Add Filename"><button name="btn" type="button" class="btn-new"></button></fieldset>
+        <fieldset name="new">
+          <input name="title" title="into title:calss" placeholder="Add Title">
+          <input type="datetime-local" name="date">
+          <input name="name" placeholder="Add Filename">
+          <button name="btn" type="button" class="btn-new"></button>
+        </fieldset>
         <select name="years" class="hide"></select>
         <div class="list"></div>
       </div>
       <div class="bench">
         <div class="text">
           <div class="panel">
-            <fieldset name="panelbtns"><i>b</i><i>small</i><i>mark</i><i>br</i><i>p</i><i>h2</i><i>h3</i><i>h4</i><i>a</i><i>ul</i><i>table</i><s title="link"></s><s title="img"></s></fieldset>
-            <fieldset name="paneltab"><input type="button" value="Headline"><input type="button" value="Contents" class="on"></fieldset>
+            <fieldset name="panelbtns">
+              <i>b</i><i>small</i><i>mark</i><i>br</i><i>p</i><i>h2</i><i>h3</i><i>h4</i><i>a</i><i>ul</i><i>table</i><s title="link"></s><s title="img"></s>
+            </fieldset>
+            <fieldset name="paneltab">
+              <input type="button" value="Headline"><input type="button" value="Contents" class="on">
+            </fieldset>
           </div>
           <textarea name="headline" placeholder="Add Headline" class="hide"></textarea>
           <textarea name="contents" placeholder="Add Contents"></textarea>
@@ -107,14 +121,22 @@ do nothing or remove'>Freespace<input type="checkbox" name="freespace" checked><
     </form>
     <form id="page">
       <div class="portal">
-        <fieldset name="new"><input name="title" placeholder="Add Title"><input name="name" placeholder="Add Filename"><button name="btn" type="button" class="btn-new"></button></fieldset>
+        <fieldset name="new">
+          <input name="title" placeholder="Add Title">
+          <input name="name" placeholder="Add Filename">
+          <button name="btn" type="button" class="btn-new"></button>
+        </fieldset>
         <div class="list"></div>
       </div>
       <div class="bench">
         <div class="text">
           <div class="panel">
-            <fieldset name="panelbtns"><i>b</i><i>small</i><i>mark</i><i>br</i><i>p</i><i>h2</i><i>h3</i><i>h4</i><i>a</i><i>ul</i><i>table</i><s title="link"></s><s title="img"></s></fieldset>
-            <fieldset name="paneltab"><input type="button" value="Contents" name="tab-contents" class="on"></fieldset>
+            <fieldset name="panelbtns">
+              <i>b</i><i>small</i><i>mark</i><i>br</i><i>p</i><i>h2</i><i>h3</i><i>h4</i><i>a</i><i>ul</i><i>table</i><s title="link"></s><s title="img"></s>
+            </fieldset>
+            <fieldset name="paneltab">
+              <input type="button" value="Contents" class="on">
+            </fieldset>
           </div>
           <textarea name="contents" placeholder="Add Contents"></textarea>
         </div>
@@ -135,12 +157,58 @@ Create anchor links of h2 h3 or remove">Table Of Contents<input type="checkbox" 
         </div>
       </div>
     </form>
-    <form id="style">
+    <form id="thema">
+      <div class="text">
+        <div class="panel">
+          <div>
+            <fieldset name="dir">default</fieldset>
+          </div>
+          <fieldset name="paneltab">
+            <input type="button" data-name="template.html" value="Template" class="on"><input type="button" data-name="style.css" value="Style">
+          </fieldset>
+        </div>
+          <!-- <div id="container" style="height: 100%;"></div>
+          <script src="monaco-editor/min/vs/loader.js"></script>
+          <script>
+            require.config({ paths: { vs: 'monaco-editor/min/vs' } });
+
+            require(['monaco-editor/min/vs/editor/editor.main'], function () {
+              var editor = monaco.editor.create(document.getElementById('container'), {
+                value: ['<div class="contents">into</div>'].join('\n'),
+                language: 'html'
+              });
+            });
+
+          </script> -->
+          <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.0/ace.js"></script>
+          <script src="https://cloud9ide.github.io/emmet-core/emmet.js"></script>
+          <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.0/ext-emmet.js"></script>
+          <script>
+            var aceTemp = ace.edit("ace-temp");
+            template.$blockScrolling = Infinity;
+            aceTemp.setOptions({
+              enableEmmet: true
+            });
+            aceTemp.getSession().setMode("ace/mode/html");
+            editor.setTheme("ace/theme/monokai");
+            aceTemp.getSession().setUseWrapMode(true);
+            editor.getSession().setValue(textarea.value);
+            aceTemp.setFontSize(14);
+            aceTemp.focus();
+            aceTemp.getSession().on('change', function(){
+              console.log(aceTemp.getSession().getValue());
+            });
+          </script> -->
+        <textarea name="template" placeholder="Add Template"></textarea>
+        <textarea name="style" placeholder="Add Style" class="hide"></textarea>
+      </div>
+    </form>
+    <!-- <form id="style">
       <textarea name="ta"></textarea>
     </form>
     <form id="template">
       <textarea name="ta"></textarea>
-    </form>
+    </form> -->
     <form id="setting">
       <fieldset>
         <p class="desc">After changing the settings and saving the file, please reload this application.</p>
@@ -180,6 +248,11 @@ Create anchor links of h2 h3 or remove">Table Of Contents<input type="checkbox" 
 &lt;i&gt;HTML&lt;/i&gt;
 &lt;i&gt;CSS&lt;/i&gt;"></textarea><small>Enclose the text in i-tag</small></p>
         </div>
+        <h3>Thema</h3>
+        <div>
+          <span>Thema to use</span>
+          <select name="thema"></select>
+        </div>
         <h3>This App</h3>
         <div>
           <span>Custom Editor</span>
@@ -190,6 +263,10 @@ Create anchor links of h2 h3 or remove">Table Of Contents<input type="checkbox" 
           <span>Basic tag(19)</span><p>&lt;i&gt;b&lt;/i&gt;&lt;i&gt;strong&lt;/i&gt;&lt;i&gt;i&lt;/i&gt;&lt;i&gt;s&lt;/i&gt;&lt;i&gt;small&lt;/i&gt;&lt;i&gt;big&lt;/i&gt;&lt;i&gt;mark&lt;/i&gt;&lt;i&gt;br&lt;/i&gt;&lt;i&gt;p&lt;/i&gt;&lt;i&gt;h2&lt;/i&gt;&lt;i&gt;h3&lt;/i&gt;&lt;i&gt;h4&lt;/i&gt;&lt;i&gt;h5&lt;/i&gt;&lt;i&gt;h6&lt;/i&gt;&lt;i&gt;a&lt;/i&gt;&lt;i&gt;ul&lt;/i&gt;&lt;i&gt;ol&lt;/i&gt;&lt;i&gt;table&lt;/i&gt;</p>
           <span>Select tag(2)</span><p>&lt;s title=&quot;link&quot;&gt;&lt;/s&gt;&lt;s title=&quot;img&quot;&gt;&lt;/s&gt;</p>
           <span>User tag(∞)</span><p>&lt;u title='&lt;div class=&quot;example&quot;&gt;&lt;/div&gt;'&gt;button&lt;/u&gt;</p>
+        </div>
+        <div>
+          <span>Color</span>
+          <label><input type="range" name="hue" min="0" max="36"><input name="hsl" placeholder="(360, 50%, 80%)"></label>
         </div>
       </fieldset>
     </form>
@@ -231,5 +308,13 @@ Create anchor links of h2 h3 or remove">Table Of Contents<input type="checkbox" 
     <div><button type="button" id="open-dir">Select Folder</button></div>
     <a href="docs.html" target="_blank" class="disable">Start Up Guide</a>
   </div>
+<!-- 
+  <script>
+    var jsEditor = CodeMirror.fromTextArea(document.getElementById('codeArea'), {
+      mode: "javascript",
+      lineNumbers: true,
+      indentUnit: 4
+  });
+  </script> -->
 </body>
 </html>

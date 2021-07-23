@@ -22,8 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const H2SE = document.querySelector('h2');
   const POST = document.forms['post'];
   const PAGE = document.forms['page'];
-  const STYL = document.forms['style'];
-  const TEMP = document.forms['template'];
+  const THEM = document.forms['thema']
   const SETT = document.forms['setting'];
   const ALLS = document.forms['allsave'];
   const POSNW = POST.elements['new'];
@@ -36,17 +35,19 @@ document.addEventListener('DOMContentLoaded', () => {
   const CNFST = SETT.elements['site-title'];
   const LINKS = document.getElementById('links');
   const IMAGS = document.getElementById('images');
+
   // load default template and style
-  fetch('default-template.html').then((response) => {
-    return response.text();
-  }).then((html) => {
-    TEMP.elements['ta'].value = html;
-  });
-  fetch('default-style.css').then((response) => {
-    return response.text();
-  }).then((css) => {
-    STYL.elements['ta'].value = css;
-  });
+  // fetch('default-template.html').then((response) => {
+  //   return response.text();
+  // }).then((html) => {
+  //   THEM.elements['template'].value = html;
+  // });
+  // fetch('default-style.css').then((response) => {
+  //   return response.text();
+  // }).then((css) => {
+  //   THEM.elements['style'].value = css;
+  // });
+
   // all file handle into array
   listAll = async (dir) => {
     const files = [];
@@ -58,6 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     return files;
   };
+
   //normalization
   const normal = {
     url: () => {
@@ -65,6 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return url.replace(/\/$/,'/');
     }
   };
+
   //dialog
   const dialog = {
     confirmSave: (fileName) => {
@@ -93,6 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
       throw new Error(`"${tag}" does not exist in the template.`);
     }
   };
+
   //date
   const date = {
     d: () => {
@@ -134,7 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
   POSNW.elements['date'].value = date.ymdTime();
-  console.log(date.ymdTime())
+  
 //Text Editor
   class TextEditor {
     constructor() {
@@ -195,6 +199,7 @@ document.addEventListener('DOMContentLoaded', () => {
       this.ta.focus();
     };
   };
+
 //Mutation Observer
   obsSection = () => {
     SAVE.removeAttribute('data-file');
@@ -211,14 +216,15 @@ document.addEventListener('DOMContentLoaded', () => {
         PREV.classList.remove('disable');
       }
     }
-    else if (section === 'template' || section === 'setting') {
-      SAVE.dataset.file = `${section}.html`;
-      ACTF.textContent = `${section}.html`;
+    else if (section === 'thema') {
+      const on = THEM.elements['paneltab'].querySelector('input.on');
+      SAVE.dataset.file = on.dataset.name;
+      ACTF.textContent = on.dataset.name;
       SAVE.classList.remove('disable');
     }
-    else if (section === 'style') {
-      SAVE.dataset.file = `${section}.css`;
-      ACTF.textContent = `${section}.css`;
+    else if (section === 'setting') {
+      SAVE.dataset.file = `${section}.html`;
+      ACTF.textContent = `${section}.html`;
       SAVE.classList.remove('disable');
     }
   };
@@ -263,9 +269,16 @@ document.addEventListener('DOMContentLoaded', () => {
     SAVE.classList.remove('disable');
     PREV.classList.remove('disable');
   };
+  obsThema = () => {
+    const filename = THEM.elements['paneltab'].dataset.section;
+    SAVE.dataset.file = filename;
+    ACTF.textContent = filename;
+    // SAVE.classList.remove('disable');
+  }
   const activeSection = new MutationObserver(obsSection);
   const activePostFile = new MutationObserver(obsPost);
   const activePageFile = new MutationObserver(obsPage);
+  const activeThemaFile = new MutationObserver(obsThema);
   const obsConfig1 = {
     attributes: true,
     attributeFilter: ['data-section']
@@ -277,7 +290,10 @@ document.addEventListener('DOMContentLoaded', () => {
   activeSection.observe(H2SE, obsConfig1);
   activePostFile.observe(POSBE, obsConfig2);
   activePageFile.observe(PAGBE, obsConfig2);
+  activeThemaFile.observe(THEM.elements['paneltab'], obsConfig1);
+
 //event
+
   //click left menu
   document.querySelector('nav').onclick = (e) => {
     if (e.target.tagName === 'P') {
@@ -293,6 +309,7 @@ document.addEventListener('DOMContentLoaded', () => {
       e.target.setAttribute('class','on');
     }
   };
+
   //click spellcheck
   document.getElementById('spellcheck').onclick = () => {
     const spl = document.getElementById('spellcheck');
@@ -310,17 +327,21 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
   };
+
   //click dark mode
   document.getElementById('mode').onclick = () => {
+    document.querySelector('nav').classList.toggle('dark');
     document.querySelector('header').classList.toggle('dark');
     document.querySelector('main').classList.toggle('dark');
   };
+
   //click text editor panel
   for (const panel of ['#post [name=panelbtns]','#page [name=panelbtns]']) {
     document.querySelector(panel).onclick = (e) => {
       if (e.target.tagName === 'I') new TextEditor().addTag(e.target.textContent);
     };
   }
+
   //click right block title
   for (const boxr of document.querySelectorAll('.side h3')) {
     boxr.onclick = (e) => {
@@ -330,6 +351,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     };
   }
+
   //click tags
   POSTG.onclick = (e) => {
     if (e.target.tagName === 'I') e.target.classList.toggle('on');
@@ -338,19 +360,33 @@ document.addEventListener('DOMContentLoaded', () => {
     for(const on of ons) tagsHtml += `<span>${on.textContent}</span>`
     POST.elements['tags'].value = tagsHtml;
   };
-  // click panel tab
-  POST.elements['paneltab'].onclick = (e) => {
-    const inputs = POST.elements['paneltab'].querySelectorAll('input');
-    for (const input of inputs) input.classList.remove('on');
-    if (e.target.tagName === 'INPUT') e.target.classList.toggle('on');
-    const tas = POST.querySelectorAll('.text textarea');
-    for (const ta of tas) ta.classList.add('hide');
-    POST.elements[e.target.value.toLowerCase()].classList.remove('hide');
-  };
+
+  SETT.elements['hue'].addEventListener('input', () =>{
+    const deg36 = SETT.elements['hue'].value;
+    document.documentElement.style.setProperty('--bordercolor', `hsl(${deg36*10},30%,88%)`);
+  });
+
   (() => {
+     //click paneltab
+    const paneltab = (form,e) => {
+      const inputs = form.elements['paneltab'].querySelectorAll('input');
+      for (const input of inputs) input.classList.remove('on');
+      if (e.target.tagName === 'INPUT') e.target.classList.toggle('on');
+      const tas = form.querySelectorAll('.text textarea');
+      for (const ta of tas) ta.classList.add('hide');
+      form.elements[e.target.value.toLowerCase()].classList.remove('hide');
+    };
+    POST.elements['paneltab'].onclick = (e) => paneltab(POST,e);
+    THEM.elements['paneltab'].onclick = (e) => {
+      paneltab(THEM,e);
+      const on = THEM.elements['paneltab'].querySelector('input.on');
+      THEM.elements['paneltab'].setAttribute('data-section',on.dataset.name);
+    };
+
     //set translate="no"
     const elems = ['nav','header','#post .panel','#page .panel','#post [name=tagbtns]','#custom'];
     for (const elem of elems) document.querySelector(elem).setAttribute('translate','no');
+
     //draggable element
     let dragStartX, dragStartY;
     let objInitLeft, objInitTop;
@@ -370,15 +406,20 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     document.addEventListener("mouseup", () => inDrag = false);
   })();
+
 //// open picker ////
   OPEN.onclick = async () => {
     const dirHandle = await window.showDirectoryPicker(); //dialog accept
     //create file and folder
-    const tmpHandle = await dirHandle.getFileHandle('template.html',{create:true});
+    const thmHandle = await dirHandle.getDirectoryHandle('thema',{create:true});
+    const defHandle = await thmHandle.getDirectoryHandle('default',{create:true});
+    const tmpHandle = await defHandle.getFileHandle('template.html',{create:true});
+    const styHandle = await defHandle.getFileHandle('style.css',{create:true});
     const setHandle = await dirHandle.getFileHandle('setting.html',{create:true});
     const webHandle = await dirHandle.getDirectoryHandle('webfiles',{create:true});
+                      await webHandle.getFileHandle('style.css',{create:true});
     const idxHandle = await webHandle.getFileHandle('index.html',{create:true});
-    const styHandle = await webHandle.getFileHandle('style.css',{create:true});
+    // const styHandle = await webHandle.getFileHandle('style.css',{create:true});
     const allHandle = await webHandle.getFileHandle('allpost.html',{create:true});
     const srhHandle = await webHandle.getFileHandle('search.html',{create:true});
     const icoHandle = await webHandle.getFileHandle('favicon.svg',{create:true});
@@ -391,6 +432,13 @@ document.addEventListener('DOMContentLoaded', () => {
     //store file and directory handles
     const singleChest = [];
     singleChest.push(tmpHandle,setHandle,idxHandle,styHandle,allHandle,srhHandle,icoHandle,mjsHandle);
+    const themaDirsChest = [];
+    for await (const dir of thmHandle.values()) {
+      if (dir.kind === 'directory') {
+        themaDirsChest.push(dir);
+        SETT.elements['thema'].insertAdjacentHTML('beforeend',`<option value="${dir.name}">${dir.name}</option>`);
+      }
+    }
     const postChest = await listAll(posHandle);
     const pageChest = await listAll(pagHandle);
     const mediaChest = await listAll(medHandle);
@@ -424,56 +472,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const response = await fetch(this.url);
         await response.body.pipeTo(writable);
       };
-      async load() {
-        const str = await this.txt();
-        if (!str) {
-          const rem = this.ta.value.substring(this.ta.value.indexOf("\n") + 1);
-          this.ta.value = rem;
-        }
-        else this.ta.value = str;
-      };
       async save() {
         await this.write(this.ta.value);
-      };
-    }
-    class HandleTemplate extends HandleText {
-      constructor(fileName,chest) {
-        super(fileName,chest);
-        this.fileName = 'template.html';
-        this.chest = singleChest;
-        this.url = 'default-template.html';
-        this.ta = TEMP.elements['ta'];
-      };
-      document() {
-        return DOMP.parseFromString(this.ta.value,'text/html');
-      };
-    };
-    class HandleStyle extends HandleText {
-      constructor(fileName,chest) {
-        super(fileName,chest);
-        this.fileName = 'style.css';
-        this.chest = singleChest;
-        this.url = 'default-style.css';
-        this.ta = STYL.elements['ta'];
-      };
-      document() {
-        return DOMP.parseFromString(this.ta.value,'text/html');
-      };
-    };
-    class HandleFavicon extends HandleText {
-      constructor(fileName,chest) {
-        super(fileName,chest);
-        this.fileName = 'favicon.svg';
-        this.chest = singleChest;
-        this.url = 'favicon.svg';
-      };
-    };
-    class HandleMainJS extends HandleText {
-      constructor(fileName,chest) {
-        super(fileName,chest);
-        this.fileName = 'main.js';
-        this.chest = singleChest;
-        this.url = 'default-main.js'
       };
     };
     class HandleSetting extends HandleText {
@@ -481,7 +481,7 @@ document.addEventListener('DOMContentLoaded', () => {
         super(fileName,chest);
         this.fileName = 'setting.html';
         this.chest = singleChest;
-        this.setts = ['site-title','site-subtitle','url','image','latest-posts','index-desc','allpost-title','allpost-desc','search-title','search-desc','auther','date-type','tags','custom-editor'];
+        this.setts = ['site-title','site-subtitle','url','image','latest-posts','index-desc','allpost-title','allpost-desc','search-title','search-desc','auther','date-type','tags','thema','custom-editor'];
       };
       async load() {
         const doc = await this.document();
@@ -499,20 +499,67 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         }
       };
+      static selectedThema() {
+        const value = SETT.elements['thema'].value;
+        if (value) return value;
+        else {
+          SETT.elements['thema'].value = 'default';
+          return 'default';
+        }
+      };
       async save() {
         let str = [];
-        for (const cnf of this.confs) {
-          const txt = SETT.elements[cnf].value;
-          str += `<p id="${cnf}">${txt}</p>\n`
+        for (const sett of this.setts) {
+          const txt = SETT.elements[sett].value;
+          str += `<p id="${sett}">${txt}</p>\n`
         }
         await this.write(str);
       };
     };
-    const template = new HandleTemplate();
-    const style = new HandleStyle();
-    const favicon = new HandleFavicon();
-    const mainjs = new HandleMainJS();
     const setting = new HandleSetting();
+    await setting.load();
+    const themaChest = await listAll(new HandleFile(HandleSetting.selectedThema(),themaDirsChest).handle());
+    //thema class
+    class HandleThema extends HandleText {
+      constructor(fileName,chest) {
+        super(fileName,chest);
+        this.fileName = fileName;
+        this.chest = themaChest;
+        this.url = `default-${fileName}`;
+        this.ta = THEM.elements[fileName.split('.')[0]];
+      };
+      document() {
+        return DOMP.parseFromString(this.ta.value,'text/html');
+      };
+      async load() {
+        const str = await this.txt();
+        if (!str) {
+          const rem = this.ta.value.substring(this.ta.value.indexOf("\n") + 1);
+          this.ta.value = rem;
+        }
+        else this.ta.value = str;
+      };
+      static printDir() {
+        const selectDir = SETT.elements['thema'].value;
+        THEM.elements['dir'].innerHTML = selectDir;
+      };
+    };
+    const template = new HandleThema('template.html');
+    const style = new HandleThema('style.css');
+    await template.load();
+    await style.load();
+    HandleThema.printDir();
+    class HandleOthes extends HandleText {
+      constructor(fileName,chest,url) {
+        super(fileName,chest);
+        this.fileName = fileName;
+        this.chest = chest;
+        this.url = url;
+      };
+    };
+    const favicon = new HandleOthes('favicon.svg',singleChest,'favicon.svg');
+    const mainjs = new HandleOthes('main.js',singleChest,'default-main.js');
+    
     //HTML file Handler
     class HandleHTML extends HandleFile {
       templateToDoc() {
@@ -604,7 +651,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const doc = await this.makeHTMLCommon();
         await this.makeHTMLSpecial(doc);
         doc.head.insertAdjacentHTML('beforeend','<style></style>');
-        const css = STYL.elements['ta'].value;
+        const css = THEM.elements['style'].value;
         doc.head.querySelector('style').innerHTML = css;
         const imgs = doc.querySelectorAll('img');
         for (const img of imgs) {
@@ -967,7 +1014,7 @@ document.addEventListener('DOMContentLoaded', () => {
       static addDirsList()  {
         const dirs = this.latestDirs();
         for (const dir of dirs) {
-          POST.elements['years'].insertAdjacentHTML('beforeend',`<option value="${dir}" class="years">${dir}</option>`);
+          POST.elements['years'].insertAdjacentHTML('beforeend',`<option value="${dir}">${dir}</option>`);
         }
         POST.elements['years'].value = date.year();
       };
@@ -1302,8 +1349,6 @@ document.addEventListener('DOMContentLoaded', () => {
           else if (e.target.tagName === 'U') new Custom(elem[4]).addCustomTag(e.target.title);
         };
         elem[1].classList.toggle('hide');
-        //load files
-        for (const file of [template,style,setting]) await file.load();
         //check if exsits in template
         const article = new elem[3]();
         const tmpDoc = await article.templateToDoc();
@@ -1367,11 +1412,77 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 });
+    // else if (section === 'template' || section === 'setting') {
+    //   SAVE.dataset.file = `${section}.html`;
+    //   ACTF.textContent = `${section}.html`;
+    //   SAVE.classList.remove('disable');
+    // }
+    // else if (section === 'style') {
+    //   SAVE.dataset.file = `${section}.css`;
+    //   ACTF.textContent = `${section}.css`;
+    //   SAVE.classList.remove('disable');
+    // }
+
+    // class HandleFavicon extends HandleText {
+    //   constructor(fileName,chest) {
+    //     super(fileName,chest);
+    //     this.fileName = 'favicon.svg';
+    //     this.chest = singleChest;
+    //     this.url = 'favicon.svg';
+    //   };
+    // };
+    // class HandleMainJS extends HandleText {
+    //   constructor(fileName,chest) {
+    //     super(fileName,chest);
+    //     this.fileName = 'main.js';
+    //     this.chest = singleChest;
+    //     this.url = 'default-main.js'
+    //   };
+    // };
+    // const favicon = new HandleFavicon();
+    // const mainjs = new HandleMainJS();
+
+        //load files
+        // HandleThema.addDirs();
+        // for (const file of [template,style,setting]) await file.load();
+        // HandleThema.printDir();
+
+        // const value = SETT.elements['thema'].value;
+        // SETT.elements['thema'].querySelector(`option[value="${value}"]`).setAttribute('selected','selected');
+
+    // class HandleTemplate extends HandleText {
+    //   constructor(fileName,chest) {
+    //     super(fileName,chest);
+    //     this.fileName = 'template.html';
+    //     this.chest = singleChest;
+    //     this.url = 'default-template.html';
+    //     this.ta = THEM.elements['template'];
+    //   };
+    //   document() {
+    //     return DOMP.parseFromString(this.ta.value,'text/html');
+    //   };
+    // };
+    // class HandleStyle extends HandleText {
+    //   constructor(fileName,chest) {
+    //     super(fileName,chest);
+    //     this.fileName = 'style.css';
+    //     this.chest = singleChest;
+    //     this.url = 'default-style.css';
+    //     this.ta = THEM.elements['style'];
+    //   };
+    //   document() {
+    //     return DOMP.parseFromString(this.ta.value,'text/html');
+    //   };
+    // };
+
+  // const STYL = document.forms['style'];
+  // const TEMP = document.forms['template'];
+
     // const postFolders = [];
     // for (const folder of postChest.values()) {
     //   if (folder.kind === 'directory') postFolders.push(folder.name);
     // };
-    
+
     //adjust Height
     // const fh = document.querySelector('form').offsetHeight;
     // const nh = POSNW.offsetHeight;
