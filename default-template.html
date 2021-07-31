@@ -1,11 +1,20 @@
 <!-- default template -->
-<html lang="ja">
+
+<html lang="en">
 <head>
 <title></title>
 <link rel="stylesheet">
 <link rel="icon" type="image/svg+xml">
 <meta name="description">
 <script></script>
+<meta property="og:title">
+<meta property="og:site_name">
+<meta property="og:description">
+<meta property="og:url">
+<meta property="og:image">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<meta name="Twitter:site" content="@foot2_mini">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -13,69 +22,71 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-iBBXm8fW90+nuLcSKlbmrPcLa0OT92xO1BIsZ+ywDWZCvqsWgccV3gFoRBv0z+8dLJgyAHIhR35VZc2oM/gI1w==" crossorigin="anonymous" />
 </head>
 <body>
+
 <header class="header">
-
-<if class="post page allpost">
-<p class="site-title"></p>
+<if class="allpost search post page">
+  <div class="site-title"></div>
 </if>
-
 <if class="index">
-<h1 class="site-title"></h1>
+  <h1 class="site-title"></h1>
 </if>
-
-<span id="menu-icon"></span>
-<nav class="page-list"></nav>
+  <span class="menu-icon"></span>
+  <ul class="page-list"></ul>
 </header>
 
 <main>
 
 <if class="index">
-<h2>Latest Posts</h2>
+  <h2>Latest Posts</h2>
+  <div class="latest-posts"></div>
 </if>
 
 <if class="allpost">
-<h1 class="title">allpost</h1>
-<div class="allpost-btns">
-  <p></p>
-  <p><span data-btn="tag-No-Tag" class="on">No Tag</span></p>
-  <p><b class="allclear-btn">All Clear</b><b class="allview-btn">All View</b></p>
-</div>
+  <h1 class="title"></h1>
+  <div class="allpost-btns">
+    <div></div>
+    <div><span data-btn="tag-No-Tag" class="on">No Tag</span></div>
+    <div><b class="allclear-btn">All Clear</b><b class="allview-btn">All View</b></div>
+  </div>
+  <div class="latest-posts"></div>
+</if>
+
+<if class="search">
+  <h1 class="title"></h1>
+  <form id="search-box"><input name="txt" placeholder="Enter Word"><button name="btn" type="button">Search</button></form>
 </if>
 
 <if class="post">
-<span class="auther"></span><time itemprop="datepublished"></time><time itemprop="modified"> • Update </time>
-<h1 class="title"></h1>
-<div class="top-image"></div>
-<div class="table-of-contents"><p class="dashed">contents</p></div>
+  <article>
+    <!-- <div class="freespace">freespace</div> -->
+    <div class="top-image"></div>
+    <span class="auther"></span><time class="time"></time><time itemprop="modified"> • Update </time>
+    <h1 class="title"></h1>
+    <div class="headline"></div>
+    <div class="table-of-contents"><p><b>Contents</b></p></div>
+    <div class="contents"></div>
+    <div class="tags"></div>
+    <div class="social"></div>
+    <div class="plinks"><a class="link-prev" target="_blank">Prev Post</a><a class="link-allpost" target="_blank">All Post</a><a class="link-next" target="_blank">Next Post</a></div>
+    <div class="comment">
+      <!-- your disqus code -->
+    </div>
+  </article>
 </if>
 
 <if class="page">
-<h1 class="title"></h1>
-</if>
-
-<div class="contents">
-</div>
-
-<if class="post">
-<p class="tags"></p>
-<p class="social"></p>
-</if>
-
-<if class="post">
-<div class="comment">
-your disqus code
-</div>
-</if>
-
-<if class="post">
-<div class="prev-next"></div>
-<div class="related-post"></div>
+  <article>
+    <h1 class="title"></h1>
+    <div class="table-of-contents"><p><b>Contents</b></p></div>
+    <div class="contents"></div>
+  </article>
 </if>
 
 </main>
 
 <footer class="footer">
-  <div class="goto-allpost"><a>All Post</a></div><p class="search"></p>
+  <div class="flinks"><a class="link-allpost" target="_blank">All Post</a><a class="link-search" target="_blank">Search</a></div>
+  <div class="copyright"><small> | made with <a href="https://fafanto.app" target="_blank">fafanto</a></small></div>
 </footer>
 </body>
 </html>
