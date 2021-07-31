@@ -6,17 +6,15 @@
 <script src="https://kit.fontawesome.com/8725e8d35f.js" crossorigin="anonymous"></script>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
-
-<!-- <link rel="stylesheet" href="codemirror/lib/codemirror.css">
-<script src="codemirror/lib/codemirror.js"></script>
-<script src="codemirror/mode/javascript/javascript.js"></script>
-<script src="codemirror/mode/htmlmixed/htmlmixed.js"></script>
-<script src="codemirror/mode/css/css.js"></script> -->
+<link rel="stylesheet" data-name="vs/editor/editor.main" href="monaco-editor/min/vs/editor/editor.main.css" />
 </head>
 <body>
 <script src="fafanto.js"></script>
+<script src="monaco-editor/min/vs/loader.js"></script>
+<script src="monaco-editor/min/vs/editor/editor.main.nls.js"></script>
+<script src="monaco-editor/min/vs/editor/editor.main.js"></script>
   <nav>
-    <h1><img src="favicon.svg" alt="fafanto logo"/>fafanto</h1>
+    <h1><img src="favicon.svg" alt="fafanto logo" title="fafanto" /></h1>
     <div>
       <p data-nav="post" class="on">Post</p>
       <p data-nav="page">Page</p>
@@ -33,7 +31,7 @@
   </nav>
   <header>
     <div>
-      <h2 data-section="post">Post</h2>
+      <h2 data-form="post">Post</h2>
     </div>
     <div>
       <div>file:<span id="actfile">demo.html</span></div>
@@ -54,8 +52,8 @@
           <input name="name" placeholder="Add Filename">
           <button name="btn" type="button" class="btn-new"></button>
         </fieldset>
-        <select name="years" class="hide"></select>
-        <div class="list"></div>
+        <select name="dirs" class="hide"></select>
+        <div class="artlist"></div>
       </div>
       <div class="bench">
         <div class="text">
@@ -64,11 +62,12 @@
               <i>b</i><i>small</i><i>mark</i><i>br</i><i>p</i><i>h2</i><i>h3</i><i>h4</i><i>a</i><i>ul</i><i>table</i><s title="link"></s><s title="img"></s>
             </fieldset>
             <fieldset name="paneltab">
-              <input type="button" value="Headline"><input type="button" value="Contents" class="on">
+              <button type="button" data-tab="headline" >Headline</button>
+              <button type="button" data-tab="contents" class="on">Contents</button>
             </fieldset>
           </div>
-          <textarea name="headline" placeholder="Add Headline" class="hide"></textarea>
-          <textarea name="contents" placeholder="Add Contents"></textarea>
+          <fieldset name="headline" class="monacos hide"></fieldset>
+          <fieldset name="contents" class="monacos"></fieldset>
         </div>
         <div class="side">
           <div>
@@ -126,7 +125,7 @@ do nothing or remove'>Freespace<input type="checkbox" name="freespace" checked><
           <input name="name" placeholder="Add Filename">
           <button name="btn" type="button" class="btn-new"></button>
         </fieldset>
-        <div class="list"></div>
+        <div class="artlist"></div>
       </div>
       <div class="bench">
         <div class="text">
@@ -135,10 +134,10 @@ do nothing or remove'>Freespace<input type="checkbox" name="freespace" checked><
               <i>b</i><i>small</i><i>mark</i><i>br</i><i>p</i><i>h2</i><i>h3</i><i>h4</i><i>a</i><i>ul</i><i>table</i><s title="link"></s><s title="img"></s>
             </fieldset>
             <fieldset name="paneltab">
-              <input type="button" value="Contents" class="on">
+              <button type="button" data-tab="contents" class="on">Contents</button>
             </fieldset>
           </div>
-          <textarea name="contents" placeholder="Add Contents"></textarea>
+          <fieldset name="contents" class="monacos"></fieldset>
         </div>
         <div class="side">
           <div>
@@ -163,52 +162,17 @@ Create anchor links of h2 h3 or remove">Table Of Contents<input type="checkbox" 
           <div>
             <fieldset name="dir">default</fieldset>
           </div>
-          <fieldset name="paneltab">
-            <input type="button" data-name="template.html" value="Template" class="on"><input type="button" data-name="style.css" value="Style">
+          <fieldset name="paneltab" data-currenttab="template.html">
+            <button type="button" data-tab="template.html" class="on">Template</button>
+            <button type="button" data-tab="style.css">Style</button>
           </fieldset>
         </div>
-          <!-- <div id="container" style="height: 100%;"></div>
-          <script src="monaco-editor/min/vs/loader.js"></script>
-          <script>
-            require.config({ paths: { vs: 'monaco-editor/min/vs' } });
-
-            require(['monaco-editor/min/vs/editor/editor.main'], function () {
-              var editor = monaco.editor.create(document.getElementById('container'), {
-                value: ['<div class="contents">into</div>'].join('\n'),
-                language: 'html'
-              });
-            });
-
-          </script> -->
-          <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.0/ace.js"></script>
-          <script src="https://cloud9ide.github.io/emmet-core/emmet.js"></script>
-          <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.0/ext-emmet.js"></script>
-          <script>
-            var aceTemp = ace.edit("ace-temp");
-            template.$blockScrolling = Infinity;
-            aceTemp.setOptions({
-              enableEmmet: true
-            });
-            aceTemp.getSession().setMode("ace/mode/html");
-            editor.setTheme("ace/theme/monokai");
-            aceTemp.getSession().setUseWrapMode(true);
-            editor.getSession().setValue(textarea.value);
-            aceTemp.setFontSize(14);
-            aceTemp.focus();
-            aceTemp.getSession().on('change', function(){
-              console.log(aceTemp.getSession().getValue());
-            });
-          </script> -->
-        <textarea name="template" placeholder="Add Template"></textarea>
-        <textarea name="style" placeholder="Add Style" class="hide"></textarea>
+        <fieldset name="template" class="monacos"></fieldset>
+        <fieldset name="style" class="monacos hide"></fieldset>
+        <!-- <textarea name="template"></textarea>
+        <textarea name="style"></textarea> -->
       </div>
     </form>
-    <!-- <form id="style">
-      <textarea name="ta"></textarea>
-    </form>
-    <form id="template">
-      <textarea name="ta"></textarea>
-    </form> -->
     <form id="setting">
       <fieldset>
         <p class="desc">After changing the settings and saving the file, please reload this application.</p>
@@ -294,12 +258,12 @@ Create anchor links of h2 h3 or remove">Table Of Contents<input type="checkbox" 
     </form>
   </main>
   <form id="links" class="hide">
-    <select name="flds"></select>
+    <select name="dirs"></select>
     <button type="button" name="btn"></button>
     <div name="box"></div>
   </form>
   <form id="images" class="hide">
-    <select name="flds"></select>
+    <select name="dirs"></select>
     <button type="button" name="btn"></button>
     <div name="box"></div>
   </form>
@@ -308,13 +272,29 @@ Create anchor links of h2 h3 or remove">Table Of Contents<input type="checkbox" 
     <div><button type="button" id="open-dir">Select Folder</button></div>
     <a href="docs.html" target="_blank" class="disable">Start Up Guide</a>
   </div>
-<!-- 
-  <script>
-    var jsEditor = CodeMirror.fromTextArea(document.getElementById('codeArea'), {
-      mode: "javascript",
-      lineNumbers: true,
-      indentUnit: 4
-  });
-  </script> -->
 </body>
 </html>
+          <!-- <script src="http://127.0.0.1:8887/monaco-editor/min/vs/loader.js"></script> -->
+          <!-- <div id="container" style="height:500px;"></div> -->
+          
+          <!-- <script>
+            require.config({ paths: { 'vs': 'http://127.0.0.1:8887/monaco-editor/min/vs' }});
+            require(["vs/editor/editor.main"], function () {
+              let editor = monaco.editor.create(document.getElementById('container'), {
+                value: [
+                  '<p class="aaa">sdsdg</p>'
+                ].join('\n'),
+                language: 'html',
+                theme: 'vs-dark'
+              });
+            });
+          </script> -->
+
+          <!-- <link rel="stylesheet" href="codemirror/lib/codemirror.css">
+<script src="codemirror/lib/codemirror.js"></script>
+<script src="codemirror/mode/javascript/javascript.js"></script>
+<script src="codemirror/mode/htmlmixed/htmlmixed.js"></script>
+<script src="codemirror/mode/xml/xml.js"></script>
+<script src="codemirror/mode/css/css.js"></script> -->
+
+<!-- <script src="ace-editor/ace.js"></script> -->

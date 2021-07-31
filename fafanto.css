@@ -48,17 +48,21 @@ textarea,button,input,select {
 button {
     background-color: transparent;
 }
+button:hover {
+    background-color: var(--black);
+    color: #fff;
+}
 textarea {
     resize: none;
     width: 100%;
     border: var(--borderwidth) solid var(--bordercolor);
 }
-input[type=checkbox], input[type=range] {
+/* input[type=checkbox], input[type=range] {
     filter:grayscale(100%) contrast(200%);
-}
-input[type=checkbox] {
-    transform: scale(1.3);
-}
+} */
+/* input[type=checkbox] {
+    transform: scale(1.1);
+} */
 input[type=range] {
     transform: scale(0.9);
 }
@@ -72,20 +76,14 @@ fieldset {
     border: none;
 }
 form {
-    display:none;
+    display: none;
     height: 100%;
 }
 form input, form select {
     border: var(--borderwidth) solid var(--bordercolor);
     /* border-bottom: var(--borderwidth) solid var(--bordercolor); */
 }
-form button {
-    background-color: var(--black);
-    color: #fff;
-}
-form button:hover {
-    background-color: var(--green);
-}
+
 button,select,label,nav p,[name=tagbtns] i,.side h3 b,#links p,#images img {
     cursor:pointer;
 }
@@ -179,7 +177,7 @@ nav {
     /* padding-right: var(--gap); */
 }
 h1 {
-    font-size: 1.6rem;
+    /* font-size: 1.6rem; */
     text-align: center;
     /* background-color: var(--black); */
     /* border-bottom: var(--borderwidth) solid #393939; */
@@ -194,8 +192,8 @@ h1 img {
     /* display: block; */
     /* filter:invert(100%); */
     /* mix-blend-mode: exclusion; */
-    width: 2.4rem;
-    margin: 0 1rem .6rem 0;
+    width: 3rem;
+    /* margin: 0 1rem .6rem 0; */
     /* fill: var(--bordercolor); */
 }
 #home, #map {
@@ -276,10 +274,6 @@ h2 {
     font-weight: bold;
     display: block;
 }
-#save:hover ,#preview:hover {
-    background-color: var(--black);
-    color: #fff;
-}
 /* header:first-of-type div {
     overflow-wrap: break-word;
 } */
@@ -293,6 +287,10 @@ main {
     background-color: #f9f9f9;
     padding: var(--gap);
 }
+.monacos {
+    border: var(--borderwidth) solid var(--bordercolor);
+    border-top: 0;
+}
 /* Post, Page */
 .portal fieldset {
     display: grid;
@@ -302,17 +300,21 @@ main {
     align-items: center;
     padding-bottom: var(--innergap);
 }
-.portal button,[type=datetime-local],.list u {
+.portal button {
+    background-color: var(--black);
+    color: #fff;
+}
+.portal button,[type=datetime-local],.artlist u {
     height: 39px;
 }
-.list u {
+.artlist u {
     overflow: hidden;
     text-decoration: none;
     padding: 1.1rem 0;
     /* background-color: #fff; */
     border-bottom: var(--borderwidth) solid var(--gray);
 }
-[name=years] {
+#post [name=dirs] {
     width: 20rem;
     font-size: 1.6rem;
     font-weight: bold;
@@ -330,13 +332,6 @@ main {
     /* background-color: #fff; */
     /* border-top: var(--borderwidth) solid var(--bordercolor); */
     /* border-bottom: var(--borderwidth) solid var(--bordercolor); */
-}
-.text textarea {
-    overflow: auto;
-    border: var(--borderwidth) solid var(--bordercolor);
-    border-top: 0;
-    /* border-left: var(--borderwidth) solid var(--bordercolor); */
-    /* padding: 1rem; */
 }
 /* editor panel */
 .panel {
@@ -367,20 +362,24 @@ main {
 [name=paneltab] {
     text-align: right;
 }
-[name=paneltab] input {
+[name=paneltab] button {
     border-top: var(--borderwidth) solid var(--bordercolor);
     border-left: var(--borderwidth) solid var(--bordercolor);
     background-color: #f5f5f5;
     font-family: initial;
     font-size: 1.3rem;
 }
+[name=paneltab] button:hover {
+    color: var(--black);
+}
 /* [name=paneltab] input:nth-of-type(2) {
     border-left: var(--borderwidth) solid var(--bordercolor);
 } */
-[name=paneltab] input.on {
+[name=paneltab] button.on {
     border-bottom-color: #fff;
     background-color: #fff;
 }
+
 .side {
     /* background-color: #fff; */
     /* height: fit-content; */
@@ -436,18 +435,18 @@ main {
     color: var(--black);
 }
 /* Page  */
-#page .list fieldset,#page [name=new] {
+#page .artlist fieldset,#page [name=new] {
     grid-template-columns: 68% 1fr var(--btnWidth);
 }
 /* Thema */
 #thema .text {
     display: initial;
 }
-#thema textarea  {
+/* #thema textarea  {
     height: calc(100% - 35px);
     border: var(--borderwidth) solid var(--bordercolor);
     border-top: 0;
-}
+} */
 #thema .panel > div {
     padding: 0;
     border-right: var(--borderwidth) solid var(--bordercolor);
@@ -460,6 +459,9 @@ main {
 }
 #thema [name=paneltab] input {
     padding: .6rem 2rem;
+}
+#thema .monacos {
+    height: calc(100% - 34px);
 }
 /* #thema [name=paneltab] div {
     border-bottom: var(--borderwidth) solid var(--bordercolor);
@@ -540,7 +542,7 @@ main {
     display: grid;
     grid-template-columns: 10% 1fr 10%;
     grid-template-rows: auto 1fr;
-    grid-template-areas: "flds . btn" "box box box";
+    grid-template-areas: "dirs . btn" "box box box";
     position: absolute;
     bottom: 0;
     width: 100%;
@@ -549,7 +551,7 @@ main {
     background-color: rgba(22, 22, 22, 0.7);
 }
 #links select,#images select {
-    grid-area: flds;
+    grid-area: dirs;
     background-color: #444;
     color: #fff;
     border: none;
@@ -590,8 +592,9 @@ main {
 #home,#map,
 nav p,
 #spellcheck,#mode,
-.btn-new,.btn-edit,.btn-close,
+.btn-new,.artlist button,.btn-close,
 .panel,.side h3 b,[name=tagbtns] i.on::before,
+/* #thema [name=paneltab], */
 #allseve,
 #links button,#images button,[name=img-open] {
     font-family:'Font Awesome 5 Free';
@@ -599,8 +602,9 @@ nav p,
 .exclamation::before,
 #home,
 #mode,#spellcheck,
-.btn-new,.btn-edit,.btn-close,
+.btn-new,.artlist button,.btn-close,
 .panel,[name=tagbtns] i.on::before,
+/* #thema [name=paneltab], */
 #allseve,#links button,
 #images button,[name=img-open] { 
     font-weight: 900;
@@ -615,9 +619,9 @@ nav [data-nav=setting]::before {content:"\f013";font-weight: 900;}
 nav [data-nav=allsave]::before {content:"\f019";font-weight: 900;}
 #home::before {content:"\f015";}
 #map::before {content:"\f279";}
-.btn-new::before {content:"\f067";}
-.btn-edit::before {content:"\f304";}
-.btn-close::before,#links button::before,#images button::before {content:"\f00d";}
+[name=new] button::before {content:"\f067";}
+.artlist button::before {content:"\f304";}
+.btn-close::before,#links button::before,#images button::before {content:"\f00d" !important;}
 /* [name=panelbtns]::before {content:"\f121";padding-right: 1.5rem;vertical-align: middle;} */
 [title=link]::before, #rated button::before {content:"\f0c1";}
 [title=img]::before, [name=img-open]::before {content:"\f302";}
@@ -627,6 +631,8 @@ nav [data-nav=allsave]::before {content:"\f019";font-weight: 900;}
 [name=parts] label:nth-of-type(2)::before {content:"\f075";font-family:'Font Awesome 5 Free';}
 [name=parts] label:nth-of-type(3)::before {content:"\f0c8";font-family:'Font Awesome 5 Free';}
 [name=tagbtns] i.on::before {content: "\f02b  ";color: var(--black);font-size: 1.2rem;}
+[data-tab="template.html"]::after {content: "  \f126"}
+[data-tab="style.css"]::after {content: "  \f546"}
 /* #thema .panel input:first-of-type::before {content:"\f546";font-weight: 900;}
 #thema .panel input:last-of-type::before {content:"\f126";font-weight: 900;} */
 .exclamation::before {content: "\f071  ";color: var(--orange);}
@@ -649,16 +655,3 @@ nav [data-nav=allsave]::before {content:"\f019";font-weight: 900;}
 /* ::-ms-input-placeholder {
     color: var(--gray);
 } */
-
-   /* position: absolute;
-    block-size: 40px;
-    writing-mode: vertical-rl;
-    inline-size: 100vh;
-    font-size: 1.6rem;
-    background-color: #000;
-    color:var(--gray);
-    font-weight: normal;
-    line-height: 40px;
-    padding-top: 10px;
-    align-items: center;
-    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif; */
