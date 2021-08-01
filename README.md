@@ -1,5 +1,5 @@
 # fafanto
-This web app is a static site CMS with minimality
+This web app is a **static site CMS** with minimality
 
 ## Required Environment
 You will need a **PC** with a chromium-based browser, as the API used by fafanto does not support mobile browsers.
