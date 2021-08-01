@@ -188,7 +188,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       elem2.classList.add('hide');
     };
     addHtmlTag() {
-      this.form.querySelector(`[name=panelbtns]`).onclick = (e) => {
+      this.form.querySelector('[name=panelbtns]').onclick = (e) => {
         const sel = this.editor.getSelection();
         const val = this.editor.getModel().getValueInRange(sel);
         const insert = (text) => {
@@ -253,91 +253,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     };
   };
-  
 
-    //click text editor panel
-  // for (const panel of ['#post [name=panelbtns]','#page [name=panelbtns]']) {
-  //   document.querySelector(panel).onclick = (e) => {
-  //     if (e.target.tagName === 'I') new TextEditor().addTag(e.target.textContent);
-  //   };
-  // }
-
-  // class AList extends TextEditor {
-  //   addA() {
-  //     LINKS.classList.toggle('hide');
-  //     IMAGS.classList.add('hide');
-  //     LINKS.querySelector('div').onclick = (e) => {
-  //       if (e.target.tagName === 'P') {
-  //         const dirName = LINKS.elements['dirs'].value;
-  //         this.insertText(`<a href="${this.path}post/${dirName}/${e.target.dataset.name}" target="_blank">${e.target.dataset.title}</a>`);
-  //       }
-  //     }
-  //   };
-  //   static async addList(dirName) {
-  //     LINKS.querySelector('div').textContent ='';
-  //     const data = await EditPost.dirLatestData(dirName);
-  //     for (const d of data) LINKS.querySelector('div').insertAdjacentHTML('beforeend',`<p data-name="${d[0]}" data-title="${d[1]}">${d[3]}<br />${d[1]}<br />${d[0]}</p>`);
-  //     LINKS.elements['dirs'].value = dirName;
-  //   };
-  //   static addDirs() {
-  //     LINKS.elements['dirs'].textContent ='';
-  //     for (const handle of postBox.values()) {
-  //       if (handle.kind === 'directory') LINKS.elements['dirs'].insertAdjacentHTML('beforeend',`<option value="${handle.name}">${handle.name}</option>`);
-  //     }
-  //     LINKS.elements['dirs'].value = date.year();
-  //   };
-  // };
-  // class ImgList extends TextEditor {
-  //   addImgTag() {
-  //     IMAGS.classList.toggle('hide');
-  //     LINKS.classList.add('hide');
-  //     IMAGS.querySelector('div').onclick = (e) => {
-  //       if (e.target.tagName === 'IMG') {
-  //         const dirName = IMAGS.elements['dirs'].value;
-  //         this.insertText(`<img src="${this.path}media/${dirName}/${e.target.title}" alt="" />\n`);
-  //       }
-  //     }
-  //   };
-  //   async addImgPath() {
-  //     IMAGS.classList.toggle('hide');
-  //     LINKS.classList.add('hide');
-  //     EditMedia.addDirs();
-  //     await EditMedia.addList(date.year());
-  //     IMAGS.querySelector('div').onclick = (e) => {
-  //       if (e.target.tagName === 'IMG') {
-  //         POST.elements['img'].value = `media/${IMAGS.elements['dirs'].value}/${e.target.title}`;
-  //       }
-  //     }
-  //   };
-  // };
-  // class Custom extends TextEditor {
-  //   addCustomTag(tag) {
-  //     this.insertText(tag);
-  //   };
-  //   static replaceBtn() {
-  //     const ctm = SETT.elements['custom-editor'].value;
-  //     POST.elements['panelbtns'].innerHTML = ctm;
-  //     PAGE.elements['panelbtns'].innerHTML = ctm;
-  //   };
-  // };
-
-  // const lists = [[LINKS,AList],[IMAGS,EditMedia]];
-  // for (const list of lists) {
-  //   list[0].elements['dirs'].addEventListener('input', async () => {
-  //     const dirName = list[0].elements['dirs'].value;
-  //     await list[1].addList(dirName);
-  //   });
-  //   list[0].elements['btn'].onclick = () => list[0].classList.add('hide');
-  //   list[1].addList(date.year());
-  //   list[1].addDirs();
-  // }
-        //click text editor panel
-        // elem[4].elements['panelbtns'].onclick = (e) => {
-        //   if (e.target.tagName === 'I') new TextEditor().addTag(e.target.textContent);
-        //   else if (e.target.title === 'link') new AList(elem[4]).addA();
-        //   else if (e.target.title === 'img') new ImgList(elem[4]).addImgTag();
-        //   else if (e.target.tagName === 'U') new Custom(elem[4]).addCustomTag(e.target.title);
-        // };
   // create monaco editor
   const mePostHeadline = monaco.editor.create(POST.elements['headline'], Monaco.mergeOpt(Monaco.opt.headline));
   const mePostContents = monaco.editor.create(POST.elements['contents'], Monaco.mergeOpt(Monaco.opt.contents));
@@ -369,19 +285,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   };
 
-  //click spellcheck
+  //click spellcheck to on/off
   document.getElementById('spellcheck').onclick = () => {
-    const spl = document.getElementById('spellcheck');
-    spl.classList.toggle('off');
-    const frms = ['input','textarea'];
-    if (spl.classList.contains('off')) {
-      for (const frm of frms) {
-        const inps = document.querySelectorAll(frm);
+    const sc = e.target;
+    sc.classList.toggle('off');
+    const forms = ['input','textarea'];
+    if (sc.classList.contains('off')) {
+      for (const form of forms) {
+        const inps = document.querySelectorAll(form);
         for (const inp of inps) inp.setAttribute('spellcheck','false');
       }
     } else {
-      for (const frm of frms) {
-        const inps = document.querySelectorAll(frm);
+      for (const form of forms) {
+        const inps = document.querySelectorAll(form);
         for (const inp of inps) inp.setAttribute('spellcheck','true');
       }
     }
@@ -394,7 +310,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.querySelector('main').classList.toggle('dark');
   };
 
-  //click right block title
+  //click side block arrow to open/close
   for (const boxr of document.querySelectorAll('.side h3')) {
     boxr.onclick = (e) => {
       if (e.target.tagName === 'B') {
@@ -574,7 +490,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const setting = new EditSetting();
     await setting.load();
     const themaBox = await listAll(new EditFile(EditSetting.selectedThema(),themaDirsBox).handle());
-    //thema class
+
+    //thema
     class EditThema extends EditTextFile {
       constructor(fileName,box,monacoEditor) {
         super(fileName,box);
@@ -605,6 +522,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     await template.load();
     await style.load();
     EditThema.addThemaName();
+
+    //others
     class EditOthes extends EditTextFile {
       constructor(fileName,box,url) {
         super(fileName,box);
@@ -616,7 +535,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const favicon = new EditOthes('favicon.svg',singleBox,'favicon.svg');
     const mainjs = new EditOthes('main.js',singleBox,'default-main.js');
     
-    //HTML file Handler
+    //HTML
     class EditHTML extends EditFile {
       templateToDoc() {
         const doc = template.document();
@@ -706,9 +625,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       async preview() {
         const doc = await this.makeHTMLCommon();
         await this.makeHTMLSpecial(doc);
-        doc.head.insertAdjacentHTML('beforeend','<style></style>');
-        const css = THEM.elements['style'].value;
-        doc.head.querySelector('style').innerHTML = css;
+        const css = meThemStyle.getValue();
+        doc.head.insertAdjacentHTML('beforeend',`<style>${css}</style>`);
         const imgs = doc.querySelectorAll('img');
         for (const img of imgs) {
           const src = img.getAttribute('src');
