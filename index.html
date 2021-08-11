@@ -9,6 +9,7 @@
 <link rel="stylesheet" data-name="vs/editor/editor.main" href="monaco-editor/min/vs/editor/editor.main.css" />
 </head>
 <body>
+  <img id="loading" src="loading.svg">
 <script src="fafanto.js"></script>
 <script src="monaco-editor/min/vs/loader.js"></script>
 <script src="monaco-editor/min/vs/editor/editor.main.nls.js"></script>
@@ -18,29 +19,27 @@
     <div>
       <p data-nav="post" class="on">Post</p>
       <p data-nav="page">Page</p>
-      <p data-nav="thema">Thema</p>
+      <p data-nav="bases">Bases</p>
       <p data-nav="setting">Setting</p>
       <p data-nav="allsave">Allsave</p>
       <p data-nav="info">Info</p>
     </div>
-    <div>
-      <div>Preview</div>
-      <button type="button" id="home" title="Preview Index.html"></button>
-      <button type="button" id="map" title="Preview allpost.html"></button>
-    </div>
+    <button title="Spellcheck on/off" id="spellcheck"></button>
+    <button title="Light/Dark" id="lightness"></button>
   </nav>
   <header>
     <div>
       <h2 data-form="post">Post</h2>
     </div>
     <div>
-      <div>file:<span id="actfile">demo.html</span></div>
+      <div id="actfile">demo.html</div>
       <button class="disable" id="save" type="button"> Save</button>
       <button class="disable" type="button" id="preview"> Preview</button>
     </div>
     <div>
-      <button title="Spellcheck" id="spellcheck"></button>
-      <button title="Dark Mode" id="mode"></button>
+      <div>Preview</div>
+      <button type="button" id="home" title="Preview Index.html"></button>
+      <button type="button" id="map" title="Preview allpost.html"></button>
     </div>
   </header>
   <main>
@@ -62,8 +61,7 @@
               <i>b</i><i>small</i><i>mark</i><i>br</i><i>p</i><i>h2</i><i>h3</i><i>h4</i><i>a</i><i>ul</i><i>table</i><s title="link"></s><s title="img"></s>
             </fieldset>
             <fieldset name="paneltab">
-              <button type="button" data-tab="headline" >Headline</button>
-              <button type="button" data-tab="contents" class="on">Contents</button>
+              <button type="button" data-tab="headline" >Headline</button><button type="button" data-tab="contents" class="on">Contents</button>
             </fieldset>
           </div>
           <fieldset name="headline" class="monacos hide"></fieldset>
@@ -72,20 +70,21 @@
         <div class="side">
           <div>
             <h3 title="Use for meta description and OGP description">Description<b></b></h3>
-            <fieldset class="hide">
+            <fieldset>
               <textarea name="desc" placeholder="Add Description"></textarea>
+              <button type="button" name="copybtn" title="copy text from headline"></button>
             </fieldset>
           </div>
           <div>
-            <h3>Image<b></b></h3>
-            <fieldset class="hide">
-              <textarea name="img" placeholder="media/2021/xxx.jpg"></textarea>
-              <button type="button" name="img-open"></button>
+            <h3>Thumbnail<b></b></h3>
+            <fieldset>
+              <textarea name="thumbnail" placeholder="media/2021/xxx.jpg"></textarea>
+              <button type="button" name="thumbbtn" title="open image list"></button>
             </fieldset>
           </div>
           <div>
             <h3>Parts<b></b></h3>
-            <fieldset name="parts" class="hide">
+            <fieldset name="parts">
               <label title="teble-of-contents:class
 Create anchor links of h2 h3 or remove">Table Of Contents<input type="checkbox" name="table-of-contents" checked></label>
               <label title='comment:class
@@ -96,7 +95,7 @@ do nothing or remove'>Freespace<input type="checkbox" name="freespace" checked><
           </div>
           <div>
             <h3>Tags<b></b></h3>
-            <fieldset name="tagbtns" class="hide">
+            <fieldset name="tagbtns">
               <i class="on">Static Site</i>
               <i class="on">CMS</i>
               <i>GUI</i>
@@ -142,13 +141,13 @@ do nothing or remove'>Freespace<input type="checkbox" name="freespace" checked><
         <div class="side">
           <div>
             <h3 title="Use for meta description and OGP description">Description<b></b></h3>
-            <fieldset class="hide">
+            <fieldset>
               <textarea name="desc" placeholder="Add Description"></textarea>
             </fieldset>
           </div>
           <div>
             <h3>Parts<b></b></h3>
-            <fieldset name="parts" class="hide">
+            <fieldset name="parts">
               <label title="teble-of-contents:class
 Create anchor links of h2 h3 or remove">Table Of Contents<input type="checkbox" name="table-of-contents" checked></label>
             </fieldset>
@@ -156,21 +155,18 @@ Create anchor links of h2 h3 or remove">Table Of Contents<input type="checkbox" 
         </div>
       </div>
     </form>
-    <form id="thema">
+    <form id="bases">
       <div class="text">
         <div class="panel">
           <div>
-            <fieldset name="dir">default</fieldset>
           </div>
           <fieldset name="paneltab" data-currenttab="template.html">
-            <button type="button" data-tab="template.html" class="on">Template</button>
-            <button type="button" data-tab="style.css">Style</button>
+            <button type="button" data-tab="template.html" class="on">Template</button><button type="button" data-tab="style.css">Style</button><button type="button" data-tab="main.js">MainJS</button>
           </fieldset>
         </div>
         <fieldset name="template" class="monacos"></fieldset>
         <fieldset name="style" class="monacos hide"></fieldset>
-        <!-- <textarea name="template"></textarea>
-        <textarea name="style"></textarea> -->
+        <fieldset name="main" class="monacos hide"></fieldset>
       </div>
     </form>
     <form id="setting">
@@ -212,11 +208,11 @@ Create anchor links of h2 h3 or remove">Table Of Contents<input type="checkbox" 
 &lt;i&gt;HTML&lt;/i&gt;
 &lt;i&gt;CSS&lt;/i&gt;"></textarea><small>Enclose the text in i-tag</small></p>
         </div>
-        <h3>Thema</h3>
+        <!-- <h3>Thema</h3>
         <div>
           <span>Thema to use</span>
           <select name="thema"></select>
-        </div>
+        </div> -->
         <h3>This App</h3>
         <div>
           <span>Custom Editor</span>
@@ -228,10 +224,10 @@ Create anchor links of h2 h3 or remove">Table Of Contents<input type="checkbox" 
           <span>Select tag(2)</span><p>&lt;s title=&quot;link&quot;&gt;&lt;/s&gt;&lt;s title=&quot;img&quot;&gt;&lt;/s&gt;</p>
           <span>User tag(∞)</span><p>&lt;u title='&lt;div class=&quot;example&quot;&gt;&lt;/div&gt;'&gt;button&lt;/u&gt;</p>
         </div>
-        <div>
+        <!-- <div>
           <span>Color</span>
           <label><input type="range" name="hue" min="0" max="36"><input name="hsl" placeholder="(360, 50%, 80%)"></label>
-        </div>
+        </div> -->
       </fieldset>
     </form>
     <form id="allsave">

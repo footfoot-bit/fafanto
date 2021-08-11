@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   // global constant
+  const LOAD = document.getElementById('loading');
   const DOMP = new DOMParser();
   const SAVE = document.getElementById('save');
   const PREV = document.getElementById('preview');
@@ -25,7 +26,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const H2SE = document.querySelector('h2');
   const POST = document.forms['post'];
   const PAGE = document.forms['page'];
-  const THEM = document.forms['thema']
+  const BASE = document.forms['bases']
   const SETT = document.forms['setting'];
   const ALLS = document.forms['allsave'];
   const POSNW = POST.elements['new'];
@@ -132,20 +133,20 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 //// monaco editor ////
   require.config({ paths: { vs: "monaco-editor/min/vs" } });
-  // require.config({'vs/nls' : {availableLanguages: {'*': 'ja'}}});
-  const defTemp = await fetch('default-template.html');
-  const defTempTxt = await defTemp.text();
-  const defStyl = await fetch('default-style.css');
-  const defStylTxt = await defStyl.text();
-
   class Monaco {
-    constructor(form, monacoEditor, path) {
+    constructor(formName, monacoEditor, path) {
       this.editor = monacoEditor;
-      this.form = form;
+      this.form = formName;
       this.path = path;
     }
-    static opt = {
-      common: {
+    static async defaultText (filename) {
+      const def = await fetch(`default-${filename}`);
+      return await def.text();
+    };
+    static opt (value, language) {
+      return {
+        value: value,
+        language: language,
         automaticLayout: true,
         scrollBeyondLastLine: false,
         isWholeLine: true,
@@ -153,27 +154,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         // wrappingStrategy: 'advanced',
         minimap: {enabled: false}
         // overviewRulerLanes: 0
-      },
-      headline: {
-        value: '\nAdd Headline\n',
-        language: 'html'
-      },
-      contents: {
-        value: '\n<h2>Add Contents</h2>\n\n\n<ul class="sample">\n  <li></li>\n  <li></li>\n  <li></li></ul>',
-        language: 'html'
-      },
-      template: {
-        value: defTempTxt,
-        language: 'html'
-      },
-      style: {
-        value: defStylTxt,
-        language: 'css'
       }
     };
-    static mergeOpt(opt) {
-      return Object.assign(this.opt.common, opt);
-    };
+    static whatfafanto = '<>'
     static tag = {
       block: ['p','h2','h3','h4','h5','h6','h1','pre','div','blockquote','section','header','footer','main','nav'],
       inline: ['small','i','b','strong','mark','code','span','q',],
@@ -181,14 +164,14 @@ document.addEventListener('DOMContentLoaded', async () => {
       child: [['ul','li'],['ol','li'],['table','td']],
       single: ['br','hr','img src="" alt=""']
     };
-    static postPath = '../../post';
-    static pagePath = '../page';
+    static postPath = '../..';
+    static pagePath = '..';
     static viewSwitch (elem1, elem2) {
       elem1.classList.toggle('hide');
       elem2.classList.add('hide');
     };
     addHtmlTag() {
-      this.form.querySelector('[name=panelbtns]').onclick = (e) => {
+      document.forms[this.form].querySelector('[name=panelbtns]').onclick = (e) => {
         const sel = this.editor.getSelection();
         const val = this.editor.getModel().getValueInRange(sel);
         const insert = (text) => {
@@ -236,7 +219,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           LINKS.querySelector('div').onclick = (e) => {
             if (e.target.tagName === 'P') {
               const dirName = LINKS.elements['dirs'].value;
-              insert(`<a href="${this.path}/${dirName}/${e.target.dataset.name}" target="_blank">${e.target.dataset.title}</a>`);
+              insert(`<a href="${this.path}/${this.form}/${dirName}/${e.target.dataset.name}" target="_blank">${e.target.dataset.title}</a>`);
             }
           }
           return;
@@ -253,17 +236,18 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     };
   };
-
   // create monaco editor
-  const mePostHeadline = monaco.editor.create(POST.elements['headline'], Monaco.mergeOpt(Monaco.opt.headline));
-  const mePostContents = monaco.editor.create(POST.elements['contents'], Monaco.mergeOpt(Monaco.opt.contents));
-  const mePageContents = monaco.editor.create(PAGE.elements['contents'], Monaco.mergeOpt(Monaco.opt.contents));
-  const meThemTemplate = monaco.editor.create(THEM.elements['template'], Monaco.mergeOpt(Monaco.opt.template));
-  const meThemStyle = monaco.editor.create(THEM.elements['style'], Monaco.mergeOpt(Monaco.opt.style));
-  const meBtnsPosHead = new Monaco(POST, mePostHeadline, Monaco.postPath);
-  const meBtnsPosCont = new Monaco(POST, mePostContents, Monaco.postPath);
-  const meBtnsPagCont = new Monaco(PAGE, mePageContents, Monaco.pagePath);
-  // click close button in a and img list
+  const mePostHeadline = monaco.editor.create(POST.elements['headline'], Monaco.opt('add Headline\n\n\n\n', 'html'));
+  const mePostContents = monaco.editor.create(POST.elements['contents'], Monaco.opt('add Contents\n', 'html'));
+  const mePageContents = monaco.editor.create(PAGE.elements['contents'], Monaco.opt('add Contents\n\n\n\n', 'html'));
+  const meThemTemplate = monaco.editor.create(BASE.elements['template'], Monaco.opt(await Monaco.defaultText('template.html'), 'html'));
+  const meThemStyle = monaco.editor.create(BASE.elements['style'], Monaco.opt(await Monaco.defaultText('style.css'), 'css'));
+  const meThemMain = monaco.editor.create(BASE.elements['main'], Monaco.opt(await Monaco.defaultText('main.js'), 'javascript'));
+  // instance for add html-tag button
+  const meBtnsPosHead = new Monaco('post', mePostHeadline, Monaco.postPath);
+  const meBtnsPosCont = new Monaco('post', mePostContents, Monaco.postPath);
+  const meBtnsPagCont = new Monaco('page', mePageContents, Monaco.pagePath);
+  // click to close button in links and imgs list
   LINKS.elements['btn'].onclick = () => LINKS.classList.add('hide');
   IMAGS.elements['btn'].onclick = () => IMAGS.classList.add('hide');
 
@@ -303,16 +287,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   };
 
-  //click dark mode
-  document.getElementById('mode').onclick = () => {
-    document.querySelector('nav').classList.toggle('dark');
-    document.querySelector('header').classList.toggle('dark');
-    document.querySelector('main').classList.toggle('dark');
+  //click lightness
+  document.getElementById('lightness').onclick = () => {
+    // document.querySelector('nav').classList.toggle('dark');
+    // document.querySelector('header').classList.toggle('dark');
+    document.querySelector('html').classList.toggle('dark');
   };
 
-  //click side block arrow to open/close
-  for (const boxr of document.querySelectorAll('.side h3')) {
-    boxr.onclick = (e) => {
+  //click right block arrow to open/close
+  for (const sidet of document.querySelectorAll('.side h3')) {
+    sidet.onclick = (e) => {
       if (e.target.tagName === 'B') {
         e.target.parentNode.nextElementSibling.classList.toggle('hide');
         e.target.classList.toggle('arrdown');
@@ -329,10 +313,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     POST.elements['tags'].value = tagsHtml;
   };
 
-  SETT.elements['hue'].addEventListener('input', () =>{
-    const deg36 = SETT.elements['hue'].value;
-    document.documentElement.style.setProperty('--bordercolor', `hsl(${deg36*10},30%,88%)`);
-  });
+  // custom color
+  // SETT.elements['hue'].addEventListener('input', () =>{
+  //   const deg36 = SETT.elements['hue'].value;
+  //   const sets = [
+  //     ['--bordercolor',`hsl(${deg36*10},30%,88%)`],
+  //     ['--primary-color',`hsl(${deg36*10},50%,60%)`],
+  //     ['--huedeg',`hue-rotate(${deg36*10 + 160}deg)`]
+  //   ];
+  //   for (const set of sets) document.documentElement.style.setProperty(set[0],set[1]);
+  // });
 
   (() => {
     //click paneltab
@@ -349,9 +339,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       paneltab(POST,e);
       POST.elements[e.target.dataset.tab].classList.remove('hide');
     }
-    THEM.elements['paneltab'].onclick = (e) => {
-      paneltab(THEM,e);
-      THEM.elements[e.target.dataset.tab.split('.')[0]].classList.remove('hide');
+    BASE.elements['paneltab'].onclick = (e) => {
+      paneltab(BASE,e);
+      BASE.elements[e.target.dataset.tab.split('.')[0]].classList.remove('hide');
     }
 
     //set translate="no"
@@ -378,54 +368,43 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.addEventListener("mouseup", () => inDrag = false);
   })();
 
-//// click select folder////
+//// click select folder ////
   OPEN.onclick = async () => {
     const dirHandle = await window.showDirectoryPicker(); //dialog accept for load
-    //create and get Handle file/folder
-    const thmHandle = await dirHandle.getDirectoryHandle('thema',{create:true}); //dialog accept for save
-    const defHandle = await thmHandle.getDirectoryHandle('default',{create:true});
-    const tmpHandle = await defHandle.getFileHandle('template.html',{create:true});
-    const styHandle = await defHandle.getFileHandle('style.css',{create:true});
+    //create and get Handle of file/folder
+    const tmpHandle = await dirHandle.getFileHandle('template.html',{create:true}); //dialog accept for save
     const setHandle = await dirHandle.getFileHandle('setting.html',{create:true});
     const webHandle = await dirHandle.getDirectoryHandle('webfiles',{create:true});
-                      await webHandle.getFileHandle('style.css',{create:true});
     const idxHandle = await webHandle.getFileHandle('index.html',{create:true});
-    // const styHandle = await webHandle.getFileHandle('style.css',{create:true});
+    const stlHandle = await webHandle.getFileHandle('style.css',{create:true});
+    const mjsHandle = await webHandle.getFileHandle('main.js',{create:true});
     const allHandle = await webHandle.getFileHandle('allpost.html',{create:true});
     const srhHandle = await webHandle.getFileHandle('search.html',{create:true});
     const icoHandle = await webHandle.getFileHandle('favicon.svg',{create:true});
-    const mjsHandle = await webHandle.getFileHandle('main.js',{create:true});
     const posHandle = await webHandle.getDirectoryHandle('post',{create:true});
     const pagHandle = await webHandle.getDirectoryHandle('page',{create:true});
     const medHandle = await webHandle.getDirectoryHandle('media',{create:true});
     await posHandle.getDirectoryHandle(date.year(),{create:true});
     await medHandle.getDirectoryHandle(date.year(),{create:true});
-    //store file and directory handles
     const singleBox = [];
-    singleBox.push(tmpHandle,setHandle,idxHandle,styHandle,allHandle,srhHandle,icoHandle,mjsHandle);
-    const themaDirsBox = [];
-    for await (const dir of thmHandle.values()) {
-      if (dir.kind === 'directory') {
-        themaDirsBox.push(dir);
-        SETT.elements['thema'].insertAdjacentHTML('beforeend',`<option value="${dir.name}">${dir.name}</option>`);
-      }
-    }
+    singleBox.push(tmpHandle,setHandle,mjsHandle,idxHandle,stlHandle,allHandle,srhHandle,icoHandle);
     const postBox = await listAll(posHandle);
     const pageBox = await listAll(pagHandle);
     const mediaBox = await listAll(medHandle);
     console.log(singleBox,postBox,pageBox,mediaBox);
-    //file handler class
+
+    //file class
     class EditFile {
-      constructor(fileName,box) {
+      constructor(fileName,handleBox) {
         this.fileName = fileName;
-        this.box = box;
+        this.box = handleBox;
       };
       handle() {
         return this.box.find(({name}) => name === this.fileName);
       };
       async txt() {
-        const file = await this.handle().getFile();
-        return file.text();
+        const fileHdl = await this.handle().getFile();
+        return fileHdl.text();
       };
       async document() {
         const txt = await this.txt();
@@ -443,16 +422,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         const response = await fetch(this.url);
         await response.body.pipeTo(writable);
       };
-      async save() {
-        await this.write(this.ta.value);
-      };
     };
     class EditSetting extends EditTextFile {
-      constructor(fileName,box) {
-        super(fileName,box);
+      constructor(fileName,handleBox) {
+        super(fileName,handleBox);
         this.fileName = 'setting.html';
         this.box = singleBox;
-        this.setts = ['site-title','site-subtitle','url','image','latest-posts','index-desc','allpost-title','allpost-desc','search-title','search-desc','auther','date-type','tags','thema','custom-editor'];
+        this.setts = ['site-title','site-subtitle','url','image','latest-posts','index-desc','allpost-title','allpost-desc','search-title','search-desc','auther','date-type','tags','custom-editor'];
       };
       async load() {
         const doc = await this.document();
@@ -470,14 +446,6 @@ document.addEventListener('DOMContentLoaded', async () => {
           }
         }
       };
-      static selectedThema() {
-        const value = SETT.elements['thema'].value;
-        if (value) return value;
-        else {
-          SETT.elements['thema'].value = 'default';
-          return 'default';
-        }
-      };
       async save() {
         let str = [];
         for (const sett of this.setts) {
@@ -489,14 +457,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
     const setting = new EditSetting();
     await setting.load();
-    const themaBox = await listAll(new EditFile(EditSetting.selectedThema(),themaDirsBox).handle());
 
-    //thema
-    class EditThema extends EditTextFile {
-      constructor(fileName,box,monacoEditor) {
-        super(fileName,box);
+    //bases
+    class EditBases extends EditTextFile {
+      constructor(fileName,handleBox,monacoEditor) {
+        super(fileName,handleBox);
         this.fileName = fileName;
-        this.box = themaBox;
+        this.box = singleBox;
         this.url = `default-${fileName}`;
         this.me = monacoEditor;
       };
@@ -505,35 +472,37 @@ document.addEventListener('DOMContentLoaded', async () => {
       };
       async load() {
         const text = await this.txt();
-        if (!text) {
+        if (text) this.me.setValue(text);
+        else {
           const val = this.me.getValue();
           const def = val.substring(val.indexOf("\n") + 1);
           this.me.setValue(def);
+          await this.write(def);
         }
-        else this.me.setValue(text);
       };
-      static addThemaName() {
-        const selectDir = SETT.elements['thema'].value;
-        THEM.elements['dir'].innerHTML = selectDir;
+      async save() {
+        await this.write(this.me.getValue());
       };
     };
-    const template = new EditThema('template.html',null,meThemTemplate);
-    const style = new EditThema('style.css',null,meThemStyle);
-    await template.load();
-    await style.load();
-    EditThema.addThemaName();
-
+    const template = new EditBases('template.html',null,meThemTemplate);
+    const style = new EditBases('style.css',null,meThemStyle);
+    const main = new EditBases('main.js',null,meThemMain);
+    for (const baseFile of [template,style,main]) await baseFile.load();
+    const favicon = new EditBases('favicon.svg',null);
     //others
-    class EditOthes extends EditTextFile {
-      constructor(fileName,box,url) {
-        super(fileName,box);
-        this.fileName = fileName;
-        this.box = box;
-        this.url = url;
-      };
-    };
-    const favicon = new EditOthes('favicon.svg',singleBox,'favicon.svg');
-    const mainjs = new EditOthes('main.js',singleBox,'default-main.js');
+    // class EditOthes extends EditTextFile {
+    //   constructor(fileName,handleBox,url) {
+    //     super(fileName,handleBox);
+    //     this.fileName = fileName;
+    //     this.box = handleBox;
+    //     this.url = url;
+    //   };
+    // };
+    // const favicon = new EditOthes('favicon.svg',singleBox,'favicon.svg');
+    for (const file of [favicon]) {
+      const txt = await file.txt();
+      if (!txt) await file.writeURLToFile();
+    }
     
     //HTML
     class EditHTML extends EditFile {
@@ -648,8 +617,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       };
     };
     class EditIndex extends EditHTML {
-      constructor(fileName,box) {
-        super(fileName,box);
+      constructor(fileName,handleBox) {
+        super(fileName,handleBox);
         this.fileName = 'index.html';
         this.box = singleBox;
         this.class = 'index';
@@ -674,8 +643,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       };
     };
     class EditAllpost extends EditHTML {
-      constructor(fileName,box) {
-        super(fileName,box);
+      constructor(fileName,handleBox) {
+        super(fileName,handleBox);
         this.fileName = 'allpost.html';
         this.box = singleBox;
         this.class = 'allpost';
@@ -711,8 +680,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       };
     };
     class EditSearch extends EditHTML {
-      constructor(fileName,box) {
-        super(fileName,box);
+      constructor(fileName,handleBox) {
+        super(fileName,handleBox);
         this.fileName = 'search.html';
         this.box = singleBox;
         this.class = 'search';
@@ -799,44 +768,45 @@ document.addEventListener('DOMContentLoaded', async () => {
         const str = this.docToHTMLStr(doc);
         await this.write(str);
       };
-      static clickEditCloseBtn(form, handleClass) {
-        form.querySelector('.artlist').onclick = async (e) => {
+      clickEditBackBtn() {
+        this.form.querySelector('.artlist').onclick = async (e) => {
           if (e.target.tagName === 'BUTTON') {
-            form.querySelector('.bench').classList.toggle('hide');
+            this.form.querySelector('.bench').classList.toggle('hide');
             e.target.classList.toggle('btn-close');
-            form.elements['new'].classList.toggle('hide');
+            this.form.elements['new'].classList.toggle('hide');
             const fileName = e.target.parentNode.dataset.name;
-            const fs = form.querySelectorAll(`.artlist fieldset:not([data-name="${fileName}"])`);
+            const fs = this.form.querySelectorAll(`.artlist fieldset:not([data-name="${fileName}"])`);
             for (const f of fs) f.classList.toggle('hide');
-            if (!form.querySelector('.bench').classList.contains('hide')) await new handleClass(fileName).loadElements();
+            if (!this.form.querySelector('.bench').classList.contains('hide')) await new this.name(fileName).loadElements();
           }
         };
       };
-      static clickNewBtn(form, meContents, meHeadline) {
-        form.elements['new'].elements['btn'].onclick = (e) => {
-          form.querySelector('.bench').classList.toggle('hide');
+      clickNewBtn() {
+        this.form.elements['btn'].onclick = (e) => {
+          this.form.querySelector('.bench').classList.toggle('hide');
           e.target.classList.toggle('btn-close');
-          const fs = form.querySelector('.artlist').querySelectorAll('fieldset');
+          const fs = this.form.querySelector('.artlist').querySelectorAll('fieldset');
           for (const f of fs) f.classList.toggle('hide');
-          meContents.setValue('\n\n\n');
-          meHeadline.setValue('\n\n\n');
+          this.ct.setValue('\n\n\n');
+          if (this.form === POST) this.hl.setValue('\n\n\n');
         };
       };
-      static inputNewName (newElem) {
-        newElem.elements['name'].addEventListener('input', () => {
-          const filename = newElem.elements['name'].value;
+      inputNewName () {
+        const newName = this.form.elements['name'];
+        newName.addEventListener('input', () => {
+          const filename = newName.value;
           ACTF.textContent = `${filename}.html`;
           SAVE.dataset.file = `${filename}.html`;
-          newElem.dataset.name = `${filename}.html`;
+          this.form.elements['new'].dataset.name = `${filename}.html`;
         });
       };
-      static async existElements(handleClass,form) {
-        const article = new handleClass();
+      async existElements() {
+        const article = new this.name();
         const tmpDoc = await article.templateToDoc();
         for (const part of article.parts) {
           if (!tmpDoc.querySelector(`.${part}`)) {
-            form.elements[part].parentNode.classList.add('noexist');
-            form.elements[part].parentNode.setAttribute('title','This class does not exist in the template');
+            this.form.elements[part].parentNode.classList.add('noexist');
+            this.form.elements[part].parentNode.setAttribute('title','This class does not exist in the template');
           }
         }
       };
@@ -844,8 +814,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // post class
     class EditPost extends EditArticle {
-      constructor(fileName,box) {
-        super(fileName,box);
+      constructor(fileName,handleBox) {
+        super(fileName,handleBox);
         this.box = postBox;
         this.class = 'post';
         this.path = '../../';
@@ -856,9 +826,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         this.time = POST.querySelectorAll(`[data-name="${this.fileName}"] input`)[1];
         this.hl = mePostHeadline;
         this.ct = mePostContents;
-        this.img = POST.elements['img'];
+        this.thumb = POST.elements['thumbnail'];
         this.tags = POST.elements['tags'];
         this.desc = POST.elements['desc'];
+        this.name = EditPost;
       };
       async dirName() {
         const rsv = await posHandle.resolve(this.handle());
@@ -891,7 +862,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const doc = await this.document();
         this.hl.setValue(this.loadHeadline(doc));
         this.ct.setValue(this.loadContents(doc));
-        this.img.value = this.loadImg(doc);
+        this.thumb.value = this.loadImg(doc);
         this.desc.value = this.loadDescription(doc);
         this.tags.value = this.loadTags(doc);
         const spans = doc.querySelectorAll('.tags span');
@@ -917,7 +888,6 @@ document.addEventListener('DOMContentLoaded', async () => {
           time.setAttribute('datetime',ymdTime);
         } else time.remove();
         const modTime = doc.querySelector('time[itemprop=modified]');
-        console.log(date.ymd().replaceAll('-',''),ymdTime.slice(0,10).replaceAll('-',''))
         if (modTime) {
           if (date.ymd().replaceAll('-','') <= ymdTime.slice(0,10).replaceAll('-','')) {
             modTime.remove();
@@ -989,7 +959,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         this.insertHeadline(doc,this.hl.getValue());
         this.insertContents(doc,this.ct.getValue());
         this.insertTime(doc,this.time.value);
-        this.insertImg(doc,this.img.value,this.title.value);
+        this.insertImg(doc,this.thumb.value,this.title.value);
         this.insertAuther(doc,SETT.elements['auther'].value);
         this.insertTags(doc,this.tags.value);
         this.editParts(doc);
@@ -1023,6 +993,13 @@ document.addEventListener('DOMContentLoaded', async () => {
           if (!elem) doc.querySelector(`.${part}`).remove();
         }
       };
+      clickCopyFromHeadline() {
+        this.form.elements['copybtn'].onclick = () => {
+          const val = this.hl.getValue();
+          const cleanText = val.replace(/<\/?[^>]+(>|$)/g, "");
+          this.desc.value = cleanText;
+        };
+      };
       static latestDirs()  {
         const postDirs = [];
         for (const dir of postBox.values()) {
@@ -1048,7 +1025,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const dsc = post.loadDescription(doc);
         return [fileName,tit,dirName,dti,rti,img,tgs,dsc]; //0:filename, 1:title, 2:dirctory name, 3:datetime, 4:datetime(num), 5:image 6:tags 7:description
       };
-      static async dirLatestData(dirName) {
+      static async latestDataInDir(dirName) {
         const dHandle = postBox.find(({name}) => name === dirName);
         const data = [];
         for await (const file of dHandle.values()) {
@@ -1063,29 +1040,29 @@ document.addEventListener('DOMContentLoaded', async () => {
         const dirs = this.latestDirs();
         const allData = [];
         for (const dir of dirs) {
-          const data = await this.dirLatestData(dir);
+          const data = await this.latestDataInDir(dir);
           allData.push(...data);
         }
         console.log(allData)
         return allData;
       };
       static async addListInDir(dirName) {
+        POSLI.textContent = '';
         POSBE.classList.add('hide');
         POST.elements['dirs'].classList.remove('hide');
-        POSLI.textContent = '';
         POSNW.elements['btn'].classList.remove('btn-close');
-        const data = await this.dirLatestData(dirName);
+        const data = await this.latestDataInDir(dirName);
         for (const d of data) {
           POSLI.insertAdjacentHTML('beforeend',`<fieldset data-name="${d[0]}"><input value="${d[1]}"><input type="datetime-local" value="${d[3]}"><u>${d[0]}</u><button type="button"></button></fieldset>`);
         }
       };
       static async addListInDirForLinks(dirName) {
         LINKS.querySelector('div').textContent ='';
-        const data = await this.dirLatestData(dirName);
+        const data = await this.latestDataInDir(dirName);
         for (const d of data) LINKS.querySelector('div').insertAdjacentHTML('beforeend',`<p data-name="${d[0]}" data-title="${d[1]}">${d[3]}<br>${d[1]}<br>${d[0]}</p>`);
         LINKS.elements['dirs'].value = dirName; 
       };
-      static selectDir() {
+      static dirSelect() {
         POST.elements['dirs'].addEventListener('input', async (e) => {
           const dirName = e.target.value;
           await this.addListInDir(dirName);
@@ -1128,21 +1105,22 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
       };
     };
-    EditPost.clickEditCloseBtn(POST, EditPost);
-    EditPost.clickNewBtn(POST, mePostContents, mePostHeadline);
-    EditPost.inputNewName(POSNW);
-    EditPost.existElements(EditPost, POST);
+    new EditPost().clickEditBackBtn();
+    new EditPost().clickNewBtn();
+    new EditPost().inputNewName();
+    new EditPost().clickCopyFromHeadline();
+    new EditPost().existElements();
     EditPost.addDirsList(POST);
     EditPost.addDirsList(LINKS);
-    EditPost.selectDir();
+    EditPost.dirSelect();
     EditPost.selectDirForLinks();
     EditPost.addListInDir(date.year());
     EditPost.addListInDirForLinks(date.year());
 
     // page class
     class EditPage extends EditArticle {
-      constructor(fileName,box) {
-        super(fileName,box);
+      constructor(fileName,handleBox) {
+        super(fileName,handleBox);
         this.box = pageBox;
         this.class = 'page';
         this.path = '../';
@@ -1152,6 +1130,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         this.title = PAGE.querySelector(`[data-name="${this.fileName}"] input`);
         this.ct = mePageContents;
         this.desc = PAGE.elements['desc'];
+        this.name = EditPage;
       };
       fullURL() {
         return `${normal.url()}page/${this.fileName}`;
@@ -1200,10 +1179,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         PAGLI.insertAdjacentHTML('beforeend',`<fieldset data-name="${d[0]}"><input value="${d[1]}"><u>${d[0]}</u><button type="button"></button></fieldset>`);
       };
     };
-    EditPage.clickEditCloseBtn(PAGE, EditPage);
-    EditPage.clickNewBtn(PAGE, mePageContents, null);
-    EditPage.inputNewName(PAGNW);
-    EditPage.existElements(EditPage, PAGE);
+    new EditPage().clickEditBackBtn();
+    new EditPage().clickNewBtn();
+    new EditPage().inputNewName();
+    new EditPage().existElements();
     await EditPage.addPageList();
 
     // media class
@@ -1250,21 +1229,32 @@ document.addEventListener('DOMContentLoaded', async () => {
           }
         IMAGS.elements['dirs'].value = dirName;
       };
-      static selectDir() {
+      static dirSelect() {
         IMAGS.elements['dirs'].addEventListener('input', async (e) => {
           const dirName = e.target.value;
           await this.addListInDir(dirName);
         });
       };
+      static thumbSelect() {
+        POST.elements['thumbbtn'].onclick = () => {
+          IMAGS.classList.toggle('hide');
+          IMAGS.querySelector('div').onclick = (e) => {
+            if (e.target.tagName === 'IMG') {
+              const dirName = IMAGS.elements['dirs'].value;
+              POST.elements['thumbnail'].value = `media/${dirName}/${e.target.title}`;
+            }
+          }
+        }
+      };
     };
     EditMedia.addDirsList();
     EditMedia.addListInDir(date.year());
-    EditMedia.selectDir();
+    EditMedia.dirSelect();
+    EditMedia.thumbSelect();
 
   /// event ///
     document.getElementById('home').onclick = async () => await index.preview();
     document.getElementById('map').onclick = async () => await allpost.preview();
-    POST.elements['img-open'].onclick = () => new ImgList(POST).addImgPath();
 
     //click Save button
     SAVE.onclick = async () => {
@@ -1279,7 +1269,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!POSNW.classList.contains('hide')) {
           const newName = `${POSNW.elements['name'].value}.html`
           await new EditPost(newName).saveNew();
-          const data = await EditPost.dirLatestData(date.year());
+          const data = await EditPost.latestDataInDir(date.year());
           await new EditPost(data[1][0]).saveTransfer();
           await EditPost.addListInDir(date.year());
         } else {
@@ -1345,16 +1335,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     document.getElementById('guide').classList.add('hide');
     POSNW.elements['date'].value = date.ymdTime();
-    // EditPost.addDirsList(POST);
-    // EditPost.addDirsList(LINKS);
-    // await EditPost.addListInDir(date.year());
-    // await EditPost.addListInDirForLinks(date.year());
-    // await EditPage.addPageList();
-    // if (SETT.elements['custom-editor'].value) Custom.replaceBtn();
-    for (const file of [style,favicon,mainjs]) {
-      const txt = await file.txt();
-      if (!txt) await file.writeURLToFile();
-    }
   /// Mutation Observer ///
     obsForm = () => {
       SAVE.removeAttribute('data-file');
@@ -1371,8 +1351,8 @@ document.addEventListener('DOMContentLoaded', async () => {
           PREV.classList.remove('disable');
         }
       }
-      else if (form === 'thema') {
-        const filename = THEM.elements['paneltab'].dataset.currenttab;
+      else if (form === 'bases') {
+        const filename = BASE.elements['paneltab'].dataset.currenttab;
         SAVE.dataset.file = filename;
         ACTF.textContent = filename;
         SAVE.classList.remove('disable');
@@ -1383,16 +1363,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         SAVE.classList.remove('disable');
       }
     };
-    obsPost = ()  => {
+    obsPost = () => {
       if (POSBE.classList.contains('hide')) {
         SAVE.removeAttribute('data-file');
         SAVE.classList.add('disable');
         PREV.classList.add('disable');
         POST.elements['dirs'].classList.remove('hide');
         ACTF.textContent = '';
-        // const txtas = POST.querySelectorAll('.side textarea');
-        // for (const txta of txtas) txta.value = '';
-        // const parts = ['table-of-contents','comment','freespace'];
         const parts = new EditPost().parts;
         for (const part of parts) POST.elements[part].checked = true;
         // for (const part of parts) POST.elements[part].value = '';
@@ -1417,9 +1394,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         SAVE.classList.add('disable');
         PREV.classList.add('disable');
         ACTF.textContent = '';
-        // const txtas = PAGE.querySelectorAll('.side textarea');
-        // for (const txta of txtas) txta.value = '';
-        // const parts = ['table-of-contents'];
         const parts = new EditPage().parts;
         for (const part of parts) PAGE.elements[part].checked = true;
         // for (const part of parts) POST.elements[part].value = '';
@@ -1431,8 +1405,11 @@ document.addEventListener('DOMContentLoaded', async () => {
       SAVE.classList.remove('disable');
       PREV.classList.remove('disable');
     };
-    obsThemaTab = () => {
-      const filename = THEM.elements['paneltab'].dataset.currenttab;
+    obsArticleList = () => {
+
+    };
+    obsBasesTab = () => {
+      const filename = BASE.elements['paneltab'].dataset.currenttab;
       SAVE.dataset.file = filename;
       ACTF.textContent = filename;
       // SAVE.classList.remove('disable');
@@ -1441,7 +1418,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const currentPostFile = new MutationObserver(obsPost);
     const currentTab = new MutationObserver(() => obsInsertTag(POST,meBtnsPosCont,'contents',meBtnsPosHead,'headline'));
     const currentPageFile = new MutationObserver(obsPage);
-    const currentThemaFile = new MutationObserver(obsThemaTab);
+    const currentThemaFile = new MutationObserver(obsBasesTab);
     const obsConfig = (attr) => {
       return {attributes: true, attributeFilter: [attr]};
     };
@@ -1449,12 +1426,83 @@ document.addEventListener('DOMContentLoaded', async () => {
     currentPostFile.observe(POSBE, obsConfig('class'));
     currentTab.observe(POST.elements['paneltab'], obsConfig('data-currenttab'));
     currentPageFile.observe(PAGBE, obsConfig('class'));
-    currentThemaFile.observe(THEM.elements['paneltab'], obsConfig('data-currenttab'));
+    currentThemaFile.observe(BASE.elements['paneltab'], obsConfig('data-currenttab'));
     //for when app stating
     POST.elements['paneltab'].dataset.currenttab = 'contents';
     PAGE.elements['paneltab'].dataset.currenttab = 'contents';
   };
+  LOAD.classList.add('hide');
 });
+
+            // const thmHandle = await dirHandle.getDirectoryHandle('thema',{create:true}); //dialog accept for save
+    // await thmHandle.getDirectoryHandle('default',{create:true});
+    // const themaDirsBox = [];
+    // for await (const dir of thmHandle.values()) {
+    //   if (dir.kind === 'directory') {
+    //     themaDirsBox.push(dir);
+    //     SETT.elements['thema'].insertAdjacentHTML('beforeend',`<option value="${dir.name}">${dir.name}</option>`);
+    //   }
+    // }
+          // static selectedThema() {
+      //   const value = SETT.elements['thema'].value;
+      //   if (value) return value;
+      //   SETT.elements['thema'].value = 'default';
+      //   return 'default';
+      // };
+    // const themaBox = [];
+    // const selectedThemaHdl = new EditFile(EditSetting.selectedThema(),themaDirsBox).handle();
+    // for (themaFile of ['template.html','style.css','main.js']) {
+    //   const fileHdl = await selectedThemaHdl.getFileHandle(themaFile,{create:true});
+    //   themaBox.push(fileHdl);
+    // }
+    // console.log(themaBox)
+          // static addThemaName() {
+      //   const dirSelect = SETT.elements['thema'].value;
+      //   THEM.elements['dir'].innerHTML = dirSelect;
+      // };
+
+    // const tmpHandle = await defHandle.getFileHandle('template.html',{create:true});
+    // const styHandle = await defHandle.getFileHandle('style.css',{create:true});
+    // const mjsHandle = await defHandle.getFileHandle('main.js',{create:true});
+
+  // const defTemp = await fetch('default-template.html');
+  // const defTempTxt = await defTemp.text();
+  // const defStyl = await fetch('default-style.css');
+  // const defStylTxt = await defStyl.text();
+
+    // static opt = {
+    //   common: {
+    //     value: '\nAdd Headline\n',
+    //     language: 'html',
+    //     automaticLayout: true,
+    //     scrollBeyondLastLine: false,
+    //     isWholeLine: true,
+    //     wordWrap: 'on',
+    //     // wrappingStrategy: 'advanced',
+    //     minimap: {enabled: false}
+    //     // overviewRulerLanes: 0
+    //   },
+    //   headline: {
+    //     value: '\nAdd Headline\n',
+    //     language: 'html'
+    //   },
+    //   contents: {
+    //     value: '\n<h2>Add Contents</h2>\n\n\n<ul class="sample">\n  <li></li>\n  <li></li>\n  <li></li></ul>',
+    //     language: 'html'
+    //   },
+    //   template: {
+    //     value: defTempTxt,
+    //     language: 'html'
+    //   },
+    //   style: {
+    //     value: defStylTxt,
+    //     language: 'css'
+    //   }
+    // };
+    // static mergeOpt(opt) {
+    //   return Object.assign(this.opt.common, opt);
+    // };
+
 
     //Post, Page
       // const elems = [[POSLI,POSBE,POSNW,EditPost,POST],[PAGLI,PAGBE,PAGNW,EditPage,PAGE]];
@@ -1575,7 +1623,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 //     SAVE.classList.remove('disable');
 //     PREV.classList.remove('disable');
 //   };
-//   obsThemaTab = () => {
+//   obsBasesTab = () => {
 //     const filename = THEM.elements['paneltab'].dataset.currenttab;
 //     SAVE.dataset.file = filename;
 //     ACTF.textContent = filename;
@@ -1585,7 +1633,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 //   const currentPostFile = new MutationObserver(obsPost);
 //   const currentTab = new MutationObserver(() => obsInsertTag(POST,meBtnsPosCont,'contents',meBtnsPosHead,'headline'));
 //   const currentPageFile = new MutationObserver(obsPage);
-//   const currentThemaFile = new MutationObserver(obsThemaTab);
+//   const currentThemaFile = new MutationObserver(obsBasesTab);
 //   const obsConfig = (attr) => {
 //     return {attributes: true, attributeFilter: [attr]};
 //   };
@@ -1684,7 +1732,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   //   };
   //   static async addList(dirName) {
   //     LINKS.querySelector('div').textContent ='';
-  //     const data = await EditPost.dirLatestData(dirName);
+  //     const data = await EditPost.latestDataInDir(dirName);
   //     for (const d of data) LINKS.querySelector('div').insertAdjacentHTML('beforeend',`<p data-name="${d[0]}" data-title="${d[1]}">${d[3]}<br />${d[1]}<br />${d[0]}</p>`);
   //     LINKS.elements['dirs'].value = dirName;
   //   };
@@ -1890,9 +1938,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     // const mainjs = new HandleMainJS();
 
         //load files
-        // EditThema.addDirs();
+        // EditBases.addDirs();
         // for (const file of [template,style,setting]) await file.load();
-        // EditThema.printDir();
+        // EditBases.printDir();
 
         // const value = SETT.elements['thema'].value;
         // SETT.elements['thema'].querySelector(`option[value="${value}"]`).setAttribute('selected','selected');

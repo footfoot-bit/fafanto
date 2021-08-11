@@ -1,4 +1,7 @@
+// default main.js
+
 document.addEventListener('DOMContentLoaded', () => {
+  
   // responsive menu
   const PAGLI = document.querySelector('.page-list');
   document.getElementById('menu-icon').onclick = (e) => {
@@ -6,10 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (PAGLI.classList.contains('show') === true) e.target.classList.add('close-btn');
     else e.target.classList.remove('close-btn');
   };
-  // const imgs = document.querySelector('.contents').querySelectorAll('img');
-  // for (const img of imgs) {
-  //   img.onclick = () => img.classList.toggle('zoom');
-  // }
+
   //Used only in allpost.html
   if (document.URL.match('allpost.html')) {
     const LATPO = document.querySelector('.latest-posts');
@@ -53,6 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     };
   };
+
   //Used only in search.html
   if (document.URL.match('search.html')) {
     const DOM = new DOMParser();
