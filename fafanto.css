@@ -435,6 +435,9 @@ main {
     padding: 0;
     border-bottom: var(--borderwidth) solid var(--bordercolor);
 }
+[data-tab="template.html"]::before {content: "<>  ";font-family: Consolas, Menlo, 'Liberation Mono', Courier, monospace;font-weight: bold;}
+[data-tab="style.css"]::before {content: "#  ";font-family: Consolas, Menlo, 'Liberation Mono', Courier, monospace;font-weight: bold;}
+[data-tab="main.js"]::before {content: "JS  ";font-family: Consolas, Menlo, 'Liberation Mono', Courier, monospace;font-weight: bold;}
 #bases .monacos {
     height: calc(100% - 2px);
 }
@@ -601,9 +604,6 @@ nav [data-nav=allsave]::before {content:"\f019";font-weight: 900;}
 [name=parts] label:nth-of-type(2)::before {content:"\f075";font-family:'Font Awesome 5 Free';}
 [name=parts] label:nth-of-type(3)::before {content:"\f0c8";font-family:'Font Awesome 5 Free';} */
 [name=tagbtns] i.on::before {content: "\f02b  ";color: var(--black);font-size: 1.2rem;}
-[data-tab="template.html"]::before {content: "<>  ";font-weight: 900;font-family: monospace;}
-[data-tab="style.css"]::before {content: "#  ";font-weight: 900;}
-[data-tab="main.js"]::before {content: "JS  ";font-weight: 900;}
 
 .exclamation::before {content: "\f071  ";color: var(--orange);}
 ::-webkit-scrollbar {

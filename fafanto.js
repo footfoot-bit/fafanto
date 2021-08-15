@@ -240,9 +240,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   const mePostHeadline = monaco.editor.create(POST.elements['headline'], Monaco.opt('add Headline\n\n\n\n', 'html'));
   const mePostContents = monaco.editor.create(POST.elements['contents'], Monaco.opt('add Contents\n', 'html'));
   const mePageContents = monaco.editor.create(PAGE.elements['contents'], Monaco.opt('add Contents\n\n\n\n', 'html'));
-  const meThemTemplate = monaco.editor.create(BASE.elements['template'], Monaco.opt(await Monaco.defaultText('template.html'), 'html'));
-  const meThemStyle = monaco.editor.create(BASE.elements['style'], Monaco.opt(await Monaco.defaultText('style.css'), 'css'));
-  const meThemMain = monaco.editor.create(BASE.elements['main'], Monaco.opt(await Monaco.defaultText('main.js'), 'javascript'));
+  const meBaseTemplate = monaco.editor.create(BASE.elements['template'], Monaco.opt(await Monaco.defaultText('template.html'), 'html'));
+  const meBaseStyle = monaco.editor.create(BASE.elements['style'], Monaco.opt(await Monaco.defaultText('style.css'), 'css'));
+  const meBaseMain = monaco.editor.create(BASE.elements['main'], Monaco.opt(await Monaco.defaultText('main.js'), 'javascript'));
   // instance for add html-tag button
   const meBtnsPosHead = new Monaco('post', mePostHeadline, Monaco.postPath);
   const meBtnsPosCont = new Monaco('post', mePostContents, Monaco.postPath);
@@ -484,9 +484,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         await this.write(this.me.getValue());
       };
     };
-    const template = new EditBases('template.html',null,meThemTemplate);
-    const style = new EditBases('style.css',null,meThemStyle);
-    const main = new EditBases('main.js',null,meThemMain);
+    const template = new EditBases('template.html',null,meBaseTemplate);
+    const style = new EditBases('style.css',null,meBaseStyle);
+    const main = new EditBases('main.js',null,meBaseMain);
     for (const baseFile of [template,style,main]) await baseFile.load();
     const favicon = new EditBases('favicon.svg',null);
     //others
@@ -594,8 +594,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       async preview() {
         const doc = await this.makeHTMLCommon();
         await this.makeHTMLSpecial(doc);
-        const css = meThemStyle.getValue();
-        doc.head.insertAdjacentHTML('beforeend',`<style>${css}</style>`);
+        const css = meBaseStyle.getValue();
+        const mjs = meBaseMain.getValue();
+        doc.head.insertAdjacentHTML('beforeend',`<style>${css}</style><script>${mjs}</script>`);
         const imgs = doc.querySelectorAll('img');
         for (const img of imgs) {
           const src = img.getAttribute('src');
@@ -606,8 +607,9 @@ document.addEventListener('DOMContentLoaded', async () => {
           img.setAttribute('src',url);
         }
         const str = this.docToHTMLStr(doc);
-        const ope = window.open('preview',this.fileName,`height=${window.screen.height},width=${window.screen.width},scrollbars=yes,`);
-        ope.document.write(str);
+        const previewWindow = window.open('preview.html',this.fileName);
+        // const ope = window.open('preview',this.fileName,`height=${window.screen.height},width=${window.screen.width},scrollbars=yes,`);
+        previewWindow.document.write(str);
       };
       async save() {
         const doc = await this.makeHTMLCommon();
@@ -1290,8 +1292,10 @@ document.addEventListener('DOMContentLoaded', async () => {
           await new EditPage(fileName).save();
         }
       }
-      else if (form === 'style')  await style.save();
-      else if (form === 'template') await template.save();
+      else if (form === 'bases') {
+        for (const base of [['template.html',template],['style.css',style],['main.js',main]])
+        if (fileName === base[0]) await base[1].save();
+      }
       else if (form === 'setting') await setting.save();
       dialog.successSave(saveName);
     };
