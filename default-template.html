@@ -14,12 +14,14 @@
 <meta property="og:image">
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
-<meta name="Twitter:site" content="">
+<!-- option -->
+<!-- <meta property="fb:app_id" content="your id" /> -->
+<!-- <meta name="twitter:site" content="@ your id" /> -->
+<!-- <meta name="twitter:creator" content="@ your id" /> -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="format-detection" content="telephone=no">
-<!-- Please replace the font-awesome link with your own -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-iBBXm8fW90+nuLcSKlbmrPcLa0OT92xO1BIsZ+ywDWZCvqsWgccV3gFoRBv0z+8dLJgyAHIhR35VZc2oM/gI1w==" crossorigin="anonymous" />
 </head>
 <body>
@@ -31,25 +33,29 @@
 <if class="index">
   <h1 class="site-title"></h1>
 </if>
-  <span class="menu-icon"></span>
-  <ul class="page-list"></ul>
+  <nav class="page-list"></nav>
+  <div class="menu-icon"></div>
 </header>
 
 <main>
 
 <if class="index">
-  <h2>Latest Posts</h2>
-  <div class="latest-posts"></div>
+  <div class="wrap">
+    <h2>Latest Posts</h2>
+    <div class="latest-posts"></div>
+  </div>
 </if>
 
 <if class="allpost">
-  <h1 class="title"></h1>
-  <div class="allpost-btns">
-    <div></div>
-    <div><span data-btn="tag-No-Tag" class="on">No Tag</span></div>
-    <div><b class="allclear-btn">All Clear</b><b class="allview-btn">All View</b></div>
+  <div class="wrap">
+    <h1 class="title"></h1>
+    <div class="allpost-btns">
+      <div></div>
+      <div><span data-btn="tag-No-Tag" class="on">No Tag</span></div>
+      <div><b class="allclear-btn">All Clear</b><b class="allview-btn">All View</b></div>
+    </div>
+    <div class="latest-posts"></div>
   </div>
-  <div class="latest-posts"></div>
 </if>
 
 <if class="search">
@@ -59,19 +65,18 @@
 
 <if class="post">
   <article>
-    <!-- <div class="freespace">freespace</div> -->
+    <div class="freespace">freespace</div>
     <div class="top-image"></div>
-    <span class="auther"></span><time class="time"></time><time itemprop="modified"> • Update </time>
+    <span class="auther"></span> - <time class="time"></time><time itemprop="modified"></time>
     <h1 class="title"></h1>
-    <div class="headline"></div>
+    <div class="description"></div>
     <div class="table-of-contents"><p><b>Contents</b></p></div>
     <div class="contents"></div>
     <div class="tags"></div>
     <div class="social"></div>
     <div class="plinks"><a class="link-prev" target="_blank">Prev Post</a><a class="link-allpost" target="_blank">All Post</a><a class="link-next" target="_blank">Next Post</a></div>
     <div class="comment">
-      <!-- your disqus code. get from https://disqus.com/ -->
-    </div>
+      <!-- your disqus code -->
   </article>
 </if>
 
@@ -86,7 +91,7 @@
 </main>
 
 <footer class="footer">
-  <div class="flinks"><a class="link-allpost" target="_blank">All Post</a><a class="link-search" target="_blank">Search</a></div>
+  <nav class="flinks"><a class="link-allpost" target="_blank">All Post</a><a class="link-search" target="_blank">Search</a></nav>
   <div class="copyright"><small> | made with <a href="https://fafanto.app" target="_blank">fafanto</a></small></div>
 </footer>
 </body>

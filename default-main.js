@@ -1,21 +1,27 @@
 // default main.js
 
+
 document.addEventListener('DOMContentLoaded', () => {
   
   // responsive menu
   const PAGLI = document.querySelector('.page-list');
-  document.getElementById('menu-icon').onclick = (e) => {
+  document.querySelector('.menu-icon').onclick = (e) => {
     PAGLI.classList.toggle('show');
-    if (PAGLI.classList.contains('show') === true) e.target.classList.add('close-btn');
+    if (PAGLI.classList.contains('show')) e.target.classList.add('close-btn');
     else e.target.classList.remove('close-btn');
   };
+
+  // toggle img to zoom
+  const IMGS = document.querySelectorAll('.contents img');
+  for (const img of IMGS) img.onclick = (e) => e.target.classList.toggle('img-zoom');
 
   //Used only in allpost.html
   if (document.URL.match('allpost.html')) {
     const LATPO = document.querySelector('.latest-posts');
-    const POSTS = LATPO.querySelectorAll('div');
+    const POSTS = LATPO.querySelectorAll('a');
     const POSBT = document.querySelector('.allpost-btns');
     const BTNPS = POSBT.querySelectorAll('p');
+
     viewSwitch = (e) => {
       e.target.classList.toggle('on');
       for (const post of POSTS) post.classList.add('hide');
@@ -30,6 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       }
     };
+    
     POSBT.onclick = (e) => {
       if (e.target.tagName === 'U') viewSwitch(e);
       else if (e.target.tagName === 'SPAN') viewSwitch(e);
