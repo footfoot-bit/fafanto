@@ -156,7 +156,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         // overviewRulerLanes: 0
       }
     };
-    static whatfafanto = '<>'
     static tag = {
       block: ['p','h2','h3','h4','h5','h6','h1','pre','div','blockquote','section','header','footer','main','nav'],
       inline: ['small','i','b','strong','mark','code','span','q',],
@@ -166,70 +165,71 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
     static postPath = '../..';
     static pagePath = '..';
-    static viewSwitch (elem1, elem2) {
+    insert (startTag, closeTag) {
+      const sel = this.editor.getSelection();
+      const val = this.editor.getModel().getValueInRange(sel);
+      const tag = startTag + val + closeTag;
+      this.editor.executeEdits('', [{ range: sel, text: tag, forceMoveMarkers: true}]);
+      this.editor.focus();
+    };
+    viewSwitch (elem1, elem2) {
       elem1.classList.toggle('hide');
       elem2.classList.add('hide');
     };
-    addHtmlTag() {
+    addHtmlTag () {
       document.forms[this.form].querySelector('[name=panelbtns]').onclick = (e) => {
-        const sel = this.editor.getSelection();
-        const val = this.editor.getModel().getValueInRange(sel);
-        const insert = (text) => {
-          this.editor.executeEdits('', [{ range: sel, text: text, forceMoveMarkers: true}]);
-          this.editor.focus();
-        };
         if (e.target.tagName === 'I') {
           for (const t of Monaco.tag.attr) {
             if (e.target.textContent === t[0]) {
-              insert(`<${t[0]} ${t[1]}>${val}</${t[0]}>`);
+              this.insert(`<${t[0]} ${t[1]}>`,`</${t[0]}>`);
               return;
             }
           }
           for (const t of Monaco.tag.child) {
             if (e.target.textContent === t[0]) {
-              insert(`<${t[0]}>\n  <${t[1]}>${val}</${t[1]}>\n  <${t[1]}></${t[1]}>\n  <${t[1]}></${t[1]}>\n</${t[0]}>`);
+              this.insert(`<${t[0]}>\n  <${t[1]}>`,`</${t[1]}>\n  <${t[1]}></${t[1]}>\n  <${t[1]}></${t[1]}>\n</${t[0]}>`);
               return;
             }
           }
           for (const t of Monaco.tag.block) {
             if (e.target.textContent === t) {
-              insert(`<${t}>${val}</${t}>\n`);
+              this.insert(`<${t}>`,`</${t}>\n`);
               return;
             }
           }
           for (const t of Monaco.tag.inline) {
             if (e.target.textContent === t) {
-              insert(`<${t}>${val}</${t}>`);
+              this.insert(`<${t}>`,`</${t}>`);
               return;
             }
           }
           for (const t of Monaco.tag.single) {
             if (e.target.textContent === t) {
-              insert(`<${t}>\n${val}`);
+              this.insert(`<${t}>\n`, '');
               return;
             }
           }
         }
         if (e.target.tagName === 'U') {
-          insert(`${e.target.title}\n${val}`);
+          this.insert(`${e.target.title}\n`, '');
           return;
         }
         if (e.target.title === 'link') {
-          Monaco.viewSwitch(LINKS, IMAGS);
+          this.viewSwitch(LINKS, IMAGS);
           LINKS.querySelector('div').onclick = (e) => {
             if (e.target.tagName === 'P') {
               const dirName = LINKS.elements['dirs'].value;
-              insert(`<a href="${this.path}/${this.form}/${dirName}/${e.target.dataset.name}" target="_blank">${e.target.dataset.title}</a>`);
+              this.insert(`<a href="${this.path}/${this.form}/${dirName}/${e.target.dataset.name}" target="_blank">`,`${e.target.dataset.title}</a>`);
             }
           }
           return;
         }
         if (e.target.title === 'img') {
-          Monaco.viewSwitch(IMAGS, LINKS);
+          this.viewSwitch(IMAGS, LINKS);
           IMAGS.querySelector('div').onclick = (e) => {
             if (e.target.tagName === 'IMG') {
               const dirName = IMAGS.elements['dirs'].value;
-              insert(`<img src="${this.path}/media/${dirName}/${e.target.title}" alt="">\n`);
+              this.insert(`<img src="${this.path}/media/${dirName}/${e.target.title}" alt="" loading="lazy">\n`, '');
             }
           }
         }
@@ -1083,7 +1083,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         for (let i = 0; i < num; i++) {
           let image = '';
           let description = '';
-          if (d[i][5]) image = `<img src="${d[i][5]}" alt="${d[i][1]}" />`;
+          if (d[i][5]) image = `<img src="${d[i][5]}" alt="${d[i][1]}" loading="lazy">`;
           else {
             if (d[i][7]) description = `<div>${d[i][7]}</div>`;
           }
@@ -1104,11 +1104,12 @@ document.addEventListener('DOMContentLoaded', async () => {
           }
           let image = '';
           let description = '';
-          if (d[5]) image = `<img src="${d[5]}" alt="${d[1]}" />`;
+          if (d[5]) image = `<img src="${d[5]}" alt="${d[1]}" loading="lazy">`;
           else {
             if (d[7]) description = `<div>${d[7]}</div>`;
           }
-          elem.insertAdjacentHTML('beforeend',`<a class="${classes.trim()} dir-${d[2]}" href="./post/${d[2]}/${d[0]}">${image}<h3>${d[1]}</h3>${description}<span>${d[6]}</span><time>${date.changeFormat(d[3])}</time></a>\n`);
+          elem.insertAdjacentHTML('beforeend',
+          `<a class="${classes.trim()} dir-${d[2]}" href="./post/${d[2]}/${d[0]}">${image}<h3>${d[1]}</h3>${description}<span>${d[6]}</span><time>${date.changeFormat(d[3])}</time></a>\n`);
         }
       };
     };
@@ -1197,6 +1198,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     class EditMedia {
       static async searchToUrl(fileName,dirName) {
         const dirHdl = mediaBox.find(({name}) => name === dirName);
+        if (!dirHdl) return;
         for await (const img of dirHdl.values()) {
           if (img.name === fileName) return await this.localUrl(img);
         }
@@ -1233,7 +1235,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           const imgHdls = await this.imgHdlsInDir(dirName);
           for (const img of imgHdls ) {
             const url = await this.localUrl(img);
-            IMAGS.querySelector('div').innerHTML += `<img src="${url}" title="${img.name}" loading="lazy" />`;
+            IMAGS.querySelector('div').innerHTML += `<img src="${url}" title="${img.name}" loading="lazy">`;
           }
         IMAGS.elements['dirs'].value = dirName;
       };
@@ -1415,9 +1417,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       SAVE.classList.remove('disable');
       PREV.classList.remove('disable');
     };
-    obsArticleList = () => {
-
-    };
     obsBasesTab = () => {
       const filename = BASE.elements['paneltab'].dataset.currenttab;
       SAVE.dataset.file = filename;
@@ -1426,16 +1425,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
     const currentForm = new MutationObserver(obsForm);
     const currentPostFile = new MutationObserver(obsPost);
-    const currentTab = new MutationObserver(() => obsInsertTag(POST,meBtnsPosCont,'contents',meBtnsPosDesc,'description'));
+    const currentPostTab = new MutationObserver(() => obsInsertTag(POST,meBtnsPosCont,'contents',meBtnsPosDesc,'description'));
     const currentPageFile = new MutationObserver(obsPage);
+    const currentPageTab = new MutationObserver(() => obsInsertTag(PAGE,meBtnsPagCont,'contents',meBtnsPagDesc,'description'));
     const currentThemaFile = new MutationObserver(obsBasesTab);
     const obsConfig = (attr) => {
       return {attributes: true, attributeFilter: [attr]};
     };
     currentForm.observe(H2SE, obsConfig('data-form'));
     currentPostFile.observe(POSBE, obsConfig('class'));
-    currentTab.observe(POST.elements['paneltab'], obsConfig('data-currenttab'));
+    currentPostTab.observe(POST.elements['paneltab'], obsConfig('data-currenttab'));
     currentPageFile.observe(PAGBE, obsConfig('class'));
+    currentPageTab.observe(PAGE.elements['paneltab'], obsConfig('data-currenttab'));
     currentThemaFile.observe(BASE.elements['paneltab'], obsConfig('data-currenttab'));
     //for when app stating
     POST.elements['paneltab'].dataset.currenttab = 'contents';
