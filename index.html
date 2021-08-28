@@ -38,8 +38,9 @@
     </div>
     <div>
       <div>Preview</div>
-      <button type="button" id="home" title="Preview Index.html"></button>
-      <button type="button" id="map" title="Preview allpost.html"></button>
+      <button type="button" id="index" title="Preview Index.html">index</button>
+      <button type="button" id="taglist" title="Preview taglist.html">taglist</button>
+      <button type="button" id="datelist" title="Preview datelist.html">datelist</button>
     </div>
   </header>
   <main>
@@ -185,10 +186,15 @@ Create anchor links of h2 h3 or remove">Table Of Contents<input type="checkbox" 
           <span>Latest Posts</span><label><input name="latest-posts" placeholder="1 - 30" value="9" min="1" max="30" type="number"></label>
           <span title="Use for meta discription and OGP discription.">Description</span><input name="index-desc" placeholder="description of your blog" type="text">
         </div>
-        <h3>allpost.html</h3>
+        <h3>taglist.html</h3>
         <div>
-          <span title="Use for head title, .title, and OGP title.">Title</span><input name="allpost-title" placeholder="title of allpost.html" type="text">
-          <span title="Use for meta discription and OGP discription.">Description</span><input name="allpost-desc" placeholder="description of allpost.html" type="text">
+          <span title="Use for head title, .title, and OGP title.">Title</span><input name="taglist-title" placeholder="title of taglist.html" type="text">
+          <span title="Use for meta discription and OGP discription.">Description</span><input name="taglist-desc" placeholder="description of taglist.html" type="text">
+        </div>
+        <h3>datelist.html</h3>
+        <div>
+          <span title="Use for head title, .title, and OGP title.">Title</span><input name="datelist-title" placeholder="title of datelist.html" type="text">
+          <span title="Use for meta discription and OGP discription.">Description</span><input name="datelist-desc" placeholder="description of datelist.html" type="text">
         </div>
         <h3>search.html</h3>
         <div>
@@ -237,7 +243,7 @@ Create anchor links of h2 h3 or remove">Table Of Contents<input type="checkbox" 
         <h3>Save Files</h3>
         <div>
           <label><input type="checkbox" name="index" checked>index.html</label>
-          <label><input type="checkbox" name="allpost" checked>allpost.html</label>
+          <label><input type="checkbox" name="taglist" checked>taglist.html</label>
           <label><input type="checkbox" name="search" checked>search.html</label>
           <label><input type="checkbox" name="post" checked>Post</label>
           <label>Page<input type="checkbox" name="page" checked></label>

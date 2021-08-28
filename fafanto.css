@@ -256,12 +256,12 @@ h2 {
     width: 100%;
     text-align: left;
 }
-#home, #map {
+#index, #taglist {
     color: var(--bordercolor);
     font-size: 1.2rem;
     padding: 2rem 2.5rem;
 }
-#map {
+#taglist {
     padding: 2rem;
 }
 /* header:first-of-type div {
@@ -561,7 +561,7 @@ main {
 }
 /** Font Awesome **/
 #open-dir,.exclamation::before,
-#home,#map,
+#index,#taglist,#datelist,
 nav p,
 #spellcheck,#lightness,
 .btn-new,.artlist button,.btn-close,
@@ -571,7 +571,7 @@ nav p,
     font-family:'Font Awesome 5 Free';
 }
 .exclamation::before,
-#home,
+#index,#taglist,#datelist,
 #save,#preview,#lightness,#spellcheck,
 .btn-new,.artlist button,.btn-close,
 .panel,.side button,[name=tagbtns] i.on::before,
@@ -581,7 +581,7 @@ nav p,
 }
 #open-dir::before {content:"\f07c  ";}
 #save::before {content:"\f019";font-family:'Font Awesome 5 Free';}
-#preview::before {content:"\f06e";font-family:'Font Awesome 5 Free';}
+#preview::before,#index::before,#taglist::before,#datelist::before {content:"\f06e";font-family:'Font Awesome 5 Free';}
 #lightness::before {content:"\f042";}
 #spellcheck::before {content:"\f891";}
 nav [data-nav=post]::before {content:"\f304";font-weight: 900;}
@@ -589,8 +589,6 @@ nav [data-nav=page]::before {content:"\f15c";font-weight: 900;}
 nav [data-nav=bases]::before {content:"\f5c3";font-weight: 900;}
 nav [data-nav=setting]::before {content:"\f013";font-weight: 900;}
 nav [data-nav=allsave]::before {content:"\f019";font-weight: 900;}
-#home::before {content:"\f015";}
-#map::before {content:"\f279";}
 [name=new] button::before {content:"\f067";}
 .artlist button::before {content:"\f304";}
 .btn-close::before,#links button::before,#images button::before {content:"\f00d" !important;}
