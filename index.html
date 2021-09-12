@@ -17,11 +17,11 @@
   <nav>
     <h1><img src="favicon.svg" alt="fafanto logo" title="fafanto" /></h1>
     <div>
-      <p data-nav="post" class="on">Post</p>
-      <p data-nav="page">Page</p>
-      <p data-nav="bases">Bases</p>
-      <p data-nav="setting">Setting</p>
-      <p data-nav="allsave">Allsave</p>
+      <p data-nav="post" class="on">ポスト</p>
+      <p data-nav="page">ページ</p>
+      <p data-nav="bases">ベース編集</p>
+      <p data-nav="setting">設定</p>
+      <p data-nav="allsave">まとめてセーブ</p>
       <p data-nav="info">Info</p>
     </div>
     <button title="Spellcheck on/off" id="spellcheck"></button>
@@ -39,11 +39,11 @@
     <div>
       <div>Preview</div>
       <button type="button" id="index" title="Preview Index.html">index</button>
-      <button type="button" id="taglist" title="Preview taglist.html">taglist</button>
-      <button type="button" id="datelist" title="Preview datelist.html">datelist</button>
+      <button type="button" id="postfilter" title="Preview postfilter.html">postfilter</button>
     </div>
   </header>
   <main>
+    <!-- ポスト -->
     <form id="post" class="show">
       <div class="portal">
         <fieldset name="new">
@@ -69,13 +69,6 @@
           <fieldset name="contents" class="monacos"></fieldset>
         </div>
         <div class="side">
-          <!-- <div>
-            <h3 title="Use for meta description and OGP description">Description<b></b></h3>
-            <fieldset>
-              <textarea name="desc" placeholder="Add Description"></textarea>
-              <button type="button" name="copybtn" title="copy text from headline"></button>
-            </fieldset>
-          </div> -->
           <div>
             <h3>Thumbnail<b></b></h3>
             <fieldset>
@@ -87,11 +80,13 @@
             <h3>Parts<b></b></h3>
             <fieldset name="parts">
               <label title="teble-of-contents:class
-Create anchor links of h2 h3 or remove">Table Of Contents<input type="checkbox" name="table-of-contents" checked></label>
+Create anchor links of h2 h3 or remove">Table Of Contents / もくじ<input type="checkbox" name="table-of-contents" checked></label>
               <label title='comment:class
-do nothing or remove'>Comment<input type="checkbox" name="comment" checked></label>
-              <label title='freespace:class
-do nothing or remove'>Freespace<input type="checkbox" name="freespace" checked></label>
+leave or remove'>Comment<input type="checkbox" name="comment" checked></label>
+              <label title='freespace1:class
+leave or remove'>Freespace 1<input type="checkbox" name="freespace1" checked></label>
+              <label title='freespace2:class
+leave or remove'>Freespace 2<input type="checkbox" name="freespace2" checked></label>
             </fieldset>
           </div>
           <div>
@@ -100,8 +95,8 @@ do nothing or remove'>Freespace<input type="checkbox" name="freespace" checked><
               <i class="on">Static Site</i>
               <i class="on">CMS</i>
               <i>GUI</i>
-              <i>Blog</i>
-              <i class="on">Lightweight</i>
+              <i>ブログ</i>
+              <i class="on">軽量</i>
               <i>Clean</i>
               <i>Minimal</i>
               <i>One Template</i>
@@ -113,11 +108,12 @@ do nothing or remove'>Freespace<input type="checkbox" name="freespace" checked><
               <i>Open Source</i>
               <i>漢字</i>
             </fieldset>
-            <textarea name="tags" class="hide"></textarea>
+            <!-- <textarea name="tag-texts"></textarea> -->
           </div>
         </div>
       </div>
     </form>
+    <!-- ページ -->
     <form id="page">
       <div class="portal">
         <fieldset name="new">
@@ -141,29 +137,24 @@ do nothing or remove'>Freespace<input type="checkbox" name="freespace" checked><
           <fieldset name="contents" class="monacos"></fieldset>
         </div>
         <div class="side">
-          <!-- <div>
-            <h3 title="Use for meta description and OGP description">Description<b></b></h3>
-            <fieldset>
-              <textarea name="desc" placeholder="Add Description"></textarea>
-            </fieldset>
-          </div> -->
           <div>
-            <h3>Parts<b></b></h3>
+            <h3>パーツ<b></b></h3>
             <fieldset name="parts">
               <label title="teble-of-contents:class
-Create anchor links of h2 h3 or remove">Table Of Contents<input type="checkbox" name="table-of-contents" checked></label>
+Create anchor links of h2 h3 or remove">Table of contents / もくじ<input type="checkbox" name="table-of-contents" checked></label>
             </fieldset>
           </div>
         </div>
       </div>
     </form>
+    <!-- ベース編集 -->
     <form id="bases">
       <div class="text">
         <div class="panel">
           <div>
           </div>
           <fieldset name="paneltab" data-currenttab="template.html">
-            <button type="button" data-tab="template.html" class="on">Template</button><button type="button" data-tab="style.css">Style</button><button type="button" data-tab="main.js">MainJS</button>
+            <button type="button" data-tab="template.html" class="on">Template</button><button type="button" data-tab="style.css">Style</button><button type="button" data-tab="main.js">Main</button>
           </fieldset>
         </div>
         <fieldset name="template" class="monacos"></fieldset>
@@ -171,65 +162,57 @@ Create anchor links of h2 h3 or remove">Table Of Contents<input type="checkbox" 
         <fieldset name="main" class="monacos hide"></fieldset>
       </div>
     </form>
+    <!-- 設定 -->
     <form id="setting">
       <fieldset>
         <p class="desc">After changing the settings and saving the file, please reload this application.</p>
-        <h3>General</h3>
+        <h3>共通</h3>
         <div>
-          <span>Site Title</span><input name="site-title" placeholder="site title" type="text">
-          <span>Site Subtitle</span><input name="site-subtitle" placeholder="site subtitle" type="text">
-          <span>URL</span><input name="url" placeholder="https://www.example.com/" type="text">
-          <span>Site Image</span><input name="image" placeholder="image.png" type="text">
+          <span>サイト名*</span><input name="site-title" placeholder="site title" type="text">
+          <span>サイトのサブタイトル</span><input name="site-subtitle" placeholder="site subtitle" type="text">
+          <span>URL*</span><input name="url" placeholder="https://www.example.com/" type="text">
+          <span>サイトの画像</span><input name="image" placeholder="image.png" type="text">
         </div>
-        <h3>index.html</h3>
+        <h3>トップページ <small>index.html</small></h3>
         <div>
-          <span>Latest Posts</span><label><input name="latest-posts" placeholder="1 - 30" value="9" min="1" max="30" type="number"></label>
-          <span title="Use for meta discription and OGP discription.">Description</span><input name="index-desc" placeholder="description of your blog" type="text">
+          <span>新着ポストの数</span><label><input name="latest-posts" placeholder="1 - 30" value="9" min="1" max="30" type="number"></label>
+          <span title="headのmeta discriptionとOGP discriptionで使用します">サイトの説明</span><input name="index-desc" placeholder="description of your blog" type="text">
         </div>
-        <h3>taglist.html</h3>
+        <h3>postfilter.html</h3>
         <div>
-          <span title="Use for head title, .title, and OGP title.">Title</span><input name="taglist-title" placeholder="title of taglist.html" type="text">
-          <span title="Use for meta discription and OGP discription.">Description</span><input name="taglist-desc" placeholder="description of taglist.html" type="text">
-        </div>
-        <h3>datelist.html</h3>
-        <div>
-          <span title="Use for head title, .title, and OGP title.">Title</span><input name="datelist-title" placeholder="title of datelist.html" type="text">
-          <span title="Use for meta discription and OGP discription.">Description</span><input name="datelist-desc" placeholder="description of datelist.html" type="text">
+          <span title="headのtitleとOGP title、記事のタイトルで使用します">ポストフィルターのタイトル</span><input name="postfilter-title" placeholder="title of postfilter.html" type="text">
+          <span title="headのmeta discriptionとOGP discriptionで使用します">ポストフィルターの説明</span><input name="postfilter-desc" placeholder="description of postfilter.html" type="text">
         </div>
         <h3>search.html</h3>
         <div>
-          <span title="Use for head title, .title, and OGP title.">Title</span><input name="search-title" placeholder="title of search.html" type="text">
-          <span title="Use for meta discription and OGP discription">Description</span><input name="search-desc" placeholder="description of search.html" type="text">
+          <span title="headのtitleとOGP title、記事のタイトルで使用します">検索ページのタイトル</span><input name="search-title" placeholder="title of search.html" type="text">
+          <span title="headのmeta discriptionとOGP discriptionで使用します">検索ページの説明</span><input name="search-desc" placeholder="description of search.html" type="text">
         </div>
         <h3>Post</h3>
         <div>
-          <span>Auther</span><input name="auther" placeholder="your name" type="text">
-          <span>Display Date</span>
+          <span>あなたの名前</span><input name="auther" placeholder="your name" type="text">
+          <span>あなたの画像</span><input name="auther-image" placeholder="media/xxx.jpg" type="text">
+          <span>時間の表示形式</span>
           <select name="date-type">
-            <option value="yyyy-mm-dd" selected>YYYY-MM-DD</option>
+            <option value="yyyy-mm-dd" selected>YYYY-MM-DD（年-月-日）</option>
             <option value="dd-mm-yyyy">DD-MM-YYYY</option>
             <option value="mm-dd-yyyy">MM-DD-YYYY</option>
           </select>
           <span>Tags</span><p><textarea name="tags" placeholder="&lt;i&gt;example&lt;/i&gt;
 &lt;i&gt;Static Blog Editor&lt;/i&gt;
 &lt;i&gt;HTML&lt;/i&gt;
-&lt;i&gt;CSS&lt;/i&gt;"></textarea><small>Enclose the text in i-tag</small></p>
+&lt;i&gt;CSS&lt;/i&gt;"></textarea><small>iでタグ名を囲みます</small></p>
         </div>
-        <!-- <h3>Thema</h3>
+        <h3>このアプリ</h3>
         <div>
-          <span>Thema to use</span>
-          <select name="thema"></select>
-        </div> -->
-        <h3>This App</h3>
-        <div>
-          <span>Custom Editor</span>
+          <span>カスタムエディター</span>
           <textarea name="custom-editor" placeholder="&lt;i&gt;small&lt;/i&gt;&lt;i&gt;mark&lt;/i&gt;&lt;i&gt;br&lt;/i&gt;&lt;i&gt;p&lt;/i&gt;&lt;i&gt;h2&lt;/i&gt;&lt;i&gt;h3&lt;/i&gt;&lt;i&gt;h4&lt;/i&gt;
 &lt;s title=&quot;link&quot;&gt;&lt;/s&gt;&lt;s title=&quot;img&quot;&gt;&lt;/s&gt;"></textarea>
         </div>
         <div id="custom">
-          <span>Basic tag(19)</span><p>&lt;i&gt;b&lt;/i&gt;&lt;i&gt;strong&lt;/i&gt;&lt;i&gt;i&lt;/i&gt;&lt;i&gt;s&lt;/i&gt;&lt;i&gt;small&lt;/i&gt;&lt;i&gt;big&lt;/i&gt;&lt;i&gt;mark&lt;/i&gt;&lt;i&gt;br&lt;/i&gt;&lt;i&gt;p&lt;/i&gt;&lt;i&gt;h2&lt;/i&gt;&lt;i&gt;h3&lt;/i&gt;&lt;i&gt;h4&lt;/i&gt;&lt;i&gt;h5&lt;/i&gt;&lt;i&gt;h6&lt;/i&gt;&lt;i&gt;a&lt;/i&gt;&lt;i&gt;ul&lt;/i&gt;&lt;i&gt;ol&lt;/i&gt;&lt;i&gt;table&lt;/i&gt;</p>
-          <span>Select tag(2)</span><p>&lt;s title=&quot;link&quot;&gt;&lt;/s&gt;&lt;s title=&quot;img&quot;&gt;&lt;/s&gt;</p>
-          <span>User tag(∞)</span><p>&lt;u title='&lt;div class=&quot;example&quot;&gt;&lt;/div&gt;'&gt;button&lt;/u&gt;</p>
+          <span>基本のHTMLタグ(19)</span><p>&lt;i&gt;b&lt;/i&gt;&lt;i&gt;strong&lt;/i&gt;&lt;i&gt;i&lt;/i&gt;&lt;i&gt;s&lt;/i&gt;&lt;i&gt;small&lt;/i&gt;&lt;i&gt;big&lt;/i&gt;&lt;i&gt;mark&lt;/i&gt;&lt;i&gt;br&lt;/i&gt;&lt;i&gt;p&lt;/i&gt;&lt;i&gt;h2&lt;/i&gt;&lt;i&gt;h3&lt;/i&gt;&lt;i&gt;h4&lt;/i&gt;&lt;i&gt;h5&lt;/i&gt;&lt;i&gt;h6&lt;/i&gt;&lt;i&gt;a&lt;/i&gt;&lt;i&gt;ul&lt;/i&gt;&lt;i&gt;ol&lt;/i&gt;&lt;i&gt;table&lt;/i&gt;</p>
+          <span>選択タグ(2)</span><p>&lt;s title=&quot;link&quot;&gt;&lt;/s&gt;&lt;s title=&quot;img&quot;&gt;&lt;/s&gt;</p>
+          <span>ユーザータグ(∞)</span><p>&lt;u title='&lt;div class=&quot;example&quot;&gt;&lt;/div&gt;'&gt;button&lt;/u&gt;</p>
         </div>
         <!-- <div>
           <span>Color</span>
@@ -237,13 +220,14 @@ Create anchor links of h2 h3 or remove">Table Of Contents<input type="checkbox" 
         </div> -->
       </fieldset>
     </form>
+    <!-- まとめてセーブ -->
     <form id="allsave">
       <fieldset>
         <p class="desc exclamation">This function is used when you have changed common items on your site. (Blog title, URL, template, etc.) <br />All checked files will be overwritten.</p>
         <h3>Save Files</h3>
         <div>
           <label><input type="checkbox" name="index" checked>index.html</label>
-          <label><input type="checkbox" name="taglist" checked>taglist.html</label>
+          <label><input type="checkbox" name="postfilter" checked>postfilter.html</label>
           <label><input type="checkbox" name="search" checked>search.html</label>
           <label><input type="checkbox" name="post" checked>Post</label>
           <label>Page<input type="checkbox" name="page" checked></label>
@@ -271,33 +255,9 @@ Create anchor links of h2 h3 or remove">Table Of Contents<input type="checkbox" 
     <div name="box"></div>
   </form>
   <div id="guide" class="drag">
-    <p><img src="favicon.svg">Welcome  to fafanto</p>
-    <div><button type="button" id="open-dir">Select Folder</button></div>
-    <a href="docs.html" target="_blank" class="disable">Start Up Guide</a>
+    <p><img src="favicon.svg">ようこそfafantoへ</p>
+    <div><button type="button" id="open-dir">フォルダを選択</button></div>
+    <a href="docs.html" target="_blank" class="disable">fafantoガイド</a>
   </div>
 </body>
 </html>
-          <!-- <script src="http://127.0.0.1:8887/monaco-editor/min/vs/loader.js"></script> -->
-          <!-- <div id="container" style="height:500px;"></div> -->
-          
-          <!-- <script>
-            require.config({ paths: { 'vs': 'http://127.0.0.1:8887/monaco-editor/min/vs' }});
-            require(["vs/editor/editor.main"], function () {
-              let editor = monaco.editor.create(document.getElementById('container'), {
-                value: [
-                  '<p class="aaa">sdsdg</p>'
-                ].join('\n'),
-                language: 'html',
-                theme: 'vs-dark'
-              });
-            });
-          </script> -->
-
-          <!-- <link rel="stylesheet" href="codemirror/lib/codemirror.css">
-<script src="codemirror/lib/codemirror.js"></script>
-<script src="codemirror/mode/javascript/javascript.js"></script>
-<script src="codemirror/mode/htmlmixed/htmlmixed.js"></script>
-<script src="codemirror/mode/xml/xml.js"></script>
-<script src="codemirror/mode/css/css.js"></script> -->
-
-<!-- <script src="ace-editor/ace.js"></script> -->
