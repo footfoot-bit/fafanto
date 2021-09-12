@@ -1,12 +1,13 @@
 # fafanto
-This web app is a **static site CMS** with minimality
+fafantoはシンプルな静的サイトを作るWebアプリです。既存のStatic Site GenelatorはGUIがなくて難しかったので素のJavaScriptとHTML,CSSで簡単に作ってみました。
 
-## Required Environment
-You will need a **PC** with a chromium-based browser, as the API used by fafanto does not support mobile browsers.
-Typical chromium-based browsers are **Google Chrome** and **Microsoft Edge**.
+## 必要な環境
+ブラウザはPC版のGoogle ChromeかMicrosoft EdgeかChromiumをお使い下さい。
+このWebアプリはPC版のChromium系にしか実装されてないFile System Access APIでロカールファイルの読み書きをしています。
+モバイル版のChromium系ブラウザはAPIが実装されていないので動作しません。Bravaは意図的に対応してないようです。
 
-## Quick Start
-1. Create a folder in the locals directory of your PC
-2. Select the folder in fafanto.app
-3. Set each setting in "setting" and save it
-4. Once reloaded, you can select the folder and start writing.
+## fafantoの始め方
+1. PCのローカル環境にfafanto用のフォルダを1つ作ります
+2. fafanto.appにアクセスして作ったフォルダを選択します
+3. 「設定」の項目を埋めます
+4. アプリをリロードしたらPost（ブログ）やPageで記事を書き始められます
