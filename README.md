@@ -1,5 +1,5 @@
 # fafantoとは
-fafantoはシンプルな静的サイトビルダー/CMSのWebアプリです。既存のStatic Site GenelatorはGUIがなくて難しかったので素のJavaScriptとHTML,CSSで簡単に作ってみました。
+fafantoはシンプルな静的サイトビルダー/CMSのWebアプリです。既存のStatic Site GeneatorはGUIがなくて難しかったので素のJavaScriptとHTML,CSSで簡単に作ってみました。
 
 ## 必要な環境
 ブラウザはPC版のGoogle ChromeかMicrosoft EdgeかChromiumをお使い下さい。
