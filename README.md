@@ -2,10 +2,10 @@
 fafantoはシンプルな静的サイトビルダー/CMSのWebアプリです。既存のStatic Site GeneatorはGUIがなくて難しかったので素のJavaScriptとHTML,CSSで簡単に作ってみました。
 
 ## fafantoの特徴
-*シンプルなので軽量でサクサク動作します。
-*シンプルなのですぐ理解できます。
-*VS Codeライクなエディターで編集できます。（Microsoftが開発しているMonaco editorを使用）
-*オープンソースなので改造して使うのも自由です。
+* シンプルなので軽量でサクサク動作します。
+* シンプルなのですぐ理解できます。
+* VS Codeライクなエディターで編集できます。（Microsoftが開発しているMonaco editorを使用）
+* オープンソースなので改造して使うのも自由です。
 ## 必要な環境
 ブラウザはPC版のGoogle ChromeかMicrosoft EdgeかChromiumをお使い下さい。
 このWebアプリはPC版のChromium系にしか実装されてないFile System Access APIでロカールファイルの読み書きをしています。
