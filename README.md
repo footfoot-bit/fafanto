@@ -9,7 +9,7 @@ fafantoはシンプルな静的サイトビルダー/CMSのWebアプリで、と
 * テンプレートは1つのみで各ページのカスタムが簡単
 * エディターは高機能な**Visual Studio Code**のWeb版を使用（Microsoftが開発しているMonaco editor）
 * 一部の更新で全ページの更新はしないため、記事が増えて重くなるようなことない
-* オープンソースなので改造して使うのも自由
+* オープンソースなので改造も自由（Vanilla JSなので改造しやすい）
 ## 必要な環境
 fafantoは**PC用**のWebアプリです。  
 ローカルファイルを読み書きする機能のFile System Access APIがPC版のChromium系のブラウザにしか実装されてないためです。  
