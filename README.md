@@ -5,7 +5,7 @@ fafantoはシンプルな静的サイトビルダー/CMSのWebアプリです。
 * WebアプリなのでWindows,Mac,Linuxに対応（PC版のブラウザのみ対応）
 * 軽量でサクサク動作
 * テンプレートは1つのみで各ページの編集が簡単
-* エディターはVS CodeのWeb版（Microsoftが開発しているMonaco editorを使用）
+* エディターは高機能なVS CodeのWeb版（Microsoftが開発しているMonaco editorを使用）
 * オープンソースなので改造して使うのも自由
 ## 必要な環境
 ブラウザはPC版のGoogle ChromeかMicrosoft EdgeかChromiumをお使い下さい。
