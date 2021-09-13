@@ -1,8 +1,6 @@
 # fafantoとは
 fafantoはシンプルな静的サイトビルダー/CMSのWebアプリで、コンパクトで軽い個人向けのサイト（ブログ）を作るのに適しています。  
-既存のStatic Site GeneatorはGUIがなくエンジニアさん向けでしたので、WordPressとはいかないまでも最低限のGUIが付いたCMSがあればいいなと思って作りました。  
-1人で管理できるようにできるだけシンプルな作りにしています。
-
+既存のStatic Site GeneatorはGUIがなくエンジニアさん向けでしたので、WordPressとはいかないまでも最低限のGUIが付いたCMSがあればいいなと思って作りました。 
 ## fafantoの特徴
 * WebアプリなのでWindows,Mac,Linuxに対応
 * 軽量でサクサク動作
