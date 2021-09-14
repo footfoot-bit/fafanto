@@ -16,7 +16,7 @@ fafantoはシンプルな静的サイトビルダー/CMSのWebアプリで、コ
 ## 必要な環境
 fafantoは**PC用**のWebアプリなのでブラウザは**PC版**の**Google Chrome**か**Microsoft Edge**か**Chromium**をお使い下さい。  
 ローカルファイルを読み書きする機能のFile System Access APIがPC版のChromium系のブラウザにしか実装されてないためです。  
-モバイル版のChromium系ブラウザはAPIが実装されていないので動作しません。  
+モバイル版のブラウザでは動作しません。
 ## fafantoの始め方
 1. PCのローカル環境にfafanto用のフォルダを1つ作ります
 2. fafanto.appにアクセスして作ったフォルダを選択します
