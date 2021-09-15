@@ -5,7 +5,7 @@
 * WebアプリなのでWindows,Mac,Linuxに対応
 * 軽量でサクサク動作
 * テンプレートは1つのみで各ページのカスタムが簡単
-* エディターは高機能な**Visual Studio Code**のWeb版を使用（Microsoftが開発している [Monaco Editor](https://microsoft.github.io/monaco-editor)）
+* エディターは高機能な**Visual Studio Code**のブラウザ版を使用（Microsoftが開発している [Monaco Editor](https://microsoft.github.io/monaco-editor)）
 * 一部の更新で全ページの更新はしないため記事が増えても重くならない
 * オープンソースなので改造が自由
 ## fafantoにできないこと
