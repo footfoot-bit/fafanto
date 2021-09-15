@@ -1,5 +1,5 @@
 # fafantoとは
-fafantoはシンプルな静的サイトビルダー/CMSのWebアプリで、コンパクトで軽い個人向けのサイト（ブログ）を作るのに適しています。  
+[fafanto](https://www.fafanto.app/)はシンプルな静的サイトビルダー/CMSのWebアプリで、コンパクトで軽い個人向けのサイト（ブログ）を作るのに適しています。  
 既存のStatic Site GeneatorはGUIがなくエンジニアさん向けでしたので、WordPressとはいかないまでも最低限のGUIが付いたCMSがあればいいなと思って作りました。  
 ## fafantoの特徴
 * WebアプリなのでWindows,Mac,Linuxに対応
@@ -20,6 +20,6 @@ fafantoは**PC用**のWebアプリなのでブラウザは**PC版**の**Google C
 Chromium系以外やモバイル版のブラウザでは現状動作しません。
 ## fafantoの始め方
 1. PCのローカル環境にfafanto用のフォルダを1つ作ります
-2. [fafant.app](https://www.fafanto.app/)にアクセスして作ったフォルダを選択します
+2. [fafanto.app](https://www.fafanto.app/)にアクセスして作ったフォルダを選択します
 3. 「設定」の項目を埋めてアプリをリロードします
 4. 同じフォルダを選択してPost（ブログ）やPage（固定ページ）で記事を書き始められます
