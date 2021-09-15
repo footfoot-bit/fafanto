@@ -16,7 +16,7 @@
 
 ## 必要な環境
 fafantoは**PC用**のWebアプリなのでブラウザは**PC版**の**Google Chrome**か**Microsoft Edge**か**Chromium**をお使い下さい。  
-ローカルファイルを読み書きする機能のFile System Access APIがPC版のChromium系のブラウザにしか実装されてないためです。  
+PC用の理由はローカルファイルを読み書きする機能のFile System Access APIがPC版のChromium系のブラウザにしか実装されてないためです。  
 Chromium系以外やモバイル版のブラウザでは現状動作しません。
 ## fafantoの始め方
 1. PCのローカル環境にfafanto用のフォルダを1つ作ります
