@@ -1,114 +1,112 @@
 // default main.js
 
-
 document.addEventListener('DOMContentLoaded', () => {
   
-  // responsive menu
-  const PAGLI = document.querySelector('.page-list');
+  // headerのレスポンシブメニュー
   document.querySelector('.menu-icon').onclick = (e) => {
+    const PAGLI = document.querySelector('.page-list');
     PAGLI.classList.toggle('show');
+    document.querySelector('.head-icons').classList.toggle('show');
     if (PAGLI.classList.contains('show')) e.target.classList.add('close-btn');
     else e.target.classList.remove('close-btn');
   };
 
-  // toggle img to zoom
-  const IMGS = document.querySelectorAll('.contents img');
-  for (const img of IMGS) img.onclick = (e) => e.target.classList.toggle('img-zoom');
-
-  //Used only in allpost.html
-  if (document.URL.match('allpost.html')) {
-    const LATPO = document.querySelector('.latest-posts');
-    const POSTS = LATPO.querySelectorAll('a');
-    const POSBT = document.querySelector('.allpost-btns');
-    const BTNPS = POSBT.querySelectorAll('p');
-
-    viewSwitch = (e) => {
-      e.target.classList.toggle('on');
-      for (const post of POSTS) post.classList.add('hide');
-      const dirs = BTNPS[0].querySelectorAll('.on');
-      const tags = BTNPS[1].querySelectorAll('.on');
-      for (const dir of dirs) {
-        const fldName = dir.dataset.btn;
-        for (const tag of tags) {
-          const tagName = tag.dataset.btn;
-          const acts = LATPO.querySelectorAll(`.${tagName}.${fldName}`);
-          for (const act of acts) act.classList.remove('hide');
-        }
-      }
-    };
-    
-    POSBT.onclick = (e) => {
-      if (e.target.tagName === 'U') viewSwitch(e);
-      else if (e.target.tagName === 'SPAN') viewSwitch(e);
-      else if (e.target.className === 'allclear-btn') {
-        for (const post of POSTS) post.classList.add('hide');
-        const ons = BTNPS[1].querySelectorAll('.on');
-        for (const on of ons) on.classList.remove('on');
-      }
-      else if (e.target.className === 'allview-btn') {
-        const dirs = BTNPS[0].querySelectorAll('.on');
-        const spans = BTNPS[1].querySelectorAll('span');
-        for (const dir of dirs) {
-          const dirName = dir.dataset.btn;
-          for (const span of spans) {
-            span.classList.add('on');
-            const tagName = span.dataset.btn;
-            const acts = LATPO.querySelectorAll(`.${tagName}.${dirName}`);
-            for (const act of acts) act.classList.remove('hide');
-          }
-        }
-      }
-    };
+  // ポスト画像をズーム（横幅がPCの場合のみ）
+  if (document.URL.match('/post/') && window.innerWidth >= 1040) {
+    const thumb = document.querySelector('.thumbnail img');
+    if (thumb) thumb.onclick = (e) => e.target.classList.toggle('img-zoom');
+    const imgs = document.querySelectorAll('.contents img');
+    if (imgs.length) for (const img of imgs) img.onclick = (e) => e.target.classList.toggle('img-zoom');
   };
 
-  //Used only in search.html
+  // postfilter.htmlのフィルター機能
+  if (document.URL.match('postfilter.html')) {
+    const POLIS = document.querySelectorAll('.postlist > li');
+    const FIDIV = document.querySelectorAll('.filter-btns > div');
+    const SPANS = FIDIV[0].querySelectorAll('span');
+    const togglePostLink = (e) => {
+      e.target.classList.toggle('on');
+      for (const li of POLIS) li.classList.add('hide');
+      const onTags = FIDIV[0].querySelectorAll('.on');
+      for (const onTag of onTags) {
+        const tagName = onTag.textContent;
+        for (const li of POLIS) {
+          const is = li.querySelectorAll('i');
+          if (is.length) for (const i of is ) if (i.textContent === tagName) li.classList.remove('hide');
+          const ymdTime = li.querySelector('time')?.getAttribute('datetime')?? '';
+          if (ymdTime) if (ymdTime.slice(0,4) === tagName) li.classList.remove('hide');
+        }
+      }
+    };
+    const allClear = () => {
+      for (const li of POLIS) li.classList.add('hide');
+      for (const span of SPANS) span.classList.remove('on');
+    };
+    document.querySelector('.filter-btns').onclick = (e) => {
+      if (e.target.tagName === 'SPAN') togglePostLink(e);
+      else if (e.target.className === 'allclear-btn') allClear();
+      else if (e.target.className === 'allview-btn') {
+        for (const li of POLIS) li.classList.remove('hide');
+        for (const span of SPANS) span.classList.add('on');
+      }
+    };
+    const tagStr = new URLSearchParams(window.location.search);
+    const tagName = tagStr.get('tag');
+    if (tagName) {
+      allClear();
+      for (const span of SPANS) if (span.textContent === tagName) return span.click();
+    }
+  };
+
+  // search.htmlの検索機能。（1単語のみ）
   if (document.URL.match('search.html')) {
-    const DOM = new DOMParser();
     const BOX = document.getElementById('search-box');
     const CNT = document.querySelector('.contents');
     const fetchToDoc = async (url) => {
       const response = await fetch(url);
       const html = await response.text();
-      return DOM.parseFromString(html,'text/html');
+      return new DOMParser().parseFromString(html,'text/html');
     };
     const search = async () => {
       CNT.textContent = '';
-      const word = BOX.elements['txt'].value;
-      if (word === '') return CNT.textContent = 'Input is empty.';
-      const doc = await fetchToDoc('allpost.html');
-      const divs = doc.querySelectorAll('.latest-posts div');
-      const paas = doc.querySelectorAll('.page-list a');
-      //Search Post
-      let postData = [];
-      for (const div of divs) {
-        const path = div.querySelector('a').getAttribute('href');
-        const title = div.querySelector('h3').textContent;
-        const time = div.querySelector('time').textContent;
-        postData.push([path,title,time]);
+      const word = BOX.elements['word'].value;
+      if (!word) return CNT.textContent = 'Input is empty.';
+      const doc = await fetchToDoc('postfilter.html');
+      const lis = doc.querySelectorAll('.postlist > li');
+      const pas = doc.querySelectorAll('.page-list a');
+      //ポスト
+      let postsData = [];
+      for (const li of lis) {
+        const path = li.querySelector('a').getAttribute('href');
+        const title = li.querySelector('p').textContent;
+        const time = li.querySelector('time')?.textContent?? '';
+        postsData.push([path,title,time]);
       }
-      for (const data of postData) {
-        const doc = await fetchToDoc(data[0]);
-        const alltxt = doc.querySelector('main')?.textContent?? '';
-        const result = alltxt.includes(word);
-        if (result === true) CNT.insertAdjacentHTML('beforeend',`<p>● Post ${data[2]} <a href="${data[0]}" target="_blank">${data[1]}</a></p>\n`);
+      for (const pd of postsData) {
+        const doc = await fetchToDoc(pd[0]);
+        const alltxt = [];
+        for (const elem of ['.title','.description','.contents']) alltxt.push(doc.querySelector(elem)?.textContent?? '');
+        const joinText = alltxt.join('');
+        const result = joinText.includes(word);
+        if (result) CNT.insertAdjacentHTML('beforeend',`<li>Posted in <time>${pd[2]}</time>: <a href="${pd[0]}" target="_blank">${pd[1]}</a></li>\n`);
       }
-      //Search Page
-      let pageData = [];
-      for (const paa of paas) {
+      //ページ
+      let pagesData = [];
+      for (const paa of pas) {
         const path = paa.getAttribute('href');
         const title = paa.textContent;
-        pageData.push([path,title]);
+        pagesData.push([path,title]);
       }
-      for (const data of pageData) {
-        const doc = await fetchToDoc(data[0]);
+      for (const gd of pagesData) {
+        const doc = await fetchToDoc(gd[0]);
         const alltxt = doc.querySelector('main')?.textContent?? '';
         const result = alltxt.includes(word);
-        if (result === true) CNT.insertAdjacentHTML('beforeend',`<p>● Page <a href="${data[0]}" target="_blank">${data[1]}</a></p>\n`);
+        if (result) CNT.insertAdjacentHTML('beforeend',`<li>Page: <a href="${gd[0]}" target="_blank">${gd[1]}</a></li>\n`);
       }
-      if (CNT.textContent === '') CNT.textContent = `Not found in "${word}".`;
+      if (!CNT.textContent) CNT.textContent = `Not found in "${word}".`;
     };
     BOX.elements['btn'].onclick = async () => await search();
-    BOX.elements['txt'].addEventListener('keydown', async (e) => {
+    BOX.elements['word'].addEventListener('keydown', async (e) => {
       if (e.keyCode === 13) {
         e.preventDefault();
         await search();

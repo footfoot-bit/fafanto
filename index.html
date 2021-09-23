@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 <head>
-<title>fafanto | Create a static site with minimal energy</title>
+<title>fafanto | ミニ静的サイトCMS</title>
 <link href="fafanto.css" rel="stylesheet">
 <script src="https://kit.fontawesome.com/8725e8d35f.js" crossorigin="anonymous"></script>
 <link rel="manifest" href="manifest.webmanifest">
@@ -47,9 +47,9 @@
     <form id="post" class="show">
       <div class="portal">
         <fieldset name="new">
-          <input name="title" title="into title:calss" placeholder="Add Title">
+          <input name="title" title="into title:calss" placeholder="タイトル">
           <input type="datetime-local" name="date">
-          <input name="name" placeholder="Add Filename">
+          <input name="name" placeholder="ファイル名">
           <button name="btn" type="button" class="btn-new"></button>
         </fieldset>
         <select name="dirs" class="hide"></select>
@@ -62,7 +62,7 @@
               <i>b</i><i>small</i><i>mark</i><i>br</i><i>p</i><i>h2</i><i>h3</i><i>h4</i><i>a</i><i>ul</i><i>table</i><s title="link"></s><s title="img"></s>
             </fieldset>
             <fieldset name="paneltab">
-              <button type="button" data-tab="description" >Description</button><button type="button" data-tab="contents" class="on">Contents</button>
+              <button type="button" data-tab="description">Description</button><button type="button" data-tab="contents" class="on">Contents</button>
             </fieldset>
           </div>
           <fieldset name="description" class="monacos hide"></fieldset>
@@ -92,23 +92,18 @@ leave or remove'>Freespace 2<input type="checkbox" name="freespace2" checked></l
           <div>
             <h3>Tags<b></b></h3>
             <fieldset name="tagbtns">
-              <i class="on">Static Site</i>
-              <i class="on">CMS</i>
-              <i>GUI</i>
-              <i>ブログ</i>
+              <i class="on">静的サイト</i>
+              <i>CMS</i>
+              <i>ビルダー</i>
+              <i class="on">ブログ</i>
               <i class="on">軽量</i>
-              <i>Clean</i>
-              <i>Minimal</i>
               <i>One Template</i>
-              <i class="on">Easy</i>
-              <i>Offline</i>
-              <i>Local</i>
+              <i class="on">簡単</i>
+              <i>オフライン</i>
               <i>Github</i>
+              <i>オープンソース</i>
               <i>Vanilla JS</i>
-              <i>Open Source</i>
-              <i>漢字</i>
             </fieldset>
-            <!-- <textarea name="tag-texts"></textarea> -->
           </div>
         </div>
       </div>
@@ -191,7 +186,6 @@ Create anchor links of h2 h3 or remove">Table of contents / もくじ<input type
         <h3>Post</h3>
         <div>
           <span>あなたの名前</span><input name="auther" placeholder="your name" type="text">
-          <span>あなたの画像</span><input name="auther-image" placeholder="media/xxx.jpg" type="text">
           <span>時間の表示形式</span>
           <select name="date-type">
             <option value="yyyy-mm-dd" selected>YYYY-MM-DD（年-月-日）</option>

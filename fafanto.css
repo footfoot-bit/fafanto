@@ -36,7 +36,7 @@ html {
 body {
     background-color: var(--body-color);
     display: grid;
-    grid-template-columns: minmax(12rem,10%) minmax(12rem,13%) 1fr;
+    grid-template-columns: 16rem 26rem 1fr;
     height: 100%;
     font-size: 1.4rem;
     line-height: 1;
@@ -166,7 +166,8 @@ nav {
     grid-template-columns: 1fr;
     grid-template-rows: auto 1fr auto;
     row-gap: var(--gap);
-    background-color: var(--nav-color);
+    background-color: var(--text-color);
+    color: #fff;
 }
 h1 {
     text-align: center;
@@ -176,6 +177,7 @@ h1 {
 h1 img {
     width: 2.4rem;
     padding: 6px 0;
+    filter: invert(1);
 }
 nav button:hover {
     background-color: #444;
@@ -194,10 +196,10 @@ nav p::before {
     padding: 1rem;
 }
 nav p.on,nav p.on::before {
-    color: var(--text-color);
+    color: var(--header-color);
 }
 nav p:hover {
-    color: var(--text-color);
+    color: var(--body-color);
 }
 #lightness::before, #spellcheck::before {
     font-size: 1.6rem;
@@ -212,7 +214,7 @@ header {
     overflow: hidden;
 }
 h2 {
-    font-size: 1.8rem;
+    font-size: 1.6rem;
     color:var(--text-color);
     padding: 1.2rem var(--innergap);
     height: var(--topbar-height);
@@ -248,11 +250,6 @@ main {
     overflow: auto;
     height: 100%;
 }
-.monacos {
-    /* border: 1px solid var(--nav-color); */
-    /* border-top: 0;
-    border-right: 0; */
-}
 /* Post, Page */
 .portal {
     box-shadow: var(--shadow);
@@ -274,13 +271,9 @@ main {
 .portal input,.artlist u,.portal button {
     height: calc(var(--topbar-height) - 1px);
 }
-[name="name"] {
-    font-family: var(--code-font);
-}
 .artlist u {
     overflow: hidden;
     text-decoration: none;
-    font-family: var(--code-font);
     padding: 1.4rem 1rem;
 }
 #post [name=dirs] {
@@ -300,13 +293,16 @@ main {
 .text {
     display: grid;
     grid-template-rows: auto 1fr;
-    border-right: 1px solid var(--nav-color);
     height: 100%;
+}
+.monacos {
+    border-right: 1px solid var(--nav-color);
 }
 /* editor panel */
 .panel {
     display: grid;
     grid-template-columns: 1fr auto;
+    /* align-items: baseline; */
 }
 .panel fieldset {
     padding: 0;
@@ -316,7 +312,7 @@ main {
     text-decoration: none;
     font-style: normal;
     display: inline-block;
-    vertical-align: middle;
+    vertical-align: bottom;
 }
 .panel i, .panel u {
     font-weight: normal;
@@ -325,13 +321,14 @@ fieldset[name=panelbtns] {
     padding: 0 var(--innergap);
     background-color: #fff;
     border-bottom: 1px solid var(--nav-color);
+    border-right: 1px solid var(--nav-color);
 }
 fieldset[name=panelbtns] i,fieldset[name=panelbtns] u {
     font-family: var(--code-font);
 }
 [name=panelbtns] * {
     background-color: var(--nav-color);
-    margin-right: 1px;
+    margin: 0 1px 1px 0;
     border-radius: .5rem;
 }
 [name=panelbtns] *:hover {
@@ -340,12 +337,12 @@ fieldset[name=panelbtns] i,fieldset[name=panelbtns] u {
 }
 
 [name=paneltab] button {
-    border-left: 1px solid var(--nav-color);
     background-color: var(--header-color);
     font-family: initial;
     font-size: 1.3rem;
     margin: 0;
     border-top: 1px solid var(--nav-color);
+    border-right: 1px solid var(--nav-color);
 }
 [name=paneltab] button:hover {
     color: var(--text-color);
@@ -421,6 +418,7 @@ fieldset[name=panelbtns] i,fieldset[name=panelbtns] u {
 #bases .panel > div {
     padding: 0;
     border-bottom: 1px solid var(--nav-color);
+    border-right: 1px solid var(--nav-color);
 }
 #bases button {
     vertical-align: bottom;
@@ -503,7 +501,7 @@ fieldset[name=panelbtns] i,fieldset[name=panelbtns] u {
     padding: 8%;
 }
 /** Link, Img Selector **/
-#links,#images {
+#links, #images {
     display: grid;
     grid-template-columns: 4fr 1fr;
     grid-template-rows: auto 1fr;
@@ -513,43 +511,57 @@ fieldset[name=panelbtns] i,fieldset[name=panelbtns] u {
     position: absolute;
     left: 0;
     top: 0;
-    width: 23%;
+    width: 42rem;
     height: 100%;
     overflow: hidden;
-    background-color: rgba(22, 22, 22, 0.7);
+    background-color: #444;
+    color: #ccc;
 }
-#links select,#images select {
+#links select, #images select {
     grid-area: dirs;
     background-color: #333;
     color: #fff;
     border: none;
 }
-#links button,#images button {
+#links button, #images button {
     grid-area: btn;
     color: #fff;
-    background-color: #444;
+    background-color: var(--text-color);
     border: none;
 }
-#links div,#images div {
+#links div, #images div {
     grid-area: box;
     overflow-x: scroll;
 }
-#links p {
-    color: #eee;
+#links > div p {
     word-wrap: break-word;
     font-size: 1.2rem;
     padding: 1rem;
-    background-color: rgba(5, 5, 5, .3);
 }
 
-#images img {
-    height: 13rem;
-    width: 13rem;
-    padding: 1rem;
+#images > div > * {
+    height: 19rem;
+    width: 19rem;
     border-radius: 5px;
+    vertical-align: top;
+    display: inline-block;
+    padding: 1rem;
+    margin: .6rem;
+    text-align: center;
+    /* background-color: rgba(0, 0, 0, 0.1); */
 }
-#links p:hover,#images img:hover {
-    background-color: rgba(255, 255, 0, 0.5);
+#images audio {
+    width: 11rem;
+    vertical-align: baseline;
+    margin-top: 1rem;
+}
+#images > div span {
+    padding: 1rem;
+}
+
+#links > div p:hover,#images > div > *:hover {
+    background-color: rgba(0, 0, 0, 0.6);
+    color: #fff;
 }
 /** Font Awesome **/
 #open-dir,.exclamation::before,

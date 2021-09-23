@@ -2,7 +2,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Check user's browser supports (file API)
   if (window.showOpenFilePicker) console.log('File System is available');
-  else document.querySelector('#guide div').innerHTML = '<span class="exclamation">お使いのブラウザはこのアプリに対応していません。<b>PC版</b>の<b>Google Chrome</b>や<b>Microsoft Edge</b>(Chromium系のブラウザ)でアクセスしてください。</span>';
+  else document.querySelector('#guide div').innerHTML = 
+  '<span class="exclamation">お使いのブラウザはこのアプリに対応していません。<b>PC版</b>の<b>Google Chrome</b>や<b>Microsoft Edge</b>(Chromium系のブラウザ)でアクセスしてください。</span>';
 
   // Registering Service Worker
   if ('serviceWorker' in navigator) {
@@ -55,11 +56,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   const normal = {
     url: () => {
       const url = SETT.elements['url'].value;
-      return url.replace(/\/$/,'/');
+      return url.replace(/\/$/, '/');
+    },
+    removeAllLineBreaks: (str) => {
+      return str.replace(/(\r\n|\n|\r)/gm, '');
     }
   };
 
-  //ダイアログのテキスト
+  //ダイアログとエラー
   const dialog = {
     confirmSave: (fileName) => {
       const result = confirm(`"${fileName}" のファイルをセーブしますか？`);
@@ -83,7 +87,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       throw new Error('Failed to save.Same file name exists.');
     },
     notTag: (tag) => {
-      alert(`⚠ テンプレートに "${tag}" が存在しません。`);
+      alert(`⚠ テンプレートに "${tag}" が存在していません。`);
       throw new Error(`"${tag}" does not exist in the template.`);
     }
   };
@@ -130,7 +134,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   };
   POSNW.elements['date'].value = date.ymdTime();
   
-  // converter
+  // 変換
   const convert = {
     elemsToTextArr: (elems) => {
       if (elems.length) {
@@ -249,7 +253,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           LINKS.querySelector('div').onclick = (e) => {
             if (e.target.tagName === 'P') {
               const dirName = LINKS.elements['dirs'].value;
-              this.insert(`<a href="${this.path}/${this.form}/${dirName}/${e.target.dataset.name}" target="_blank">`,`${e.target.dataset.title}</a>`);
+              this.insert(`<a href="${this.path}/${this.form}/${dirName}/${e.target.dataset.name}" target="_blank">`, `${e.target.dataset.title}</a>`);
             }
           }
           return;
@@ -257,16 +261,21 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (e.target.title === 'img') {
           this.viewSwitch(IMAGS, LINKS);
           IMAGS.querySelector('div').onclick = (e) => {
-            if (e.target.tagName === 'IMG') {
-              const dirName = IMAGS.elements['dirs'].value;
-              this.insert(`<img src="${this.path}/media/${dirName}/${e.target.title}" alt="" loading="lazy">\n`, '');
-            }
+            const dirName = IMAGS.elements['dirs'].value;
+            if (e.target.tagName === 'IMG')
+            this.insert(`<img src="${this.path}/media/${dirName}/${e.target.title}" alt="" loading="lazy">\n`, '');
+            else if (e.target.tagName === 'FIGURE')
+            this.insert(`<audio src="${this.path}/media/${dirName}/${e.target.title}" controls>オーディオ再生に非対応のブラウザです。</audio>\n`, '');
+            else if (e.target.tagName === 'VIDEO')
+            this.insert(`<video src="${this.path}/media/${dirName}/${e.target.title}" controls>ビデオ再生に非対応のブラウザです。</video>\n`, '');
+            else
+            this.insert(`<a href="${this.path}/media/${dirName}/${e.target.title}">`, `${e.target.title}</a>\n`);
           }
         }
       }
     };
   };
-  // create monaco editor
+  // monaco editorを作成
   const mePostDesc = monaco.editor.create(POST.elements['description'], Monaco.opt('\nAdd Description Text\n', 'plaintext'));
   const mePostContents = monaco.editor.create(POST.elements['contents'], Monaco.opt('Add Contents\n', 'html'));
   const mePageDesc = monaco.editor.create(PAGE.elements['description'], Monaco.opt('\nAdd Description\n', 'plaintext'));
@@ -275,9 +284,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const meBaseStyle = monaco.editor.create(BASE.elements['style'], Monaco.opt(await Monaco.defaultText('style.css'), 'css'));
   const meBaseMain = monaco.editor.create(BASE.elements['main'], Monaco.opt(await Monaco.defaultText('main.js'), 'javascript'));
   // instance for add html-tag button
-  const meBtnsPosDesc = new Monaco('post', mePostDesc, Monaco.postPath);
   const meBtnsPosCont = new Monaco('post', mePostContents, Monaco.postPath);
-  const meBtnsPagDesc = new Monaco('page', mePageDesc, Monaco.pagePath);
   const meBtnsPagCont = new Monaco('page', mePageContents, Monaco.pagePath);
   // click to close button in links and imgs list
   LINKS.elements['btn'].onclick = () => LINKS.classList.add('hide');
@@ -285,7 +292,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 //event
 
-  //click left menu
+  //　左アイコンメニュー
   document.querySelector('nav').onclick = (e) => {
     if (e.target.tagName === 'P') {
       const form = e.target.dataset.nav;
@@ -326,7 +333,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.querySelector('html').classList.toggle('dark');
   };
 
-  //click right block arrow to open/close
+  //エディター右の折り畳み（PostとPage)
   for (const sidet of document.querySelectorAll('.side h3')) {
     sidet.onclick = (e) => {
       if (e.target.tagName === 'B') {
@@ -336,13 +343,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
   }
 
-  //click tags
+  //タグのON/OFF (Post)
   POST.elements['tagbtns'].onclick = (e) => {
     if (e.target.tagName === 'I') e.target.classList.toggle('on');
-    // const ons = POST.elements['tagbtns'].querySelectorAll('.on');
-    // const tagArray = [];
-    // for(const on of ons) tagArray.push(`"${on.textContent}"`);
-    // POST.elements['tag-texts'].value = `[${tagArray}]`;
   };
 
   // custom color
@@ -460,7 +463,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         super(fileName,handleBox);
         this.fileName = 'setting.html';
         this.box = singleBox;
-        this.setts = ['site-title','site-subtitle','url','image','latest-posts','index-desc','postfilter-title','postfilter-desc','search-title','search-desc','auther','auther-image','date-type','tags','custom-editor'];
+        this.setts = ['site-title','site-subtitle','url','image','latest-posts','index-desc','postfilter-title','postfilter-desc','search-title','search-desc','auther','date-type','tags','custom-editor'];
       };
       async load() {
         const doc = await this.document();
@@ -630,7 +633,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       };
       docToHTMLStr(doc) {
         const str = doc.documentElement.outerHTML;
-        // const rstr = str.replace(/^\s*[\r\n]/gm, '');//remove white line
         return `<!DOCTYPE html>\n${str}`;
       };
       async preview() {
@@ -650,7 +652,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         const str = this.docToHTMLStr(doc);
         const previewTab = window.open();
-        // const previewWindow = window.open('preview.html',this.fileName,`height=${window.screen.height},width=${window.screen.width},scrollbars=yes,`);
         previewTab.document.write(str);
       };
       async save() {
@@ -658,6 +659,19 @@ document.addEventListener('DOMContentLoaded', async () => {
         await this.makeHTMLSpecial(doc);
         const str = this.docToHTMLStr(doc);
         await this.write(str);
+      };
+      insertPostList(nestPath,elem,postData) {
+        const d = postData;
+        let img = '';
+        let description = '';
+        if (d[5]) img = `<img src="${nestPath}${d[5]}" alt="${d[1]}" loading="lazy">`;
+        else if (d[7]) description = `<small>${d[7]}</small>`;
+        let tags = '';
+        if (d[6]) tags = `<span>${convert.textArrToHTMLStr(d[6],'i')}</span>`;
+        let time = '';
+        if (d[3]) time = `<time datetime="${d[3]}">${date.changeFormat(d[3])}</time>`;
+        elem.insertAdjacentHTML('beforeend',
+        `<li><a href="${nestPath}post/${d[2]}/${d[0]}">${img}<p>${d[1]}</p>${description}<div>${tags}${time}</div></a></li>\n`);
       };
     };
 
@@ -678,13 +692,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         this.insertOGPUrl(doc,normal.url());
         const posli = doc.querySelector(this.req[0]);
         const num = SETT.elements['latest-posts'].value;
-        if (num > 0 && num < 21) await EditPost.insertPostListNum(num,posli);
-        const imgs = posli.querySelectorAll('img');
-        for (const img of imgs) {
-          const src = img.getAttribute('src');
-          const nsrc = src.replace('../../','');
-          img.setAttribute('src',nsrc);
-        }
+        if (num > 0 && num < 21) await this.insertPostListNum(num,posli);
+      };
+      async insertPostListNum(num,elem) {
+        const allLatestData = await EditPost.allLatestData();
+        for (let i = 0; i < num; i++) this.insertPostList(this.path,elem,allLatestData[i]);
       };
     };
 
@@ -704,25 +716,22 @@ document.addEventListener('DOMContentLoaded', async () => {
         this.insertHeadDescription(doc,this.desc.value);
         this.insertOGPUrl(doc,normal.url() + this.fileName);
         this.insertBodyTitle(doc,this.title.value);
-        const div = doc.querySelector(this.req[0]).querySelector('div');
+        this.insertFilterBtns(doc);
+        await this.insertPostListAll(doc);
+      };
+      insertFilterBtns(doc) {
+        const div = doc.querySelector(`${this.req[0]} > div`);
         const str = SETT.elements['tags'].value;
         const dom = DOMP.parseFromString(str,'text/html');
         const tags = dom.querySelectorAll('i');
-        for (const tag of tags) {
-          const editag = tag.textContent.replace(/ /g,'-');
-          div.insertAdjacentHTML('afterbegin',`<span data-btn="tag-${editag}" class="on">${tag.textContent}</span>`);
-        }
+        for (const tag of tags) div.insertAdjacentHTML('afterbegin',`<span class="on">${tag.textContent}</span>`);
         const dirs = EditPost.latestDirs();
-        for (const dir of dirs) div.insertAdjacentHTML('beforeend',`<span data-btn="tag-${dir}" class="on">${dir}</span>`);
+        for (const dir of dirs) div.insertAdjacentHTML('beforeend',`<span class="on">${dir}</span>`);
+      };
+      async insertPostListAll(doc) {
         const posli = doc.querySelector(this.req[1]);
-        await EditPost.insertPostListAll(posli);
-        // const imgs = lapo.querySelectorAll('img');
-        // for (const img of imgs) {
-        //   const src = img.getAttribute('src');
-        //   const nsrc = src.replace('../../','');
-        //   img.setAttribute('src',nsrc);
-        //   img.setAttribute('loading','lazy');
-        // }
+        const dataArr = await EditPost.allLatestData();
+        for (const postData of dataArr) this.insertPostList(this.path,posli,postData);
       };
     };
 
@@ -773,16 +782,22 @@ document.addEventListener('DOMContentLoaded', async () => {
         desc.insertAdjacentHTML('afterbegin',value);
       };
       insertContents(doc,value) {
-          doc.querySelector('.contents').insertAdjacentHTML('afterbegin',value);
+        doc.querySelector('.contents').insertAdjacentHTML('afterbegin',value);
       };
-      editParts(doc) {
+      checkParts(doc) {
         for(const part of this.parts) {
           const elem = doc.querySelector(`.${part}`);
-          if (elem) {
-            if (!this.form.elements[part].checked) elem.remove();
-          }
+          if (elem) if (!this.form.elements[part].checked) elem.remove();
         }
-        //table of contents
+      };
+      existParts(doc,beforeDoc) {
+        for(const part of this.parts) {
+          const elem = doc.querySelector(`.${part}`);
+          const beforeElem = beforeDoc.querySelector(`.${part}`);
+          if (elem) if (!beforeElem) elem.remove();
+        }
+      };
+      insertTableOfContents(doc) {
         const toc = doc.querySelector('.table-of-contents');
         if (!toc) return;
         const cnt = doc.querySelector('.contents');
@@ -815,6 +830,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         this.insertBodyTitle(doc,this.loadTitle(beforeDoc));
         this.insertBodyDescription(doc,this.loadDescription(beforeDoc));
         this.insertContents(doc,this.loadContents(beforeDoc));
+        this.existParts(doc,beforeDoc);
+        this.insertTableOfContents(doc);
       };
       async saveTransfer() {
         const doc = await this.makeHTMLCommon();
@@ -885,6 +902,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         this.thumb = POST.elements['thumbnail'];
         this.tagbtns = POST.elements['tagbtns'];
         this.name = EditPost;
+        this.prevNextNum = [+2,+1,-1,-2];
       };
       async dirName() {
         const rsv = await posHandle.resolve(this.handle());
@@ -967,10 +985,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           for (const elem of elems) elem.remove();
           return;
         }
-        let imgpath = '';
-        const pathval =  SETT.elements['auther-image'].value;
-        if (pathval) imgpath = `<img src="${this.path}${pathval}" alt="auther image">`;
-        for (const elem of elems) elem.innerHTML = imgpath + value;
+        for (const elem of elems) elem.innerHTML = value;
       };
       insertTags(doc,tagArr) {
         const tagsElems = doc.querySelectorAll('.tags');
@@ -987,43 +1002,65 @@ document.addEventListener('DOMContentLoaded', async () => {
           if (allLatestData[i][0] === this.fileName) return i;
         }
       };
-      async setPrevNextLink(doc) {
-        const prev = doc.querySelector('.link-prev');
-        const next = doc.querySelector('.link-next');
-        const data = await EditPost.allLatestData();
-        const index = this.findIndex(data);
-        if (prev) {
-          if (data[index + 1]) {
-            const path = `${this.path}post/${data[index + 1][2]}/${data[index + 1][0]}`;
-            const str = prev.innerHTML;
-            prev.innerHTML = `<a href="${path}" title="${data[index + 1][1]}" target="_blank">${str}</a>`;
-          } else prev.classList.add('disabled');
+      findHasTagIndexArr(allLatestData) {
+        const index = this.findIndex(allLatestData);
+        const tagIndexArr = [];
+        for (let i = 0; i < allLatestData.length; i++) {
+          for (const tagText1 of allLatestData[index][6]) for (const tagText2 of allLatestData[i][6]) {
+            if (tagText1 === tagText2) tagIndexArr.push(i);
+          }
         }
-        if (next) {
-          if (data[index - 1]) {
-            const path = `${this.path}post/${data[index - 1][2]}/${data[index - 1][0]}`;
-            const str = next.innerHTML;
-            next.innerHTML = `<a href="${path}" title="${data[index - 1][1]}" target="_blank">${str}</a>`;
-          } else next.classList.add('disabled');
+        const remDuplicateArr = Array.from(new Set(tagIndexArr));
+        return remDuplicateArr;
+      };
+      async insertPrevNextLink(doc,allLatestData) {
+        const elem = doc.querySelector('.prev-next-link ul');
+        if (elem) {
+          const index = this.findIndex(allLatestData);
+          for (const pnNum of this.prevNextNum) {
+            if (allLatestData[index + pnNum]) this.insertPostList(this.path,elem,allLatestData[index + pnNum]);
+          }
         }
+      };
+      // async insertRelatedPosts(doc,allLatestData) {
+      //   const repo = doc.querySelector('.related-posts');
+      //   if (!repo) return;
+      //   const index = this.findIndex(allLatestData);
+      //   const tagIndexArr = this.findHasTagIndexArr(allLatestData);
+      //   const remPrevNextArr =  tagIndexArr.filter(e => e !== index + 1 && e !== index - 1);
+      //   if (remPrevNextArr.lenght <= 4) for (const num of remPrevNextArr) {
+      //     EditPost.postList(repo,allLatestData[num]);
+      //   } else {
+      //     const aboveNum = remPrevNextArr.lenght - index;
+      //     if (aboveNum <= 2)
+      //   }
+      //   console.log(index,tagIndexArr,remPrevNextArr);
+      // };
+      async insertInternalLinks(doc) {
+        const allLatestData = await EditPost.allLatestData();
+        await this.insertPrevNextLink(doc,allLatestData);
       };
       async makeHTMLSpecial(doc) {
         this.insertHeadTitle(doc,`${this.title.value} - ${SETST.value}`);
-        this.insertHeadDescription(doc,this.desc.getValue());
+        this.insertOGPUrl(doc,await this.fullURL());
+        const descText = normal.removeAllLineBreaks(this.desc.getValue());
+        this.insertHeadDescription(doc,descText);
         this.insertBodyTitle(doc,this.title.value);
-        this.insertBodyDescription(doc,this.desc.getValue());
+        this.insertBodyDescription(doc,descText);
         this.insertContents(doc,this.ct.getValue());
         this.insertTime(doc,this.time.value);
         this.insertThumbnail(doc,this.thumb.value,this.title.value);
         this.insertAuther(doc,SETT.elements['auther'].value);
         this.insertTags(doc,convert.elemsToTextArr(this.tagbtns.querySelectorAll('.on')));
-        this.editParts(doc);
+        this.checkParts(doc);
+        this.insertTableOfContents(doc);
+        await this.insertInternalLinks(doc);
       };
       async save() {
         const doc = await this.makeHTMLCommon();
         await this.makeHTMLSpecial(doc);
-        this.insertOGPUrl(doc,await this.fullURL());
-        await this.setPrevNextLink(doc);
+        // this.insertOGPUrl(doc,await this.fullURL());
+        // await this.insertInternalLinks(doc);
         const str = this.docToHTMLStr(doc);
         await this.write(str);
       };
@@ -1037,16 +1074,11 @@ document.addEventListener('DOMContentLoaded', async () => {
       };
       async transHTMLSpecial(doc,beforeDoc) {
         this.insertOGPUrl(doc,await this.fullURL());
-        this.insertBodyDescription(doc,this.loadDescription(beforeDoc));
         this.insertTime(doc,this.loadTime(beforeDoc));
         this.insertThumbnail(doc,this.loadThumb(beforeDoc),this.loadTitle(beforeDoc));
         this.insertAuther(doc,SETT.elements['auther'].value);
         this.insertTags(doc,convert.elemsToTextArr(this.loadTagAElems(beforeDoc)));
-        await this.setPrevNextLink(doc);
-        for(const part of this.parts) {
-          const elem = beforeDoc.querySelector(`.${part}`);
-          if (!elem) doc.querySelector(`.${part}`).remove();
-        }
+        await this.insertInternalLinks(doc);
       };
       static latestDirs()  {
         const postDirs = [];
@@ -1121,40 +1153,6 @@ document.addEventListener('DOMContentLoaded', async () => {
           await this.addListInDirForLinks(dirName);
         });
       };
-      static async insertPostListNum(num,elem) {
-        const d = await this.allLatestData();
-        for (let i = 0; i < num; i++) {
-          let img = '';
-          let description = '';
-          if (d[i][5]) img = `<img src="${d[i][5]}" alt="${d[i][1]}" loading="lazy">`;
-          else if (d[i][7]) description = `<p>${d[i][7]}</p>`;
-          let tags = '';
-          if (d[i][6]) tags = `<span>${convert.textArrToHTMLStr(d[i][6],'i')}</span>`;
-          let time = '';
-          if (d[i][3]) time = `<time datetime="${d[3]}">${date.changeFormat(d[i][3])}</time>`;
-          elem.insertAdjacentHTML('beforeend',
-          `<li><a href="./post/${d[i][2]}/${d[i][0]}">${img}<p><b>${d[i][1]}</b></p></a><div>${description}${tags}</div>${time}</li>\n`);
-        }
-      };
-      static async insertPostListAll(elem) {
-        const dataArr = await this.allLatestData();
-        for (const d of dataArr) {
-          let description = '';
-          if (d[7]) description = `<small>${convert.toShortString(d[7],60,'...')}</small>`;
-          let tags = '';
-          let classes = `tag-${d[2]}`;
-          if (d[6]) {
-            tags = `<span>${convert.textArrToHTMLStr(d[6],'i')}</span>`;
-            for (const tagText of d[6]) classes += ` tag-${tagText.replace(/ /g,'-')}`;
-          }
-          let img = '';
-          if (d[5]) img = `<img src="${d[5]}" alt="${convert.toShortString(d[1]),30,'...'}" loading="lazy">`; 
-          let time = '';
-          if (d[3]) time = `<time datetime="${d[3]}">${date.changeFormat(d[3])}</time>`;
-          elem.insertAdjacentHTML('beforeend',
-          `<li class="${classes}"><a href="post/${d[2]}/${d[0]}" target="_blank"><p><b>${d[1]}</b>${description}</p>${tags}${time}${img}</a></li>\n`);
-        }
-      };
     };
     new EditPost().clickEditBackBtn();
     new EditPost().clickNewBtn();
@@ -1192,12 +1190,14 @@ document.addEventListener('DOMContentLoaded', async () => {
       };
       makeHTMLSpecial(doc) {
         this.insertHeadTitle(doc,this.title.value);
-        this.insertHeadDescription(doc,this.desc.getValue());
+        const descText = normal.removeAllLineBreaks(this.desc.getValue());
+        this.insertHeadDescription(doc,descText);
         this.insertOGPUrl(doc,this.fullURL());
         this.insertBodyTitle(doc,this.title.value);
-        this.insertBodyDescription(doc,this.desc.getValue());
+        this.insertBodyDescription(doc,descText);
         this.insertContents(doc,this.ct.getValue());
-        this.editParts(doc);
+        this.checkParts(doc);
+        this.insertTableOfContents(doc);
       };
       async saveNew() {
         this.checkNewFileName();
@@ -1242,26 +1242,18 @@ document.addEventListener('DOMContentLoaded', async () => {
       static async searchToUrl(fileName,dirName) {
         const dirHdl = mediaBox.find(({name}) => name === dirName);
         if (!dirHdl) return;
-        for await (const img of dirHdl.values()) {
-          if (img.name === fileName) return await this.localUrl(img);
-        }
+        for await (const img of dirHdl.values()) if (img.name === fileName) return await this.localUrl(img);
       };
       static dirsHdls() {
         const dirsHdls = [];
-        for (const dir of mediaBox.values()) {
-          if (dir.kind === 'directory') dirsHdls.push(dir);
-        }
+        for (const dir of mediaBox.values()) if (dir.kind === 'directory') dirsHdls.push(dir);
         return dirsHdls;
       };
-      static async imgHdlsInDir(dirName) {
-        const imgHdls = [];
+      static async dirHandles(dirName) {
+        const medHdls = [];
         const dirHdl = mediaBox.find(({name}) => name === dirName);
-        for await (const img of dirHdl.values()) {
-          if (img.kind === 'file') {
-            if (img.name.match(/(.jpg|.jpeg|.png|.gif|.apng|.svg|.jfif|.pjpeg|.pjp|.ico|.cur)/i)) imgHdls.push(img);
-          }
-        }
-        return imgHdls;
+        for await (const file of dirHdl.values()) if (file.kind === 'file') medHdls.push(file);
+        return medHdls;
       };
       static async localUrl(fileHandle) {
         const getFile = await fileHandle.getFile();
@@ -1274,14 +1266,28 @@ document.addEventListener('DOMContentLoaded', async () => {
         IMAGS.elements['dirs'].value = date.year();
       };
       static async addListInDir(dirName) {
+        const div = IMAGS.querySelector('div');
         IMAGS.querySelector('div').textContent ='';
-          const imgHdls = await this.imgHdlsInDir(dirName);
-          for (const img of imgHdls ) {
-            const url = await this.localUrl(img);
-            IMAGS.querySelector('div').innerHTML += `<img src="${url}" title="${img.name}" loading="lazy">`;
+          const medHdls = await this.dirHandles(dirName);
+          for (const med of medHdls ) {
+            if (med.name.match(/(.jpg|.jpeg|.png|.gif|.apng|.svg|.jfif|.pjpeg|.pjp|.ico|.cur)/i)) {
+              const url = await this.localUrl(med);
+              div.innerHTML += `<img src="${url}" title="${med.name}" loading="lazy">`;
+            }
+            else if (med.name.match(/(.mp3|.ogg|.wav)/i)) {
+              const url = await this.localUrl(med);
+              div.innerHTML += `<figure title="${med.name}">${med.name}<audio src="${url}" controls></audio></figure>`;
+            }
+            else if (med.name.match(/(.mp4|.ogv|.webm)/i)) {
+              const url = await this.localUrl(med);
+              div.innerHTML += `<video src="${url}" title="${med.name}" controls></video>`;
+            }
+            else div.innerHTML += `<span title="${med.name}">${med.name}</span>`;
           }
         IMAGS.elements['dirs'].value = dirName;
       };
+      // if (e.target.title.match(/(.mp3|.ogg|.wav)/i)) this.insert(`<audio src="${this.path}/media/${dirName}/${e.target.title}">オーディオ再生に非対応のブラウザです。</audio>\n`, '');
+      // else if (e.target.title.match(/(.mp4|.ogv|.webm)/i)) this.insert(`<video src="${this.path}/media/${dirName}/${e.target.title}">ビデオ再生に非対応のブラウザです。</video>\n`, '');
       static dirSelect() {
         IMAGS.elements['dirs'].addEventListener('input', async (e) => {
           const dirName = e.target.value;
@@ -1305,50 +1311,71 @@ document.addEventListener('DOMContentLoaded', async () => {
     EditMedia.dirSelect();
     EditMedia.thumbSelect();
 
-  /// event ///
-    
-    //click Save button
-    SAVE.onclick = async () => {
-      const form = H2SE.dataset.form;
-      const fileName = SAVE.dataset.file;
-      console.log(form,fileName)
-      const files = [index,postfilter];
-      let saveName = fileName;
-      if (form === 'post') saveName += ', index.html, postfilter.html'
-      dialog.confirmSave(saveName);
-      if (form === 'post') {
-        if (!POSNW.classList.contains('hide')) {
-          const newName = `${POSNW.elements['name'].value}.html`
-          await new EditPost(newName).saveNew();
-          const data = await EditPost.latestDataInDir(date.year());
-          await new EditPost(data[1][0]).saveTransfer();
-          await EditPost.addListInDir(date.year());
-        } else {
-          await new EditPost(fileName).save();
+    //セーブ
+    const save = {
+      form: () => {
+        return H2SE.dataset.form;
+      },
+      fileName: () => {
+        return SAVE.dataset.file;
+      },
+      listFiles: [index,postfilter],
+      newPost: async () => {
+        const newName = `${POSNW.elements['name'].value}.html`;
+        await new EditPost(newName).saveNew();
+        await save.prevNextPosts();
+        await EditPost.addListInDir(date.year());
+      },
+      oldPost: async () => {
+        await new EditPost(save.fileName()).save();
+        await save.prevNextPosts();
+      },
+      prevNextPosts: async () => {
+        const allPostData = await EditPost.allLatestData();
+        const index = new EditPost(save.fileName()).findIndex(allPostData);
+        const prevNextNum = new EditPost().prevNextNum;
+        for (const num of prevNextNum) {
+          if (allPostData[index + num]) await new EditPost(allPostData[index + num][0]).saveTransfer();
         }
-        saveName = fileName;
-        for (const file of files) {
-          await file.save();
-          saveName += `, ${file.fileName}`;
-        }
+      },
+      newPage: async () => {
+        const newName = `${PAGNW.elements['name'].value}.html`;
+        await new EditPage(newName).saveNew();
+        await EditPage.addPageList();
+      },
+      oldPage: async () => {
+        await new EditPage(save.fileName()).save();
+      },
+      clickBtn: () => {
+        SAVE.onclick = async () => {
+          let saveName = save.fileName();
+          if (save.form() === 'post') saveName += ', index.html, postfilter.html, 前後のポスト';
+          dialog.confirmSave(saveName);
+          if (save.form() === 'post') {
+            if (!POSNW.classList.contains('hide')) await save.newPost();
+            else await save.oldPost();
+            saveName = save.fileName();
+            for (const file of save.listFiles) {
+              await file.save();
+              saveName += `, ${file.fileName}`;
+            }
+          }
+          else if (save.form() === 'page') {
+            if (!PAGNW.classList.contains('hide')) await save.newPage();
+            else await save.oldPage();
+          }
+          else if (save.form() === 'bases') {
+            for (const base of [['template.html',template],['style.css',style],['main.js',main]])
+            if (save.fileName() === base[0]) await base[1].save();
+          }
+          else if (save.form() === 'setting') await setting.save();
+          dialog.successSave(saveName);
+        };
       }
-      else if (form === 'page') {
-        if (!PAGNW.classList.contains('hide')) {
-          const newName = `${PAGNW.elements['name'].value}.html`
-          await new EditPage(newName).saveNew();
-          await EditPage.addPageList();
-        } else {
-          await new EditPage(fileName).save();
-        }
-      }
-      else if (form === 'bases') {
-        for (const base of [['template.html',template],['style.css',style],['main.js',main]])
-        if (fileName === base[0]) await base[1].save();
-      }
-      else if (form === 'setting') await setting.save();
-      dialog.successSave(saveName);
-    };
+    }
+    save.clickBtn();
 
+  /// event ///
     //click Preview button
     PREV.onclick = async () => {
       const fileName = SAVE.dataset.file;
@@ -1439,10 +1466,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       PREV.classList.remove('disable');
       POST.elements['dirs'].classList.add('hide');
     };
-    obsInsertTag = (form,editor1,tabname1,editor2,tabname2) => {
-      const tabname = form.elements['paneltab'].dataset.currenttab;
-      if (tabname === tabname1) editor1.addHtmlTag();
-      else if (tabname === tabname2) editor2.addHtmlTag();
+    obsInsertTag = (form,editor,tabName) => {
+      const currTabName = form.elements['paneltab'].dataset.currenttab;
+      if (currTabName === tabName) editor.addHtmlTag();
     }
     obsPage = () => {
       if (PAGBE.classList.contains('hide')) {
@@ -1469,9 +1495,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
     const currentForm = new MutationObserver(obsForm);
     const currentPostFile = new MutationObserver(obsPost);
-    const currentPostTab = new MutationObserver(() => obsInsertTag(POST,meBtnsPosCont,'contents',meBtnsPosDesc,'description'));
+    const currentPostTab = new MutationObserver(() => obsInsertTag(POST,meBtnsPosCont,'contents'));
     const currentPageFile = new MutationObserver(obsPage);
-    const currentPageTab = new MutationObserver(() => obsInsertTag(PAGE,meBtnsPagCont,'contents',meBtnsPagDesc,'description'));
+    const currentPageTab = new MutationObserver(() => obsInsertTag(PAGE,meBtnsPagCont,'contents'));
     const currentThemaFile = new MutationObserver(obsBasesTab);
     const obsConfig = (attr) => {
       return {attributes: true, attributeFilter: [attr]};
@@ -1488,6 +1514,85 @@ document.addEventListener('DOMContentLoaded', async () => {
   };
   LOAD.classList.add('hide');
 });
+
+        // const rstr = str.replace(/^\s*[\r\n]/gm, '');//remove white line
+
+      // postListAddClass(nestPath,elem,postData) {
+      //   const d = postData;
+      //   let img = '';
+      //   let description = '';
+      //   if (d[5]) img = `<img src="${nestPath}${d[5]}" alt="${d[1]}" loading="lazy">`;
+      //   else if (d[7]) description = `<small>${d[7]}</small>`;
+      //   let tags = '';
+      //   let classes = `tag-${d[2]}`;
+      //   if (d[6]) {
+      //     tags = `<span>${convert.textArrToHTMLStr(d[6],'i')}</span>`;
+      //     for (const tagText of d[6]) classes += ` tag-${tagText.replace(/ /g,'-')}`;
+      //   }
+      //   let time = '';
+      //   if (d[3]) time = `<time datetime="${d[3]}">${date.changeFormat(d[3])}</time>`;
+      //   elem.insertAdjacentHTML('beforeend',
+      //   `<li class="${classes}"><a href="${nestPath}post/${d[2]}/${d[0]}">${img}<p>${d[1]}</p>${description}<div>${tags}${time}</div></a></li>\n`);
+      // };
+
+    // SAVE.onclick = async () => {
+    //   const form = H2SE.dataset.form;
+    //   const fileName = SAVE.dataset.file;
+    //   console.log(form,fileName)
+    //   const files = [index,postfilter];
+    //   let saveName = fileName;
+    //   if (form === 'post') saveName += ', index.html, postfilter.html';
+    //   dialog.confirmSave(saveName);
+    //   if (form === 'post') {
+    //     if (!POSNW.classList.contains('hide')) {
+    //       const newName = `${POSNW.elements['name'].value}.html`;
+    //       await new EditPost(newName).saveNew();
+    //       const data = await EditPost.latestDataInDir(date.year());
+    //       await new EditPost(data[1][0]).saveTransfer();
+    //       await EditPost.addListInDir(date.year());
+    //     } else {
+    //       await new EditPost(fileName).save();
+    //     }
+    //     saveName = fileName;
+    //     for (const file of files) {
+    //       await file.save();
+    //       saveName += `, ${file.fileName}`;
+    //     }
+    //   }
+    //   else if (form === 'page') {
+    //     if (!PAGNW.classList.contains('hide')) {
+    //       const newName = `${PAGNW.elements['name'].value}.html`;
+    //       await new EditPage(newName).saveNew();
+    //       await EditPage.addPageList();
+    //     } else {
+    //       await new EditPage(fileName).save();
+    //     }
+    //   }
+    //   else if (form === 'bases') {
+    //     for (const base of [['template.html',template],['style.css',style],['main.js',main]])
+    //     if (fileName === base[0]) await base[1].save();
+    //   }
+    //   else if (form === 'setting') await setting.save();
+    //   dialog.successSave(saveName);
+    // };
+
+      // widePostList(nestPath,elem,postData) {
+      //   const d = postData;
+      //   let description = '';
+      //   if (d[7]) description = `<small>${convert.toShortString(d[7],60,'...')}</small>`;
+      //   let tags = '';
+      //   let classes = `tag-${d[2]}`;
+      //   if (d[6]) {
+      //     tags = `<span>${convert.textArrToHTMLStr(d[6],'i')}</span>`;
+      //     for (const tagText of d[6]) classes += ` tag-${tagText.replace(/ /g,'-')}`;
+      //   }
+      //   let img = '';
+      //   if (d[5]) img = `<img src="${nestPath}${d[5]}" alt="${convert.toShortString(d[1]),30,'...'}" loading="lazy">`; 
+      //   let time = '';
+      //   if (d[3]) time = `<time datetime="${d[3]}">${date.changeFormat(d[3])}</time>`;
+      //   elem.insertAdjacentHTML('beforeend',
+      //   `<li class="${classes}"><a href="post/${d[2]}/${d[0]}" target="_blank"><p><b>${d[1]}</b>${description}</p>${tags}${time}${img}</a></li>\n`);
+      // };
 
       // static async insertPostListAll(elem) {
       //   const data = await this.allLatestData();
@@ -2103,7 +2208,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 //   if (folder.kind === 'directory') mediaFolders.push(folder.name);
 // };
 
-      // editParts(doc) {
+      // checkParts(doc) {
       //   for(const part of POSPA) {
       //     if (!POST.elements[part].checked) doc.querySelector(`.${part}`).remove();
       //   }

@@ -1,6 +1,6 @@
 <!-- default template -->
 
-<html lang="en">
+<html lang="ja">
 <head>
 <title></title>
 <link rel="stylesheet">
@@ -14,85 +14,116 @@
 <meta property="og:image">
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
-<!-- option -->
-<!-- <meta property="fb:app_id" content="your id" /> -->
-<!-- <meta name="twitter:site" content="@ your id" /> -->
-<!-- <meta name="twitter:creator" content="@ your id" /> -->
+<!-- <meta property="fb:app_id" content="your facebook id" /> --><!-- オプション -->
+<!-- <meta name="twitter:site" content="@ your twitter id" /> --><!-- オプション -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="format-detection" content="telephone=no">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-iBBXm8fW90+nuLcSKlbmrPcLa0OT92xO1BIsZ+ywDWZCvqsWgccV3gFoRBv0z+8dLJgyAHIhR35VZc2oM/gI1w==" crossorigin="anonymous" />
+<link href="https://fonts.googleapis.com/css2?family=Material+Icons" rel="stylesheet">
 </head>
 <body>
 
 <header class="header">
-<if class="allpost search post page">
-  <div class="site-title"></div>
-</if>
 <if class="index">
   <h1 class="site-title"></h1>
 </if>
-  <nav class="page-list"></nav>
+<if class="postfilter search post page">
+  <div class="site-title"></div>
+</if>
+  <nav class="head-icons">
+    <a class="link-postfilter" target="_blank" title="ポストフィルター"></a>
+    <a class="link-search" target="_blank" title="サイト内検索"></a>
+  </nav>
+  <ul class="page-list"></ul>
   <div class="menu-icon"></div>
 </header>
 
 <main>
-
+<!-- トップページ -->
 <if class="index">
-  <div class="wrap">
-    <h2>Latest Posts</h2>
-    <div class="latest-posts"></div>
-  </div>
+  <h2>新着ポスト</h2>
+  <ul class="postlist first-large"></ul>
 </if>
 
-<if class="allpost">
-  <div class="wrap">
-    <h1 class="title"></h1>
-    <div class="allpost-btns">
-      <div></div>
-      <div><span data-btn="tag-No-Tag" class="on">No Tag</span></div>
-      <div><b class="allclear-btn">All Clear</b><b class="allview-btn">All View</b></div>
+<!-- ポストフィルター -->
+<if class="postfilter">
+  <div class="two-column">
+    <div class="filter-btns">
+      <h1 class="title">Post filter</h1>
+      <div><i></i></div>
+      <div><b class="allclear-btn">全て消す</b><b class="allview-btn">全て見る</b></div>
     </div>
-    <div class="latest-posts"></div>
+    <ul class="postlist"></ul>
   </div>
 </if>
 
+<!-- 検索 -->
 <if class="search">
-  <h1 class="title"></h1>
-  <form id="search-box"><input name="txt" placeholder="Enter Word"><button name="btn" type="button">Search</button></form>
+  <div class="article">
+    <h1 class="title"></h1>
+      <form id="search-box">
+        <input name="word" placeholder="Enter Word">
+        <button name="btn" type="button">Search</button>
+      </form>
+      <h2>検索結果</h2>
+      <div class="contents"></div>
+  </div>
 </if>
 
+<!-- ポスト -->
 <if class="post">
-  <article>
-    <div class="freespace">freespace</div>
-    <div class="top-image"></div>
-    <span class="auther"></span> - <time class="time"></time><time itemprop="modified"></time>
-    <h1 class="title"></h1>
-    <div class="description"></div>
-    <div class="table-of-contents"><p><b>Contents</b></p></div>
-    <div class="contents"></div>
-    <div class="tags"></div>
-    <div class="social"></div>
-    <div class="plinks"><a class="link-prev" target="_blank">Prev Post</a><a class="link-allpost" target="_blank">All Post</a><a class="link-next" target="_blank">Next Post</a></div>
-    <div class="comment">
-      <!-- your disqus code -->
-  </article>
+  <div class="freespace1">
+  <!-- freespace1 -->
+  </div>
+  <div class="shadow">
+    <div class="article">
+      <div class="thumbnail"></div>
+      <span class="auther"></span> - <time class="time"></time><time itemprop="modified"></time>
+      <h1 class="title"></h1>
+      <div class="description"></div>
+      <div class="table-of-contents"><b>もくじ</b></div>
+      <div class="contents"></div>
+      <div class="tags"></div>
+      <div class="social"></div>
+    </div>
+  </div>
+  <div class="freespace2">
+  <!-- freespace2 -->
+  </div>
+  <div class="comment">
+    <div class="shadow">
+      <div class="article">
+        <!-- Disqusコード -->
+      </div>
+    </div>
+  </div>
+  <nav class="prev-next-link">
+    <small><b><< </b>Prev Next<b> >></b></small>
+    <ul class="postlist"></ul>
+  </nav>
+  <div class="related-posts"></div>
 </if>
 
+<!-- ページ -->
 <if class="page">
-  <article>
-    <h1 class="title"></h1>
-    <div class="table-of-contents"><p><b>Contents</b></p></div>
-    <div class="contents"></div>
-  </article>
+  <div class="shadow">
+    <div class="article">
+      <h1 class="title"></h1>
+      <div class="table-of-contents"><p><b>Contents</b></p></div>
+      <ul class="contents"></ul>
+    </div>
+  </div>
 </if>
 
 </main>
 
 <footer class="footer">
-  <nav class="flinks"><a class="link-allpost" target="_blank">All Post</a><a class="link-search" target="_blank">Search</a></nav>
-  <div class="copyright"><small> | made with <a href="https://fafanto.app" target="_blank">fafanto</a></small></div>
+  <nav class="flinks">
+    <a class="link-postfilter" target="_blank">Post Filter</a>
+    <a class="link-search" target="_blank">Search</a>
+  </nav>
+  <div class="copyright"><small> | made with <a href="https://www.fafanto.app/" target="_blank">fafanto</a></small></div>
 </footer>
 </body>
 </html>
