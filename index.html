@@ -39,7 +39,7 @@
     <div>
       <div>Preview</div>
       <button type="button" id="index" title="Preview Index.html">index</button>
-      <button type="button" id="postfilter" title="Preview postfilter.html">postfilter</button>
+      <button type="button" id="posttags" title="Preview tags.html">tags</button>
     </div>
   </header>
   <main>
@@ -79,8 +79,7 @@
           <div>
             <h3>Parts<b></b></h3>
             <fieldset name="parts">
-              <label title="teble-of-contents:class
-Create anchor links of h2 h3 or remove">Table Of Contents / もくじ<input type="checkbox" name="table-of-contents" checked></label>
+              <label title="table-of-contentsクラスにh2とh3のアンカーを作成します">Table Of Contents / もくじ<input type="checkbox" name="table-of-contents" checked></label>
               <label title='comment:class
 leave or remove'>Comment<input type="checkbox" name="comment" checked></label>
               <label title='freespace1:class
@@ -135,8 +134,14 @@ leave or remove'>Freespace 2<input type="checkbox" name="freespace2" checked></l
           <div>
             <h3>パーツ<b></b></h3>
             <fieldset name="parts">
-              <label title="teble-of-contents:class
-Create anchor links of h2 h3 or remove">Table of contents / もくじ<input type="checkbox" name="table-of-contents" checked></label>
+              <label title="table-of-contents(class)にh2とh3のアンカーリンクを作成"><input type="checkbox" name="table-of-contents" checked>Table of contents / もくじ</label>
+            </fieldset>
+          </div>
+          <div>
+            <h3>リンクの表示<b></b></h3>
+            <fieldset name="display-link">
+              <label title="headerのpage-list(class)へリンクを挿入"><input type="checkbox" name="header-link" checked>header</label>
+              <label title="footerのpage-list(class)へリンクを挿入"><input type="checkbox" name="footer-link" checked>footer</label>
             </fieldset>
           </div>
         </div>
@@ -160,42 +165,55 @@ Create anchor links of h2 h3 or remove">Table of contents / もくじ<input type
     <!-- 設定 -->
     <form id="setting">
       <fieldset>
-        <p class="desc">After changing the settings and saving the file, please reload this application.</p>
+        <p class="alert yellow">設定を変更したらアプリをリロードしてください。</p>
+        <!-- <p class="alert blue">PostとPage以外のタイトルはテンプレートに直接入れておくとその内容が優先されます。（headのtitleは設定のタイトルを使用します）。タイトルを画像にしたい時はテンプレートに直接HTMLタグを記入してください。</p> -->
         <h3>共通</h3>
         <div>
           <span>サイト名*</span><input name="site-title" placeholder="site title" type="text">
           <span>サイトのサブタイトル</span><input name="site-subtitle" placeholder="site subtitle" type="text">
-          <span>URL*</span><input name="url" placeholder="https://www.example.com/" type="text">
-          <span>サイトの画像</span><input name="image" placeholder="image.png" type="text">
+          <span>サイトURL*</span><input name="site-url" placeholder="https://www.example.com/" type="text">
+          <span>サイトの画像</span><input name="site-image" placeholder="image.png" type="text">
+          <span>あなたの名前</span><input name="site-author" placeholder="your name" type="text">
         </div>
-        <h3>トップページ <small>index.html</small></h3>
+        <h3>トップページ</h3>
         <div>
-          <span>新着ポストの数</span><label><input name="latest-posts" placeholder="1 - 30" value="9" min="1" max="30" type="number"></label>
+          <span>新着ポストの数</span><label><input name="latest-posts" placeholder="1 - 100" value="11" min="1" max="100" type="number"></label>
           <span title="headのmeta discriptionとOGP discriptionで使用します">サイトの説明</span><input name="index-desc" placeholder="description of your blog" type="text">
         </div>
-        <h3>postfilter.html</h3>
+        <h3>アーカイブ</h3>
         <div>
-          <span title="headのtitleとOGP title、記事のタイトルで使用します">ポストフィルターのタイトル</span><input name="postfilter-title" placeholder="title of postfilter.html" type="text">
-          <span title="headのmeta discriptionとOGP discriptionで使用します">ポストフィルターの説明</span><input name="postfilter-desc" placeholder="description of postfilter.html" type="text">
+          <span title="headのtitleとOGP title、記事のタイトルで使用します">アーカイブスのタイトル</span><input name="archives-title" placeholder="archives.htmlのtitle" type="text">
+          <span title="headのmeta discriptionとOGP discriptionで使用します">アーカイブスの説明</span><input name="archives-desc" placeholder="archives.htmlのdescription" type="text">
+          <span title="headのtitleとOGP title、記事のタイトルで使用します">アーカイブのタイトル</span><input name="archive-title" placeholder="archive/xxxx.htmlのtitle" type="text">
+          <span title="headのmeta discriptionとOGP discriptionで使用します">アーカイブの説明</span><input name="archive-desc" placeholder="archive/xxxx.htmlのdescription" type="text">
         </div>
-        <h3>search.html</h3>
+        <h3>タグページ</h3>
+        <div>
+          <span title="headのtitleとOGP title、記事のタイトルで使用します">タグページのタイトル</span><input name="posttags-title" placeholder="title of tags.html" type="text">
+          <span title="headのmeta discriptionとOGP discriptionで使用します">タグページーの説明</span><input name="posttags-desc" placeholder="description of tags.html" type="text">
+        </div>
+        <h3>検索ページ</h3>
         <div>
           <span title="headのtitleとOGP title、記事のタイトルで使用します">検索ページのタイトル</span><input name="search-title" placeholder="title of search.html" type="text">
           <span title="headのmeta discriptionとOGP discriptionで使用します">検索ページの説明</span><input name="search-desc" placeholder="description of search.html" type="text">
         </div>
         <h3>Post</h3>
         <div>
-          <span>あなたの名前</span><input name="auther" placeholder="your name" type="text">
-          <span>時間の表示形式</span>
-          <select name="date-type">
+          <span>投稿時間の表示形式</span>
+          <select name="post-date-type">
             <option value="yyyy-mm-dd" selected>YYYY-MM-DD（年-月-日）</option>
             <option value="dd-mm-yyyy">DD-MM-YYYY</option>
             <option value="mm-dd-yyyy">MM-DD-YYYY</option>
           </select>
-          <span>Tags</span><p><textarea name="tags" placeholder="&lt;i&gt;example&lt;/i&gt;
-&lt;i&gt;Static Blog Editor&lt;/i&gt;
-&lt;i&gt;HTML&lt;/i&gt;
-&lt;i&gt;CSS&lt;/i&gt;"></textarea><small>iでタグ名を囲みます</small></p>
+          <span>タグリスト</span><p><textarea name="post-taglist" placeholder="りんご
+メロン スイカ
+みかん Orange"></textarea><small>改行が区切りになります。スペースで複数の単語を使用可</small></p>
+        </div>
+        <h3>カスタムPostリスト</h3>
+        <div>
+          <span>リストのclass名</span><span>custom-postlist-1</span>
+          <span>リストのパス</span><p><textarea name="list-path" placeholder="2019/zzzz.html
+2017/xxxx.html"></textarea><button name="add-list" type="button">add list</button><small>改行が区切りになります</small></p>
         </div>
         <h3>このアプリ</h3>
         <div>
@@ -217,14 +235,16 @@ Create anchor links of h2 h3 or remove">Table of contents / もくじ<input type
     <!-- まとめてセーブ -->
     <form id="allsave">
       <fieldset>
-        <p class="desc exclamation">This function is used when you have changed common items on your site. (Blog title, URL, template, etc.) <br />All checked files will be overwritten.</p>
+        <p class="alert yellow">選んだファイルをまとめてセーブできます。テンプレートの変更や共通要素を変更した時等にお使いください。</p>
         <h3>Save Files</h3>
         <div>
           <label><input type="checkbox" name="index" checked>index.html</label>
-          <label><input type="checkbox" name="postfilter" checked>postfilter.html</label>
+          <label><input type="checkbox" name="archives" checked>archives.html</label>
+          <label><input type="checkbox" name="posttags" checked>posttags.html</label>
           <label><input type="checkbox" name="search" checked>search.html</label>
+          <label><input type="checkbox" name="archive" checked>archive</label>
           <label><input type="checkbox" name="post" checked>Post</label>
-          <label>Page<input type="checkbox" name="page" checked></label>
+          <label><input type="checkbox" name="page" checked>Page</label>
         </div>
         <button type="button" name="save">Start Saving</button>
         <h3>Log</h3>

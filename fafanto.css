@@ -65,10 +65,7 @@ textarea {
     /* border: 1px solid var(--nav-color); */
     font-family: var(--code-font);
 }
-input[type=checkbox] {
-    filter:grayscale(100%) contrast(200%);
-    transform: scale(1.1);
-}
+
 fieldset {
     border: none;
 }
@@ -237,12 +234,12 @@ h2 {
     width: 100%;
     text-align: left;
 }
-#index, #postfilter {
+#index, #posttags {
     color: var(--nav-color);
     font-size: 1.2rem;
     padding: 2rem 2.5rem;
 }
-#postfilter {
+#posttags {
     padding: 2rem;
 }
 /** Contents **/
@@ -361,11 +358,13 @@ fieldset[name=panelbtns] i,fieldset[name=panelbtns] u {
     text-align: center;
     padding: 2rem 0;
 }
-.side fieldset {
-    padding-bottom: 1.5rem;
-}
+
 .side > div {
     border-bottom: 1px solid var(--nav-color);
+}
+
+.side > div > fieldset {
+    padding-bottom: 1.5rem;
 }
 .side button {
     color: var(--text-color);
@@ -376,13 +375,24 @@ fieldset[name=panelbtns] i,fieldset[name=panelbtns] u {
     min-height: 4rem;
     resize: vertical;
 }
+
+.side label {
+    display: block;
+    padding: .4rem 0;
+}
+
+.side label > input {
+    margin-right: 1rem;
+    vertical-align: middle;
+}
+
 [name=desc] {
     height: 11rem;
 }
 [name=thumbnail] {
     height: 4rem;
 }
-[name=parts] label {
+/* [name=parts] label {
     display: grid;
     grid-template-columns: 1fr 3.2rem;
     align-items: center;
@@ -390,7 +400,7 @@ fieldset[name=panelbtns] i,fieldset[name=panelbtns] u {
 }
 [name=parts] label:hover {
     color: var(--green);
-}
+} */
 [name=tagbtns] i {
     font-style: normal;
 }
@@ -438,7 +448,7 @@ fieldset[name=panelbtns] i,fieldset[name=panelbtns] u {
 #setting input, #setting textarea, #setting select{
     border: 1px solid var(--nav-color);
 }
-#setting fieldset, #allsave fieldset {
+#setting > fieldset, #allsave > fieldset {
     padding-bottom: 50vh;
 }
 #setting h3, #allsave h3 {
@@ -452,7 +462,7 @@ fieldset[name=panelbtns] i,fieldset[name=panelbtns] u {
     border: none;
     margin: 0;
 }
-#setting div {
+#setting > fieldset > div {
     display: grid;
     grid-template-columns: 1fr 3fr;
     row-gap: 2rem;
@@ -565,7 +575,7 @@ fieldset[name=panelbtns] i,fieldset[name=panelbtns] u {
 }
 /** Font Awesome **/
 #open-dir,.exclamation::before,
-#index,#postfilter,
+#index,#posttags,
 nav p::before,
 #spellcheck,#lightness,
 .btn-new,.artlist button,.btn-close,
@@ -575,7 +585,7 @@ nav p::before,
     font-family:'Font Awesome 5 Free';
 }
 .exclamation::before,
-#index,#postfilter,
+#index,#posttags,
 #save,#preview,#lightness,#spellcheck,
 .btn-new,.artlist button,.btn-close,
 .panel,.side button,[name=tagbtns] i.on::before,
@@ -585,7 +595,7 @@ nav p::before,
 }
 #open-dir::before {content:"\f07c  ";}
 #save::before {content:"\f019";font-family:'Font Awesome 5 Free';}
-#preview::before,#index::before,#postfilter::before {content:"\f06e";font-family:'Font Awesome 5 Free';}
+#preview::before,#index::before,#posttags::before {content:"\f06e";font-family:'Font Awesome 5 Free';}
 #lightness::before {content:"\f042";}
 #spellcheck::before {content:"\f891";}
 nav [data-nav=post]::before {content:"\f304";font-weight: 900;}
