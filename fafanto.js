@@ -554,16 +554,16 @@ document.addEventListener('DOMContentLoaded', async () => {
       templateToDoc() {
         const doc = template.document();
         //remove not class
-        const hnt = doc.head.querySelectorAll(`[class]:not(.${this.class})`);
-        for (const i of hnt) i.remove();
-        const hdt = doc.head.querySelectorAll(`.${this.class}`);
-        for (const i of hdt) i.removeAttribute('class');
-        const not = doc.body.querySelectorAll(`if:not(.${this.class})`);
-        for (const i of not) i.remove();
-        const cpo = doc.body.querySelectorAll(`if.${this.class}`);
-        for (const i of cpo) {
-          i.insertAdjacentHTML('afterend',i.innerHTML);
-          i.remove();
+        const hnc = doc.head.querySelectorAll(`[class]:not(.${this.class})`);
+        for (const c of hnc) c.remove();
+        const htc = doc.head.querySelectorAll(`.${this.class}`);
+        for (const c of htc) c.removeAttribute('class');
+        const inc = doc.body.querySelectorAll(`if:not(.${this.class})`);
+        for (const c of inc) c.remove();
+        const itc = doc.body.querySelectorAll(`if.${this.class}`);
+        for (const c of itc) {
+          c.insertAdjacentHTML('afterend',c.innerHTML);
+          c.remove();
         }
         return doc;
       };
@@ -610,7 +610,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const elemName = link.split('-')[0];
             const elem = doc.querySelector(`.${elemName} .page-list`);
             if (elem) for (const pd of pageData) for (const className of pd[3]) {
-              if (className === link) elem.insertAdjacentHTML('afterbegin',`<li><a href="${this.path}page/${pd[0]}">${pd[1]}</a></li>\n`);
+              if (className === link) elem.insertAdjacentHTML('beforeend',`<li><a href="${this.path}page/${pd[0]}">${pd[1]}</a></li>\n`);
             }
           }
         }
@@ -683,9 +683,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (d[5]) img = `<img src="${nestPath}${d[5]}" alt="${d[1]}" loading="lazy">`;
         else if (d[7]) description = `<small>${d[7]}</small>`;
         let tags = '';
-        if (d[6]) tags = `<span>${convert.textArrToHTMLStr(d[6],'i')}</span>`;
+        if (d[6]) tags = `<span>${convert.textArrToHTMLStr(d[6],'mark')}</span>`;
         let time = '';
-        if (d[3]) time = `<time datetime="${d[3]}">${date.changeFormat(d[3])}</time>`;
+        if (d[3]) time = `<time>${date.changeFormat(d[3])}</time>`;
         elem.insertAdjacentHTML('beforeend',
         `<li><a href="${nestPath}post/${d[2]}/${d[0]}">${img}<p>${d[1]}</p>${description}<div>${tags}${time}</div></a></li>\n`);
       };
@@ -699,7 +699,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         this.class = 'index';
         this.title = SETT.elements['site-subtitle'];
         this.desc = SETT.elements['index-desc'];
-        this.req = ['.postlist'];
+        this.req = ['.post-list'];
         this.path = './';
       };
       async makeHTMLSpecial(doc) {
@@ -724,7 +724,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         this.class = 'posttags';
         this.title = SETT.elements['posttags-title'];
         this.desc = SETT.elements['posttags-desc'];
-        this.req = ['.filter-btns','.postlist'];
+        this.req = ['.filter-btns','.post-list'];
         this.path = './';
       };
       async makeHTMLSpecial(doc) {
@@ -862,24 +862,22 @@ document.addEventListener('DOMContentLoaded', async () => {
           toc.remove();
           return;
         }
-        toc.innerHTML += '<ul></ul>';
+        toc.innerHTML += '\n<ul></ul>';
         const h2Ul = toc.querySelector('ul');
         for (let i = 0; i < h23.length; i++) {
           const htx = h23[i].textContent;
           const tgn = h23[i].tagName;
-          if (tgn === 'H2') h2Ul.innerHTML += `<li><a href="#index${i}">${htx}</a></li>\n<ul></ul>\n`;
+          if (tgn === 'H2') h2Ul.innerHTML += `<li><a href="#index${i}">${htx}</a><ul></ul></li>\n`;
           if (tgn === 'H3') {
-            const preUl = h2Ul.querySelector('ul:last-child');
+            const lastUl = h2Ul.querySelector('li:last-child > ul');
             const h3Li = `<li><a href="#index${i}">${htx}</a></li>\n`;
-            if (preUl) preUl.innerHTML += h3Li;
+            if (lastUl) lastUl.innerHTML += h3Li;
             else h2Ul.innerHTML += h3Li;
           }
           h23[i].setAttribute('id',`index${i}`);
         }
         const h3Uls = h2Ul.querySelectorAll('ul');
-        for (const h3Ul of h3Uls) {
-          if (!h3Ul.textContent) h3Ul.remove();
-        }
+        for (const h3Ul of h3Uls) if (!h3Ul.textContent) h3Ul.remove();
       };
       transHTMLCommon(doc,beforeDoc) {
         this.insertHeadTitle(doc,`${this.loadTitle(beforeDoc)} - ${SETST.value}`);
@@ -950,7 +948,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         this.box = postBox;
         this.class = 'post';
         this.path = '../../';
-        this.req = ['.title','.contents','.time'];
+        this.req = ['.title','.contents','meta[name="date"]'];
         this.parts = ['table-of-contents','comment','freespace1','freespace2'];
         this.form = POST;
         this.title = POST.querySelector(`[data-name="${this.fileName}"] input`);
@@ -981,7 +979,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         return src.replace(this.path,'');
       };
       loadTime(doc) {
-        return doc.querySelector('.time')?.getAttribute('datetime')?? '';
+        return doc.head.querySelector(this.req[2])?.getAttribute('content')?? '';
       };
       loadTagAElems(doc) {
         const tagas = doc.querySelectorAll('.posttags a');
@@ -1004,22 +1002,21 @@ document.addEventListener('DOMContentLoaded', async () => {
         this.loadPartsCheck(doc);
       };
       insertTime(doc,ymdTime) {
-        const time = doc.querySelector('.time');
-        if (!time) return;
-        if (ymdTime) {
-          time.innerHTML = date.changeFormat(ymdTime);
-          time.setAttribute('datetime',ymdTime);
-        } else time.remove();
-        const modTime = doc.querySelector('time[itemprop=modified]');
-        if (modTime) {
-          if (date.ymd().replaceAll('-','') <= ymdTime.slice(0,10).replaceAll('-','')) {
-            modTime.remove();
-            return;
-          }
+        const headTime = doc.head.querySelector(this.req[2]);
+        if (headTime && ymdTime) headTime.setAttribute('content',ymdTime);
+        else return;
+        const releseDate = doc.body.querySelector('.relese-date');
+        if (releseDate) releseDate.innerHTML = date.changeFormat(ymdTime);
+        const time = doc.body.querySelector('time');
+        if (time) {
+          const cTime = date.changeFormat(date.ymdTime())
+          time.insertAdjacentHTML('beforeend',cTime);
+          time.setAttribute('datetime',date.ymdTime());
+          // if (date.ymd().replaceAll('-','') <= ymdTime.slice(0,10).replaceAll('-','')) {
+          //   time.remove();
+          //   return;
+          // }
         }
-        const cTime = date.changeFormat(date.ymdTime())
-        modTime.insertAdjacentHTML('beforeend',cTime);
-        modTime.setAttribute('datetime',date.ymdTime());
       };
       insertThumbnail(doc,value,title) {
         const elem = doc.querySelector('.thumbnail');
@@ -1327,7 +1324,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         this.box = archiveBox;
         this.class = 'archive';
         this.path = '../';
-        this.req = ['.postlist'];
+        this.req = ['.post-list'];
         this.title = SETT.elements['archive-title'];
         this.desc = SETT.elements['archive-desc'];
         this.year = this.fileName.slice(0,4);
@@ -1642,7 +1639,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     //     this.class = 'postfilter';
     //     this.title = SETT.elements['postfilter-title'];
     //     this.desc = SETT.elements['postfilter-desc'];
-    //     this.req = ['.filter-btns','.postlist'];
+    //     this.req = ['.filter-btns','.post-list'];
     //     this.path = './';
     //   };
     //   async makeHTMLSpecial(doc) {
