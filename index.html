@@ -25,7 +25,7 @@
       <p data-nav="info">Info</p>
     </div>
     <button title="Spellcheck on/off" id="spellcheck"></button>
-    <button title="Light/Dark" id="lightness"></button>
+    <!-- <button title="Light/Dark" id="lightness"></button> -->
   </nav>
   <header>
     <div>
@@ -33,7 +33,7 @@
     </div>
     <div>
       <div id="actfile">demo.html</div>
-      <button class="disable" id="save" type="button"> Save</button>
+      <button class="disable" type="button" id="save"> Save</button>
       <button class="disable" type="button" id="preview"> Preview</button>
     </div>
     <div>
@@ -70,7 +70,7 @@
         </div>
         <div class="side">
           <div>
-            <h3>Thumbnail<b></b></h3>
+            <h3 title="thumbnail(class)とog:imageの画像に使用します。（要素がある場合）">Thumbnail<b></b></h3>
             <fieldset>
               <textarea name="thumbnail" placeholder="media/2021/xxx.jpg"></textarea>
               <button type="button" name="thumbbtn" title="open image list"></button>
@@ -79,10 +79,10 @@
           <div>
             <h3>Parts<b></b></h3>
             <fieldset name="parts">
-              <label title="table-of-contents(class)にh2とh3のアンカーリンクを作成 or 消す"><input type="checkbox" name="table-of-contents" checked>Table of contents / もくじ</label>
-              <label title='comment(class)要素を残す or 消す'><input type="checkbox" name="comment" checked>コメント</label>
-              <label title='freespace1(class)要素を残す or 消す'><input type="checkbox" name="freespace1" checked>フリースペース1</label>
-              <label title='freespace2(class)要素を残す or 消す'><input type="checkbox" name="freespace2" checked>フリースペース2</label>
+              <label title="table-of-contents(class)にh2とh3のアンカーリンクを作成 or 削除"><input type="checkbox" name="table-of-contents" checked>Table of contents / もくじ</label>
+              <label title='comment(class)要素を残す or 削除'><input type="checkbox" name="comment" checked>コメント</label>
+              <label title='freespace1(class)要素を残す or 削除'><input type="checkbox" name="freespace1" checked>フリースペース1</label>
+              <label title='freespace2(class)要素を残す or 削除'><input type="checkbox" name="freespace2" checked>フリースペース2</label>
             </fieldset>
           </div>
           <div>
@@ -129,9 +129,16 @@
         </div>
         <div class="side">
           <div>
-            <h3>パーツ<b></b></h3>
+            <h3 title="thumbnail(class)とog:imageの画像に使用します。（要素がある場合）">Thumbnail<b></b></h3>
+            <fieldset>
+              <textarea name="thumbnail" placeholder="media/2021/xxx.jpg"></textarea>
+              <button type="button" name="thumbbtn" title="open image list"></button>
+            </fieldset>
+          </div>
+          <div>
+            <h3>Parts<b></b></h3>
             <fieldset name="parts">
-              <label title="table-of-contents(class)にh2とh3のアンカーリンクを作成"><input type="checkbox" name="table-of-contents" checked>Table of contents / もくじ</label>
+              <label title="table-of-contents(class)にh2とh3のアンカーリンクを作成 or 削除"><input type="checkbox" name="table-of-contents" checked>Table of contents / もくじ</label>
             </fieldset>
           </div>
           <div>

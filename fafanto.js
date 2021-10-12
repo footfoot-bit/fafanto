@@ -60,6 +60,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     },
     removeAllLineBreaks: (str) => {
       return str.replace(/(\r\n|\n|\r)/gm, '');
+    },
+    removeAllWhiteLine: (str) => {
+      return str.replace(/^\s*[\r\n]/gm, '');
     }
   };
 
@@ -136,6 +139,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   
   // 変換
   const convert = {
+    docToHTMLStr:(doc) => {
+      const str = doc.documentElement.outerHTML;
+      return `<!DOCTYPE html>\n${str}`;
+    },
     elemsToTextArr: (elems) => {
       if (elems.length) {
         const tagArray = [];
@@ -166,6 +173,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     strNewLineToArr: (str) => {
       const trim = str.trim();
       return trim.split(/\n/);
+    },
+    checkboxToArr: (elem) => {
+      const arr = [];
+      const checkboxes = elem.querySelectorAll('[type="checkbox"]');
+      for (const checkbox of checkboxes) {
+        if(checkbox.checked == true) {
+          const name = checkbox.getAttribute('name');
+          arr.push(name);
+        }
+      }
+      return arr;
     }
   };
 
@@ -262,9 +280,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
   };
   // monaco editorを作成
-  const mePostDesc = monaco.editor.create(POST.elements['description'], Monaco.opt('\nAdd Description Text\n', 'plaintext'));
+  const mePostDesc = monaco.editor.create(POST.elements['description'], Monaco.opt('', 'plaintext'));
   const mePostContents = monaco.editor.create(POST.elements['contents'], Monaco.opt('Add Contents\n', 'html'));
-  const mePageDesc = monaco.editor.create(PAGE.elements['description'], Monaco.opt('\nAdd Description\n', 'plaintext'));
+  const mePageDesc = monaco.editor.create(PAGE.elements['description'], Monaco.opt('', 'plaintext'));
   const mePageContents = monaco.editor.create(PAGE.elements['contents'], Monaco.opt('Add Contents\n', 'html'));
   const meBaseTemplate = monaco.editor.create(BASE.elements['template'], Monaco.opt(await Monaco.defaultText('template.html'), 'html'));
   const meBaseStyle = monaco.editor.create(BASE.elements['style'], Monaco.opt(await Monaco.defaultText('style.css'), 'css'));
@@ -313,11 +331,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   };
 
   //click lightness
-  document.getElementById('lightness').onclick = () => {
+  // document.getElementById('lightness').onclick = () => {
     // document.querySelector('nav').classList.toggle('dark');
     // document.querySelector('header').classList.toggle('dark');
-    document.querySelector('html').classList.toggle('dark');
-  };
+  //   document.querySelector('html').classList.toggle('dark');
+  // };
 
   //エディター右の折り畳み（PostとPage)
   for (const sidet of document.querySelectorAll('.side h3')) {
@@ -359,6 +377,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     POST.elements['paneltab'].onclick = (e) => {
       paneltab(POST,e);
       POST.elements[e.target.dataset.tab].classList.remove('hide');
+    }
+    PAGE.elements['paneltab'].onclick = (e) => {
+      paneltab(PAGE,e);
+      PAGE.elements[e.target.dataset.tab].classList.remove('hide');
     }
     BASE.elements['paneltab'].onclick = (e) => {
       paneltab(BASE,e);
@@ -551,6 +573,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     //HTML
     class EditHTML extends EditFile {
+      relativePath() {
+        return this.fileName;
+      };
       templateToDoc() {
         const doc = template.document();
         //remove not class
@@ -568,7 +593,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         return doc;
       };
       existsRequiredElems(doc) {
-        const reqElems = ['title','[rel=stylesheet]','script','[rel=icon]','.site-title','.link-posttags','.link-archives','.link-search'];
+        const reqElems = ['html','head','body','title','[rel=stylesheet]','script','.site-title','.link-posttags','.link-archives','.link-search'];
         if (this.req) for (const word of this.req) reqElems.push(word);
         console.log(reqElems,this.req)
         for (const elem of reqElems) {
@@ -580,7 +605,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         const reqElems = [
           ['[rel=stylesheet]','href',`${this.path}style.css`],
           ['script','src',`${this.path}main.js`],
-          ['[rel=icon]','href',`${this.path}favicon.svg`]
         ];
         for (const elem of reqElems) doc.head.querySelector(elem[0]).setAttribute(elem[1],elem[2]);
         // insert icons links
@@ -590,8 +614,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         // non-Required elements
         const noReqElems = [
+          ['[rel=icon]','href',`${this.path}favicon.svg`],
           ['[property="og:site_name"]','content',SETST.value],
-          ['[property="og:description"]','content',SETT.elements['index-desc']],
           ['[property="og:image"]','content',normal.url() + SETT.elements['site-image'].value]
         ];
         for (const elem of noReqElems) {
@@ -630,7 +654,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         const mtDesc = doc.head.querySelector('[name=description]');
         const ogDesc = doc.head.querySelector('[property="og:description"]');
         if (!value) {
-          return mtDesc.remove();
+          mtDesc.remove();
+          ogDesc.remove();
+          return;
         }
         for (const desc of [mtDesc,ogDesc]) {
           if (desc) desc.setAttribute('content',value);
@@ -647,34 +673,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         await this.insertCommonElems(doc);
         return doc;
       };
-      docToHTMLStr(doc) {
-        const str = doc.documentElement.outerHTML;
-        return `<!DOCTYPE html>\n${str}`;
-      };
       async preview() {
-        const doc = await this.makeHTMLCommon();
-        await this.makeHTMLSpecial(doc);
-        const css = meBaseStyle.getValue();
-        const mjs = meBaseMain.getValue();
-        doc.head.insertAdjacentHTML('beforeend',`<style>${css}</style><script>${mjs}</script>`);
-        const imgs = doc.querySelectorAll('img');
-        for (const img of imgs) {
-          const src = img.getAttribute('src');
-          const arr = src.split("/");
-          const fileName = arr[arr.length -1];
-          const dirName = arr[arr.length -2];
-          const url = await EditMedia.searchToUrl(fileName,dirName);
-          img.setAttribute('src',url);
-        }
-        const str = this.docToHTMLStr(doc);
-        const previewTab = window.open();
-        previewTab.document.write(str);
+        window.open(`webfiles/${await this.relativePath()}`);
       };
       async save() {
         const doc = await this.makeHTMLCommon();
         await this.makeHTMLSpecial(doc);
-        const str = this.docToHTMLStr(doc);
-        await this.write(str);
+        await this.write(convert.docToHTMLStr(doc));
       };
       insertPostList(nestPath,elem,postData) {
         const d = postData;
@@ -740,8 +745,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         const str = SETT.elements['post-taglist'].value;
         const tagTextArr = convert.strNewLineToArr(str);
         for (const tagText of tagTextArr) div.insertAdjacentHTML('afterbegin',`<span class="on">${tagText}</span>`);
-        // const dirs = EditPost.latestDirs();
-        // for (const dir of dirs) div.insertAdjacentHTML('beforeend',`<span class="on">${dir}</span>`);
       };
       async insertPostListAll(doc) {
         const posli = doc.querySelector(this.req[1]);
@@ -822,6 +825,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       loadContents(doc) {
         return doc.querySelector('.contents')?.innerHTML?? '';
       };
+      loadThumb(doc) {
+        const src = doc.querySelector('.thumbnail img')?.getAttribute('src')?? '';
+        return src.replace(this.path,'');
+      };
       loadPartsCheck(doc) {
         for (const part of this.parts) {
           this.form.elements[part].checked = false;
@@ -839,6 +846,16 @@ document.addEventListener('DOMContentLoaded', async () => {
       };
       insertContents(doc,value) {
         doc.querySelector('.contents').insertAdjacentHTML('afterbegin',value);
+      };
+      insertThumbnail(doc,value,title) {
+        const elem = doc.querySelector('.thumbnail');
+        if (!elem) return;
+        if (!value) {
+          elem.remove();
+          return;
+        }
+        elem.innerHTML = `<img src="${this.path}${value}" alt="${title}" />`;
+        doc.head.querySelector('[property="og:image"]').setAttribute('content',normal.url() + value);
       };
       checkParts(doc) {
         for(const part of this.parts) {
@@ -894,8 +911,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const beforeDoc = await this.document();
         await this.transHTMLCommon(doc,beforeDoc);
         await this.transHTMLSpecial(doc,beforeDoc);
-        const str = this.docToHTMLStr(doc);
-        await this.write(str);
+        await this.write(convert.docToHTMLStr(doc));
       };
       clickEditBackBtn() {
         this.form.querySelector('.artlist').onclick = async (e) => {
@@ -966,17 +982,17 @@ document.addEventListener('DOMContentLoaded', async () => {
       };
       async fullURL() {
         const dir = await this.dirName();
-        return `${normal.url()}post/${dir}/${this.fileName}`;
+        return `${normal.url()}${this.class}/${dir}/${this.fileName}`;
+      };
+      async relativePath() {
+        const dir = await this.dirName();
+        return `${this.class}/${dir}/${this.fileName}`;
       };
       loadContents(doc) {
         const cnt = doc.querySelector('.contents');
         const h23 = cnt.querySelectorAll('h2,h3');
         if (h23.length) for (const h of h23) h.removeAttribute('id');
         return doc.querySelector('.contents').innerHTML?? '';
-      };
-      loadThumb(doc) {
-        const src = doc.querySelector('.thumbnail img')?.getAttribute('src')?? '';
-        return src.replace(this.path,'');
       };
       loadTime(doc) {
         return doc.head.querySelector(this.req[2])?.getAttribute('content')?? '';
@@ -997,7 +1013,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         this.desc.setValue(this.loadDescription(doc));
         this.ct.setValue(this.loadContents(doc));
         this.thumb.value = this.loadThumb(doc);
-        this.desc.value = this.loadDescription(doc);
         this.loadTagsToGui(doc);
         this.loadPartsCheck(doc);
       };
@@ -1012,21 +1027,10 @@ document.addEventListener('DOMContentLoaded', async () => {
           const cTime = date.changeFormat(date.ymdTime())
           time.insertAdjacentHTML('beforeend',cTime);
           time.setAttribute('datetime',date.ymdTime());
-          // if (date.ymd().replaceAll('-','') <= ymdTime.slice(0,10).replaceAll('-','')) {
-          //   time.remove();
-          //   return;
-          // }
+          if (date.ymd().replaceAll('-','') <= ymdTime.slice(0,10).replaceAll('-','')) {
+            return releseDate.remove();
+          }
         }
-      };
-      insertThumbnail(doc,value,title) {
-        const elem = doc.querySelector('.thumbnail');
-        if (!elem) return;
-        if (!value) {
-          elem.remove();
-          return;
-        }
-        elem.innerHTML = `<img src="${this.path}${value}" alt="${title}" />`;
-        doc.head.querySelector('[property="og:image"]').setAttribute('content',normal.url() + value);
       };
       insertAuthor(doc,value) {
         const elems = doc.querySelectorAll('.author');
@@ -1045,7 +1049,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           return;
         }
         for (const tagsElem of tagsElems) for (const tagText of tagArr)
-        tagsElem.insertAdjacentHTML('afterbegin',`<a href="${this.path}posttags.html?q=${tagText}" target="_blank">${tagText}</a>`);
+        tagsElem.insertAdjacentHTML('afterbegin',`<a href="${this.path}posttags.html?q=${tagText}">${tagText}</a>`);
       };
       async setSnsShareLinks(doc,title) {
         const twitter = doc.querySelector('.share-twitter');
@@ -1063,17 +1067,17 @@ document.addEventListener('DOMContentLoaded', async () => {
           if (allLatestData[i][0] === this.fileName) return i;
         }
       };
-      findHasTagIndexArr(allLatestData) {
-        const index = this.findIndex(allLatestData);
-        const tagIndexArr = [];
-        for (let i = 0; i < allLatestData.length; i++) {
-          for (const tagText1 of allLatestData[index][6]) for (const tagText2 of allLatestData[i][6]) {
-            if (tagText1 === tagText2) tagIndexArr.push(i);
-          }
-        }
-        const remDuplicateArr = Array.from(new Set(tagIndexArr));
-        return remDuplicateArr;
-      };
+      // findHasTagIndexArr(allLatestData) {
+      //   const index = this.findIndex(allLatestData);
+      //   const tagIndexArr = [];
+      //   for (let i = 0; i < allLatestData.length; i++) {
+      //     for (const tagText1 of allLatestData[index][6]) for (const tagText2 of allLatestData[i][6]) {
+      //       if (tagText1 === tagText2) tagIndexArr.push(i);
+      //     }
+      //   }
+      //   const remDuplicateArr = Array.from(new Set(tagIndexArr));
+      //   return remDuplicateArr;
+      // };
       async insertPrevNextLink(doc,allLatestData) {
         const elem = doc.querySelector('.prev-next-link ul');
         if (elem) {
@@ -1089,10 +1093,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       //   const index = this.findIndex(allLatestData);
       //   const tagIndexArr = this.findHasTagIndexArr(allLatestData);
       //   const remPrevNextArr =  tagIndexArr.filter(e => e !== index + 1 && e !== index - 1);
-      //   if (remPrevNextArr.lenght <= 4) for (const num of remPrevNextArr) {
+      //   if (remPrevNextArr.length <= 4) for (const num of remPrevNextArr) {
       //     EditPost.postList(repo,allLatestData[num]);
       //   } else {
-      //     const aboveNum = remPrevNextArr.lenght - index;
+      //     const aboveNum = remPrevNextArr.length - index;
       //     if (aboveNum <= 2)
       //   }
       //   console.log(index,tagIndexArr,remPrevNextArr);
@@ -1121,10 +1125,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       async save() {
         const doc = await this.makeHTMLCommon();
         await this.makeHTMLSpecial(doc);
-        // this.insertOGPUrl(doc,await this.fullURL());
-        // await this.insertInternalLinks(doc);
-        const str = this.docToHTMLStr(doc);
-        await this.write(str);
+        await this.write(convert.docToHTMLStr(doc));
       };
       async saveNew() {
         this.checkNewFileName();
@@ -1242,41 +1243,48 @@ document.addEventListener('DOMContentLoaded', async () => {
         this.title = PAGE.querySelector(`[data-name="${this.fileName}"] input`);
         this.desc = mePageDesc;
         this.ct = mePageContents;
+        this.thumb = PAGE.elements['thumbnail'];
         this.name = EditPage;
       };
       fullURL() {
-        return `${normal.url()}page/${this.fileName}`;
+        return `${normal.url()}${this.class}/${this.fileName}`;
+      };
+      relativePath() {
+        return `${this.class}/${this.fileName}`;
       };
       async loadElements() {
         const doc = await this.document();
+        this.desc.setValue(this.loadDescription(doc));
         this.ct.setValue(this.loadContents(doc));
-        this.desc.value = this.loadDescription(doc);
+        this.thumb.value = this.loadThumb(doc);
         this.loadPartsCheck(doc);
         this.checkDisplayLinks(this.loadDisplayLinksClass(doc));
       };
       loadDisplayLinksClass(doc) {
-          return doc.head.classList;
+        const classArr = [];
+        for (const link of this.links) if (doc.head.classList.contains(link)) classArr.push(link);
+        return classArr;
       };
-      checkDisplayLinks(classList) {
+      checkDisplayLinks(classArr) {
         for (const link of this.links) this.form.elements[link].checked = false;
-        for (const className of classList) this.form.elements[className].checked = true;
+        if (classArr.length)
+        for (const className of classArr) this.form.elements[className].checked = true;
+      };
+      insertDispalyLinkClassToHead(doc,classArr) {
+        if (classArr.length)
+        for (const className of classArr) doc.head.classList.add(className);
       };
       makeHTMLSpecial(doc) {
         this.insertHeadTitle(doc,`${this.title.value} - ${SETST.value}`);
         const descText = normal.removeAllLineBreaks(this.desc.getValue());
         this.insertHeadDescription(doc,descText);
-        this.insertDispalyLinkDataToHead(doc);
+        this.insertDispalyLinkClassToHead(doc,convert.checkboxToArr(PAGE.elements['display-link']));
         this.insertOGPUrl(doc,this.fullURL());
         this.insertBodyTitle(doc,this.title.value);
         this.insertBodyDescription(doc,descText);
         this.insertContents(doc,this.ct.getValue());
         this.checkParts(doc);
         this.insertTableOfContents(doc);
-      };
-      insertDispalyLinkDataToHead(doc) {
-        for (const link of this.links) {
-          if (this.form.elements[link].checked) doc.querySelector('head').classList.add(link);
-        }
       };
       async saveNew() {
         this.checkNewFileName();
@@ -1285,9 +1293,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         await this.save();
         for (const input of PAGNW.elements) input.value = '';
       };
-      async transHTMLSpecial(doc) {
+      async transHTMLSpecial(doc,beforeDoc) {
         this.insertOGPUrl(doc,this.fullURL());
-        // this.insertBodyDescription(doc,this.loadDescription(beforeDoc));
+        this.insertDispalyLinkClassToHead(doc,this.loadDisplayLinksClass(beforeDoc));
       };
       static async allData() {
         const data = [];
@@ -1400,13 +1408,13 @@ document.addEventListener('DOMContentLoaded', async () => {
           await this.addListInDir(dirName);
         });
       };
-      static thumbSelect() {
-        POST.elements['thumbbtn'].onclick = () => {
+      static thumbSelect(form) {
+        form.elements['thumbbtn'].onclick = () => {
           IMAGS.classList.toggle('hide');
           IMAGS.querySelector('div').onclick = (e) => {
             if (e.target.tagName === 'IMG') {
               const dirName = IMAGS.elements['dirs'].value;
-              POST.elements['thumbnail'].value = `media/${dirName}/${e.target.title}`;
+              form.elements['thumbnail'].value = `media/${dirName}/${e.target.title}`;
             }
           }
         }
@@ -1415,7 +1423,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     EditMedia.addDirsList();
     EditMedia.addListInDir(date.year());
     EditMedia.dirSelect();
-    EditMedia.thumbSelect();
+    EditMedia.thumbSelect(POST);
+    EditMedia.thumbSelect(PAGE);
 
     //セーブ
     const save = {
@@ -1630,6 +1639,39 @@ document.addEventListener('DOMContentLoaded', async () => {
   };
   LOAD.classList.add('hide');
 });
+
+        // const doc = await this.makeHTMLCommon();
+        // await this.makeHTMLSpecial(doc);
+        // window.open(`webfiles/page/${this.fileName}`)
+        // // history.replaceState('', '', 'postposttagssearch.html');
+        // const style = doc.head.querySelector('[rel=stylesheet]');
+        // style.setAttribute('href','webfiles/style.css');
+        // const script = doc.head.querySelector('script');
+        // script.setAttribute('src','webfiles/main.js');
+        
+        // const imgs = doc.querySelectorAll('img');
+        // for (const img of imgs) {
+        //   const src = img.getAttribute('src');
+        //   const arr = src.split("/");
+        //   const fileName = arr[arr.length -1];
+        //   const dirName = arr[arr.length -2];
+        //   const url = await EditMedia.searchToUrl(fileName,dirName);
+        //   img.setAttribute('src',url);
+        // }
+        // const str = this.docToHTMLStr(doc);
+        // const preview = document.getElementById('preview-block');
+        // preview.classList.add('show');
+        // preview.querySelector('iframe').setAttribute('src',`webfiles/${this.fileName}`);
+        // preview.querySelector('iframe').setAttribute('srcdoc',str);
+
+
+        // const css = meBaseStyle.getValue();
+        // const mjs = meBaseMain.getValue();
+        // doc.head.insertAdjacentHTML('beforeend',`<style>${css}</style><script>${mjs}</script>`);
+        // const href = style.getAttribute('href');
+        // const path = href.replaceAll('../','');
+        // const previewTab = window.open();
+        // previewTab.document.write(str);
 
     // class EditPostfilter extends EditHTML {
     //   constructor(fileName,handleBox) {
