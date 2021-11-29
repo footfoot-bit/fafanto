@@ -7,6 +7,10 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" data-name="vs/editor/editor.main" href="monaco-editor/min/vs/editor/editor.main.css" />
+<script id="fafanto-func">
+  // class FVal extends HTMLBRElement {};
+  // customElements.define("f-val", FVal, { extends: "br" });
+</script>
 </head>
 <body>
   <img id="loading" src="loading.svg">
@@ -33,46 +37,55 @@
     </div>
     <div>
       <div id="actfile">demo.html</div>
-      <button class="disable" type="button" id="save"> Save</button>
-      <button class="disable" type="button" id="preview"> Preview</button>
+      <!-- <div>
+        <input type="radio" name="statuss" value="public" checked>公開
+        <input type="radio" name="statuss" value="draft">下書き
+      </div> -->
+      <!-- <select id="status">
+        <option value="public" selected>公開</option>
+        <option value="draft">下書き</option>
+      </select> -->
+      <button class="disable" type="button" id="save"> セーブ</button>
+      <button class="disable" type="button" id="preview"> 見る</button>
     </div>
     <div>
       <div>Preview</div>
       <button type="button" id="index" title="Preview Index.html">index</button>
-      <button type="button" id="posttags" title="Preview tags.html">tags</button>
+      <button type="button" id="tags" title="Preview tags.html">tags</button>
     </div>
   </header>
   <main>
     <!-- ポスト -->
     <form id="post" class="show">
       <div class="portal">
-        <fieldset name="new">
-          <input name="title" title="into title:calss" placeholder="タイトル">
-          <input type="datetime-local" name="date">
-          <input name="name" placeholder="ファイル名">
-          <button name="btn" type="button" class="btn-new"></button>
-        </fieldset>
         <select name="dirs" class="hide"></select>
-        <div class="artlist"></div>
+        <div class="artlist">
+          <fieldset>
+            <label title="公開"><input type="checkbox" checked></label><input placeholder="タイトル"><input type="datetime-local"><input placeholder="ファイル名"><button type="button" class="btn-new"></button>
+          </fieldset>
+        </div>
       </div>
       <div class="bench">
         <div class="text">
           <div class="panel">
+            <span>Contents</span>
             <fieldset name="panelbtns">
               <i>b</i><i>small</i><i>mark</i><i>br</i><i>p</i><i>h2</i><i>h3</i><i>h4</i><i>a</i><i>ul</i><i>table</i><s title="link"></s><s title="img"></s>
             </fieldset>
-            <fieldset name="paneltab">
-              <button type="button" data-tab="description">Description</button><button type="button" data-tab="contents" class="on">Contents</button>
-            </fieldset>
           </div>
-          <fieldset name="description" class="monacos hide"></fieldset>
           <fieldset name="contents" class="monacos"></fieldset>
         </div>
         <div class="side">
           <div>
-            <h3 title="thumbnail(class)とog:imageの画像に使用します。（要素がある場合）">Thumbnail<b></b></h3>
+            <h3 title="[description]、<f-val description>に代入します">Description<b></b></h3>
             <fieldset>
-              <textarea name="thumbnail" placeholder="media/2021/xxx.jpg"></textarea>
+              <textarea name="description" placeholder="description 説明文を入力"></textarea>
+            </fieldset>
+          </div>
+          <div>
+            <h3 title="[thumbnail]とog:imageの画像に使用します">Image<b></b></h3>
+            <fieldset>
+              <textarea name="thumbpath" placeholder="media/2021/xxx.jpg"></textarea>
               <button type="button" name="thumbbtn" title="open image list"></button>
             </fieldset>
           </div>
@@ -107,31 +120,44 @@
     <!-- ページ -->
     <form id="page">
       <div class="portal">
-        <fieldset name="new">
+        <!-- <fieldset name="new">
           <input name="title" placeholder="Add Title">
+          <input type="datetime-local" name="date">
           <input name="name" placeholder="Add Filename">
           <button name="btn" type="button" class="btn-new"></button>
-        </fieldset>
-        <div class="artlist"></div>
+        </fieldset> -->
+        <div class="artlist">
+          <fieldset>
+            <input placeholder="タイトル"><input type="datetime-local"><input placeholder="ファイル名"><button type="button" class="btn-new"></button>
+          </fieldset>
+        </div>
       </div>
       <div class="bench">
         <div class="text">
           <div class="panel">
+            <span>Contents</span>
             <fieldset name="panelbtns">
               <i>b</i><i>small</i><i>mark</i><i>br</i><i>p</i><i>h2</i><i>h3</i><i>h4</i><i>a</i><i>ul</i><i>table</i><s title="link"></s><s title="img"></s>
             </fieldset>
-            <fieldset name="paneltab">
-              <button type="button" data-tab="description" >Description</button><button type="button" data-tab="contents" class="on">Contents</button>
-            </fieldset>
+            <!-- <fieldset name="paneltab"> -->
+              <!-- <button type="button" data-tab="description" >Description</button> -->
+              <!-- <button type="button" data-tab="contents" class="on">Contents</button> -->
+            <!-- </fieldset> -->
           </div>
-          <fieldset name="description" class="monacos hide"></fieldset>
+          <!-- <fieldset name="description" class="monacos hide"></fieldset> -->
           <fieldset name="contents" class="monacos"></fieldset>
         </div>
         <div class="side">
           <div>
-            <h3 title="thumbnail(class)とog:imageの画像に使用します。（要素がある場合）">Thumbnail<b></b></h3>
+            <h3 title="[description]、<f-val description>に代入します">Description<b></b></h3>
             <fieldset>
-              <textarea name="thumbnail" placeholder="media/2021/xxx.jpg"></textarea>
+              <textarea name="description" placeholder="description 説明文を入力"></textarea>
+            </fieldset>
+          </div>
+          <div>
+            <h3 title="[thumbnail]とog:imageの画像に使用します。（要素がある場合）">Image<b></b></h3>
+            <fieldset>
+              <textarea name="thumbpath" placeholder="media/2021/xxx.jpg"></textarea>
               <button type="button" name="thumbbtn" title="open image list"></button>
             </fieldset>
           </div>
@@ -144,8 +170,8 @@
           <div>
             <h3>リンクの表示<b></b></h3>
             <fieldset name="display-link">
-              <label title="headerのpage-list(class)へリンクを挿入"><input type="checkbox" name="header-link" checked>header</label>
-              <label title="footerのpage-list(class)へリンクを挿入"><input type="checkbox" name="footer-link" checked>footer</label>
+              <label title="headerのpage-linksにリンクを作成"><input type="checkbox" name="header" checked>header</label>
+              <label title="footerのpage-linksにリンクを作成"><input type="checkbox" name="footer" checked>footer</label>
             </fieldset>
           </div>
         </div>
@@ -168,98 +194,115 @@
     </form>
     <!-- 設定 -->
     <form id="setting">
-      <fieldset>
-        <p class="alert yellow">設定を変更したらアプリをリロードしてください。</p>
-        <!-- <p class="alert blue">PostとPage以外のタイトルはテンプレートに直接入れておくとその内容が優先されます。（headのtitleは設定のタイトルを使用します）。タイトルを画像にしたい時はテンプレートに直接HTMLタグを記入してください。</p> -->
-        <h3>共通</h3>
-        <div>
-          <span>サイト名*</span><input name="site-title" placeholder="site title" type="text">
-          <span>サイトのサブタイトル</span><input name="site-subtitle" placeholder="site subtitle" type="text">
-          <span>サイトURL*</span><input name="site-url" placeholder="https://www.example.com/" type="text">
-          <span>サイトの画像</span><input name="site-image" placeholder="image.png" type="text">
-          <span>あなたの名前</span><input name="site-author" placeholder="your name" type="text">
-        </div>
-        <h3>トップページ</h3>
-        <div>
-          <span>新着ポストの数</span><label><input name="latest-posts" placeholder="1 - 100" value="11" min="1" max="100" type="number"></label>
-          <span title="headのmeta discriptionとOGP discriptionで使用します">サイトの説明</span><input name="index-desc" placeholder="description of your blog" type="text">
-        </div>
-        <h3>アーカイブ</h3>
-        <div>
-          <span title="headのtitleとOGP title、記事のタイトルで使用します">アーカイブスのタイトル</span><input name="archives-title" placeholder="archives.htmlのtitle" type="text">
-          <span title="headのmeta discriptionとOGP discriptionで使用します">アーカイブスの説明</span><input name="archives-desc" placeholder="archives.htmlのdescription" type="text">
-          <span title="headのtitleとOGP title、記事のタイトルで使用します">アーカイブのタイトル</span><input name="archive-title" placeholder="archive/xxxx.htmlのtitle" type="text">
-          <span title="headのmeta discriptionとOGP discriptionで使用します">アーカイブの説明</span><input name="archive-desc" placeholder="archive/xxxx.htmlのdescription" type="text">
-        </div>
-        <h3>タグページ</h3>
-        <div>
-          <span title="headのtitleとOGP title、記事のタイトルで使用します">タグページのタイトル</span><input name="posttags-title" placeholder="title of tags.html" type="text">
-          <span title="headのmeta discriptionとOGP discriptionで使用します">タグページーの説明</span><input name="posttags-desc" placeholder="description of tags.html" type="text">
-        </div>
-        <h3>検索ページ</h3>
-        <div>
-          <span title="headのtitleとOGP title、記事のタイトルで使用します">検索ページのタイトル</span><input name="search-title" placeholder="title of search.html" type="text">
-          <span title="headのmeta discriptionとOGP discriptionで使用します">検索ページの説明</span><input name="search-desc" placeholder="description of search.html" type="text">
-        </div>
-        <h3>Post</h3>
-        <div>
-          <span>投稿時間の表示形式</span>
+      <p class="tab"><i title="サイトの設定"></i><b class="on">共通</b><b>各タイトルと説明</b><b>Postの日付、タグ</b><b>Postリスト</b><i title="ツールの設定"></i><b>カスタムエディター</b></p>
+      <div class="show">
+        <h3>サイト共通</h3>
+        <p><span>サイト名*</span><input name="index-title" placeholder="site title" type="text"></p>
+        <p><span>サイトのサブタイトル</span><input name="index-subtitle" placeholder="site subtitle" type="text"></p>
+        <p><span>サイトURL*</span><input name="index-url" placeholder="https://www.example.com/" type="text"></p>
+        <p><span title="index.htmlのmeta descriptionとog:description、各ページにdescriptionがない場合に使用します"。>サイトの説明</span><input name="index-desc" placeholder="index.htmlのdescription" type="text"></p>
+        <p><span>サイトの画像</span><input name="index-thumbpath" placeholder="media/image.png" type="text"></p>
+        <p><span>ブランク画像</span><input name="blank-thumbpath" placeholder="media/blank.png" type="text"></p>
+        <p><span>あなたの名前</span><input name="author" placeholder="your name" type="text"></p>
+        <div class="alert blue">本文のサイト名を画像にしたい場合はテンプレートに直接HTMLを記入してください。本文のタイトルはテンプレートに入ってる内容が優先されます。</div>
+        
+      </div>
+      <div>
+        <h3>各タイトルと説明</h3>
+        <p><span title="archives.htmlのtitle、og:title、本文のタイトルで使用します">アーカイブスのタイトル</span><input name="archives-title" placeholder="archives.htmlのtitle" type="text"></p>
+        <p><span title="archives.htmlのmeta description、og:descriptionで使用します">アーカイブスの説明</span><input name="archives-desc" placeholder="archives.htmlのdescription" type="text"></p>
+        <p><span title="archive/xxxx.htmlのtitle、og:title、本文のタイトルで使用します">アーカイブのタイトル</span><input name="archive-title" placeholder="archive/xxxx.htmlのtitle" type="text"></p>
+        <p><span title="archive/xxxx.htmlのmeta description、og:descriptionで使用します">アーカイブの説明</span><input name="archive-desc" placeholder="archive/xxxx.htmlのdescription" type="text"></p>
+        <p><span title="postags.htmlのtitle、OGP title、本文のタイトルで使用します">タグページのタイトル</span><input name="tags-title" placeholder="tags.htmlのtitle" type="text"></p>
+        <p><span title="postags.htmlのmeta description、og:descriptionで使用します">タグページーの説明</span><input name="tags-desc" placeholder="tags.htmlのdescription" type="text"></p>
+        <p><span title="search.htmlのtitle、og:title、本文のタイトルで使用します">検索ページのタイトル</span><input name="search-title" placeholder="search.htmlのtitle" type="text"></p>
+        <p><span title="search.htmlのmeta description、og:descriptionで使用します">検索ページの説明</span><input name="search-desc" placeholder="search.htmlのdescription" type="text"></p>
+        <div class="alert blue">本文のタイトルを画像にしたい場合はテンプレートに直接HTMLを記入してください。タイトルはテンプレートに入ってる内容が優先されます。（アーカイブ、Post、Pageは例外）</div>
+      </div>
+      <div>
+        <h3>Postの日付、タグ</h3>
+        <p>
+          <span title="ポストのtime、リストの日付に使用します">日付のフォーマット（表示用）</span>
           <select name="post-date-type">
             <option value="yyyy-mm-dd" selected>YYYY-MM-DD（年-月-日）</option>
             <option value="dd-mm-yyyy">DD-MM-YYYY</option>
             <option value="mm-dd-yyyy">MM-DD-YYYY</option>
           </select>
-          <span>タグリスト</span><p><textarea name="post-taglist" placeholder="りんご
+        </p>
+        <p>
+          <span title="ポストのタグリンク、posttag.htmlのタグリストに使用します">タグリスト</span>
+          <span><textarea name="post-taglist" placeholder="りんご
 メロン スイカ
-みかん Orange"></textarea><small>改行が区切りになります。スペースで複数の単語を使用可</small></p>
-        </div>
-        <h3>カスタムPostリスト</h3>
-        <div>
-          <span>リストのclass名</span><span>custom-post-list-1</span>
-          <span>リストのパス</span><p><textarea name="list-path" placeholder="2019/zzzz.html
-2017/xxxx.html"></textarea><button name="add-list" type="button">add list</button><small>改行が区切りになります</small></p>
-        </div>
-        <h3>このアプリ</h3>
-        <div>
-          <span>カスタムエディター</span>
+みかん Orange"></textarea><small>改行が区切りになります。スペースで複数の単語を使用可</small></span>
+        </p>
+      </div>
+      <div>
+        <h3>Postリスト</h3>
+        <div>ポストの各リストはテンプレートにul classタグを挿入して使用します。</div>
+        <h4>マニュアル</h4>
+        <!-- <p><span>リストのclass名</span><span>custom-post-list-1</span></p>
+        <p>
+          <span>リストのパス</span><span><textarea name="custom-list-1" placeholder="2019/zzzz.html
+2017/xxxx.html"></textarea><button name="add-path" type="button">add</button><small>改行が区切りになります</small></span>
+        </p> -->
+        <p><span>class名</span><span>リストパス <small> ※改行で区切り</small></span></p>
+        <p><span>custom-post-list-1</span><span><textarea class="show" name="custom-post-list-1" placeholder="2019/zzzz.html
+2017/xxxx.html"></textarea></span><b></b></p>
+        <p><span>custom-post-list-2</span><apan><textarea name="custom-post-list-2" placeholder="2019/zzzz.html
+2017/xxxx.html"></textarea></apan><b class="arrdown"></b></p>
+        <p><span>custom-post-list-3</span><apan><textarea name="custom-post-list-3" placeholder="2019/zzzz.html
+2017/xxxx.html"></textarea></apan><b class="arrdown"></b></p>
+        <p><span>custom-post-list-4</span><apan><textarea name="custom-post-list-4" placeholder="2019/zzzz.html
+2017/xxxx.html"></textarea></apan><b class="arrdown"></b></p>
+        <h4>タグ</h4>
+        <div class="alert blue">カスタムリストはテンプレートにul classタグを挿入して使用します。<code>&lt;ul class="custom-post-list-1"&gt;&lt;/ul&gt;</code>（リスト1の例）</div>
+        <div class="alert blue">新着順は<code>&lt;ul class="latest-post-list" data-num="12"&gt;&lt;/ul&gt;</code>のようにして、<code>data-num</code>の値でポスト数を決められます。</div>
+      </div>
+      <div>
+        <h3>カスタムエディター</h3>
+        <p><span>HTMLタグリスト</span>
           <textarea name="custom-editor" placeholder="&lt;i&gt;small&lt;/i&gt;&lt;i&gt;mark&lt;/i&gt;&lt;i&gt;br&lt;/i&gt;&lt;i&gt;p&lt;/i&gt;&lt;i&gt;h2&lt;/i&gt;&lt;i&gt;h3&lt;/i&gt;&lt;i&gt;h4&lt;/i&gt;
 &lt;s title=&quot;link&quot;&gt;&lt;/s&gt;&lt;s title=&quot;img&quot;&gt;&lt;/s&gt;"></textarea>
-        </div>
-        <div id="custom">
-          <span>基本のHTMLタグ(19)</span><p>&lt;i&gt;b&lt;/i&gt;&lt;i&gt;strong&lt;/i&gt;&lt;i&gt;i&lt;/i&gt;&lt;i&gt;s&lt;/i&gt;&lt;i&gt;small&lt;/i&gt;&lt;i&gt;big&lt;/i&gt;&lt;i&gt;mark&lt;/i&gt;&lt;i&gt;br&lt;/i&gt;&lt;i&gt;p&lt;/i&gt;&lt;i&gt;h2&lt;/i&gt;&lt;i&gt;h3&lt;/i&gt;&lt;i&gt;h4&lt;/i&gt;&lt;i&gt;h5&lt;/i&gt;&lt;i&gt;h6&lt;/i&gt;&lt;i&gt;a&lt;/i&gt;&lt;i&gt;ul&lt;/i&gt;&lt;i&gt;ol&lt;/i&gt;&lt;i&gt;table&lt;/i&gt;</p>
-          <span>選択タグ(2)</span><p>&lt;s title=&quot;link&quot;&gt;&lt;/s&gt;&lt;s title=&quot;img&quot;&gt;&lt;/s&gt;</p>
-          <span>ユーザータグ(∞)</span><p>&lt;u title='&lt;div class=&quot;example&quot;&gt;&lt;/div&gt;'&gt;button&lt;/u&gt;</p>
-        </div>
+        </p>
+      
+        <p><span>サンプル</span>
+          <div>
+            <span>基本のHTMLタグ(19)</span><p>&lt;i&gt;b&lt;/i&gt;&lt;i&gt;strong&lt;/i&gt;&lt;i&gt;i&lt;/i&gt;&lt;i&gt;s&lt;/i&gt;&lt;i&gt;small&lt;/i&gt;&lt;i&gt;big&lt;/i&gt;&lt;i&gt;mark&lt;/i&gt;&lt;i&gt;br&lt;/i&gt;&lt;i&gt;p&lt;/i&gt;&lt;i&gt;h2&lt;/i&gt;&lt;i&gt;h3&lt;/i&gt;&lt;i&gt;h4&lt;/i&gt;&lt;i&gt;h5&lt;/i&gt;&lt;i&gt;h6&lt;/i&gt;&lt;i&gt;a&lt;/i&gt;&lt;i&gt;ul&lt;/i&gt;&lt;i&gt;ol&lt;/i&gt;&lt;i&gt;table&lt;/i&gt;</p>
+            <span>選択タグ(2)</span><p>&lt;s title=&quot;link&quot;&gt;&lt;/s&gt;&lt;s title=&quot;img&quot;&gt;&lt;/s&gt;</p>
+            <span>ユーザータグ(∞)</span><p>&lt;u title='&lt;div class=&quot;example&quot;&gt;&lt;/div&gt;'&gt;button&lt;/u&gt;</p>
+          </div>
+        </p>
+      </div>
+      <p class="alert yellow" style="margin: var(--short-gap) 20% var(--short-gap) var(--long-gap);">設定を変更したらアプリをリロードしてください。</p>
         <!-- <div>
           <span>Color</span>
           <label><input type="range" name="hue" min="0" max="36"><input name="hsl" placeholder="(360, 50%, 80%)"></label>
         </div> -->
-      </fieldset>
     </form>
     <!-- まとめてセーブ -->
     <form id="allsave">
-      <fieldset>
-        <p class="alert yellow">選んだファイルをまとめてセーブできます。テンプレートの変更や共通要素を変更した時等にお使いください。</p>
-        <h3>Save Files</h3>
-        <div>
-          <label><input type="checkbox" name="index" checked>index.html</label>
-          <label><input type="checkbox" name="archives" checked>archives.html</label>
-          <label><input type="checkbox" name="posttags" checked>posttags.html</label>
-          <label><input type="checkbox" name="search" checked>search.html</label>
-          <label><input type="checkbox" name="archive" checked>archive</label>
-          <label><input type="checkbox" name="post" checked>Post</label>
-          <label><input type="checkbox" name="page" checked>Page</label>
-        </div>
-        <button type="button" name="save">Start Saving</button>
-        <h3>Log</h3>
-        <div class="log"></div>
-      </fieldset>
+      <p class="alert yellow">選んだファイルをまとめてセーブできます。テンプレートの変更や共通要素を変更した時等にお使いください。</p>
+      <h3>Save Files</h3>
+      <div>
+        <label><input type="checkbox" name="index" checked>index.html</label>
+        <label><input type="checkbox" name="archives" checked>archives.html</label>
+        <label><input type="checkbox" name="tags" checked>tags.html</label>
+        <label><input type="checkbox" name="search" checked>search.html</label>
+        <label><input type="checkbox" name="archive" checked>archive</label>
+        <label><input type="checkbox" name="post" checked>Post</label>
+        <label><input type="checkbox" name="page" checked>Page</label>
+      </div>
+      <button type="button" name="save">Start Saving</button>
+      <h3>Log</h3>
+      <div class="log"></div>
     </form>
     <form id="info">
       <h3>What's this</h3>
       <p>Abatis is a lightweight web app that creates clean, static sites. </p>
       <p>The difference between this and a static site generator is that it can be operated via GUI and can be used by non-engineers. </p>
       <h3>Upadate</h3>
+      ああああああ<f-val>ああああああ<f-val>ええええええ
+
     </form>
   </main>
   <form id="links" class="hide">
@@ -270,7 +313,7 @@
   <form id="images" class="hide">
     <select name="dirs"></select>
     <button type="button" name="btn"></button>
-    <div name="box"></div>
+    <fieldset name="dirbox"></fieldset>
   </form>
   <div id="guide" class="drag">
     <p><img src="favicon.svg">ようこそfafantoへ</p>

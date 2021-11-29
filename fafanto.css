@@ -14,8 +14,11 @@
     --orange: orange;
     --yellow:#feffc8;
     --btnWidth: 5rem;
-    --gap: 2rem;
-    --innergap: 1.6rem;
+    --shorter-gap: 1.3rem;
+    --short-gap: 2rem;
+    --medium-gap: 3.2rem;
+    --long-gap: 5.2rem;
+    --longer-gap: 8.4rem;
     --code-font: Consolas, Menlo, 'Liberation Mono', Courier, monospace;
     --center-width: 70%;
     --topbar-height: 40px;
@@ -28,6 +31,12 @@
     /* background-color: var(--text-color);
     color: #e3e3e3;
     --nav-color: hsl(0,0%,10%); */
+}
+.alert {
+    /* padding-top: var(--shorter-gap); */
+    border-radius: 1rem;
+    line-height: 1.8;
+    font-size: 1.2rem;
 }
 html {
     font-size: 62.5%;
@@ -46,7 +55,6 @@ body {
 small {
     font-size: 1.2rem;
 }
-
 textarea,button,input,select {
     padding: 1rem;
     outline: none;
@@ -63,10 +71,8 @@ button:hover {
 textarea {
     resize: none;
     width: 100%;
-    /* border: 1px solid var(--nav-color); */
     font-family: var(--code-font);
 }
-
 fieldset {
     border: none;
 }
@@ -74,12 +80,17 @@ form {
     display: none;
     height: 100%;
 }
-
-button,select,label,nav p,[name=tagbtns] i,.side h3 b,#links p,#images img {
+button,select,label,nav p,[name=tagbtns] i,.side h3 b,#setting b, #links p,#images img {
     cursor: pointer;
 }
 [name=parts] [title], #setting span {
     cursor: help;
+}
+code {
+    background-color: var(--header-color);
+    padding: .4rem .6rem;
+    font-family: var(--code-font);
+    border-radius: .6rem;
 }
 #guide,nav,.panel,[name=tagbtns] {
     user-select: none;
@@ -163,7 +174,7 @@ nav {
     display: grid;
     grid-template-columns: 1fr;
     grid-template-rows: auto 1fr auto;
-    row-gap: var(--gap);
+    row-gap: var(--short-gap);
     background-color: var(--text-color);
     color: #fff;
 }
@@ -208,39 +219,38 @@ header {
     grid-template-rows: auto 1fr auto;
     background-color: var(--header-color);
     height: 100%;
-    row-gap: var(--gap);
+    row-gap: var(--short-gap);
     overflow: hidden;
+}
+header > div {
+    padding: var(--shorter-gap);
+}
+header > div:first-of-type {
+    box-shadow: var(--shadow);
+    height: var(--topbar-height);
+    border-bottom: 1px solid var(--nav-color);
 }
 h2 {
     font-size: 1.6rem;
     color:var(--text-color);
-    padding: 1.2rem var(--innergap);
-    height: var(--topbar-height);
-    border-bottom: 1px solid var(--nav-color);
-    box-shadow: var(--shadow);
 }
 #actfile {
-    padding-bottom: var(--gap);
+    padding-bottom: var(--short-gap);
     word-break: break-all;
-}
-#actfile::before {
-    content: 'file: ';
-    font-family:initial;
 }
 #save,#preview {
     display: grid;
     grid-template-columns: 2.6rem 1fr;
     align-items: center;
-    padding: 1rem;
     width: 100%;
     text-align: left;
 }
-#index, #posttags {
+#index, #tags {
     color: var(--nav-color);
     font-size: 1.2rem;
     padding: 2rem 2.5rem;
 }
-#posttags {
+#tags {
     padding: 2rem;
 }
 /** Contents **/
@@ -252,21 +262,28 @@ main {
 .portal {
     box-shadow: var(--shadow);
 }
-.portal fieldset {
+.artlist > fieldset {
     display: grid;
-    grid-template-columns: calc(var(--center-width) - 20rem) 20rem 1fr var(--btnWidth);
+    grid-template-columns: var(--btnWidth) calc(var(--center-width) - 19rem - var(--btnWidth)) 19rem  1fr var(--btnWidth);
     align-items: center;
     border-bottom: 1px solid var(--nav-color);
     height: var(--topbar-height);
 }
-.portal fieldset > input {
+.artlist > fieldset > input, .artlist > fieldset > label {
     border-right: 1px solid var(--nav-color);
 }
-.portal button {
+.artlist > fieldset > label {
+    text-align: center;
+    padding-top: 1.3rem;
+}
+.artlist > fieldset > label > input {
+    transform: 120%;
+}
+.artlist button {
     background-color: var(--text-color);
     color: #fff;
 }
-.portal input,.artlist u,.portal button {
+.artlist > fieldset > * {
     height: calc(var(--topbar-height) - 1px);
 }
 .artlist u {
@@ -279,14 +296,14 @@ main {
     font-weight: bold;
     border-right: 1px solid var(--nav-color);
     border-bottom: 1px solid var(--nav-color);
-    width: calc(100% - var(--btnWidth));
+    width: 100%;
 }
 .bench {
     display: grid;
     grid-template-columns: var(--center-width) 1fr;
-    column-gap: var(--innergap);
+    column-gap: var(--shorter-gap);
     grid-template-rows: calc(100vh - 81px);
-    margin-top: var(--innergap);
+    margin-top: var(--shorter-gap);
 }
 .text {
     display: grid;
@@ -316,7 +333,7 @@ main {
     font-weight: normal;
 }
 fieldset[name=panelbtns] {
-    padding: 0 var(--innergap);
+    padding: 0 var(--shorter-gap);
     background-color: #fff;
     border-bottom: 1px solid var(--nav-color);
     border-right: 1px solid var(--nav-color);
@@ -417,9 +434,9 @@ fieldset[name=panelbtns] i,fieldset[name=panelbtns] u {
     color: var(--text-color);
 }
 /* Page  */
-#page .artlist fieldset,#page [name=new] {
+/* #page .artlist fieldset,#page [name=new] {
     grid-template-columns: var(--center-width) 1fr var(--btnWidth);
-}
+} */
 /* bases */
 #bases .panel {
     height: var(--topbar-height);
@@ -442,37 +459,64 @@ fieldset[name=panelbtns] i,fieldset[name=panelbtns] u {
 }
 
 /* Setting, allsave*/
-.desc {
-    padding: 1.2rem 3rem;
-    background-color: var(--lightgreen);
-}
 #setting input, #setting textarea, #setting select{
     border: 1px solid var(--nav-color);
 }
-#setting > fieldset, #allsave > fieldset {
-    padding-bottom: 50vh;
+#setting .tab {
+    height: var(--topbar-height);
+    border-bottom: 1px solid var(--nav-color);
 }
-#setting h3, #allsave h3 {
-    padding: 4rem 0 4rem 3%;
-    margin-top: 7rem;
-    font-size: 1.8rem;
-    /* font-weight: normal; */
-    border-top: 1px dashed var(--nav-color);
+#setting > .tab > b, #setting > .tab > i {
+    border-right: 1px solid var(--nav-color);
+    padding: 1.3rem var(--short-gap);
+    display: inline-block;
+    font-weight: normal;
 }
-#setting h3:nth-of-type(1) {
-    border: none;
-    margin: 0;
+#setting > div b {
+    width: var(--btnWidth);
 }
-#setting > fieldset > div {
+#setting > .tab > i {
+    font-style: normal;
+}
+#setting > .tab > b.on {
+    background-color: #fff;
+}
+#setting > div {
+    display: none;
+    padding: 0 20% 0 var(--long-gap);
+}
+#setting > div > p {
     display: grid;
-    grid-template-columns: 1fr 3fr;
-    row-gap: 2rem;
-    padding-left: 3%;
-    padding-right: 20%;
-    align-items: center;
+    grid-template-columns: 22rem 1fr;
+    margin: var(--shorter-gap) 0;
 }
+#setting > div > p:last-of-type {
+    padding-bottom: var(--long-gap);
+}
+#setting > div > p > b {
+    text-align: center;
+}
+#setting h3 {
+    padding: var(--long-gap) 0 var(--medium-gap) 0;
+}
+#setting > div:nth-of-type(4) > p {
+    grid-template-columns: 22rem 1fr var(--btnWidth);
+    column-gap: var(--shorter-gap);
+}
+/* #setting > div:nth-of-type(4) > p:first-of-type > * {
+    border-bottom: 1px solid var(--nav-color);
+    padding: 1rem 0;
+} */
+#setting > div:nth-of-type(4) textarea {
+    display: none;
+}
+#setting h4 {
+    padding: 4rem 0 1rem 0;
+    font-size: 1.4rem;
+}
+
 #setting textarea {
-    min-height: 20vh;
+    min-height: 12vh;
     resize: vertical;
     border: 1px solid var(--nav-color);
     padding: 1rem;
@@ -528,7 +572,7 @@ fieldset[name=panelbtns] i,fieldset[name=panelbtns] u {
     background-color: #444;
     color: #ccc;
 }
-#links select, #images select {
+#links > select, #images > select {
     grid-area: dirs;
     background-color: #333;
     color: #fff;
@@ -540,7 +584,7 @@ fieldset[name=panelbtns] i,fieldset[name=panelbtns] u {
     background-color: var(--text-color);
     border: none;
 }
-#links div, #images div {
+#links div, #images > fieldset {
     grid-area: box;
     overflow-x: scroll;
 }
@@ -550,7 +594,7 @@ fieldset[name=panelbtns] i,fieldset[name=panelbtns] u {
     padding: 1rem;
 }
 
-#images > div > * {
+#images > fieldset > * {
     height: 19rem;
     width: 19rem;
     border-radius: 5px;
@@ -566,11 +610,11 @@ fieldset[name=panelbtns] i,fieldset[name=panelbtns] u {
     vertical-align: baseline;
     margin-top: 1rem;
 }
-#images > div span {
+#images > fieldset span {
     padding: 1rem;
 }
 
-#links > div p:hover,#images > div > *:hover {
+#links > div p:hover,#images > fieldset > *:hover {
     background-color: rgba(0, 0, 0, 0.6);
     color: #fff;
 }
@@ -604,31 +648,35 @@ fieldset[name=panelbtns] i,fieldset[name=panelbtns] u {
 }
 
 /** Font Awesome **/
-#open-dir,.exclamation::before,
-#index,#posttags,
+#open-dir,.exclamation::before,.alert::before,
+#index,#tags,
 nav p::before,
 #spellcheck,#lightness,
 .btn-new,.artlist button,.btn-close,
 .panel,.side h3 b,.side button,[name=tagbtns] i.on::before,
+#setting > .tab > i,#setting > div b,
 #allseve,
 #links button,#images button,
 #preview-block button
 {
     font-family:'Font Awesome 5 Free';
 }
-.exclamation::before,
-#index,#posttags,
+.exclamation::before,.alert::before,
+#index,#tags,
 #save,#preview,#lightness,#spellcheck,
 .btn-new,.artlist button,.btn-close,
 .panel,.side button,[name=tagbtns] i.on::before,
+#setting > .tab > i,#setting > div b,
 #allseve,#links button,
 #images button,
 #preview-block button { 
     font-weight: 900;
 }
+.alert.yellow::before {content: "\f071";padding-right: 1rem; color:rgb(200, 200, 50);}
+.alert.blue::before {content: "\f05a";padding-right: 1rem;color:rgb(50, 200, 200);}
 #open-dir::before {content:"\f07c  ";}
 #save::before {content:"\f019";font-family:'Font Awesome 5 Free';}
-#preview::before,#index::before,#posttags::before {content:"\f06e";font-family:'Font Awesome 5 Free';}
+#preview::before,#index::before,#tags::before {content:"\f06e";font-family:'Font Awesome 5 Free';}
 #lightness::before {content:"\f042";}
 #spellcheck::before {content:"\f891";}
 nav [data-nav=post]::before {content:"\f304";font-weight: 900;}
@@ -642,14 +690,12 @@ nav [data-nav=allsave]::before {content:"\f019";font-weight: 900;}
 [title=link]::before {content:"\f0c1";}
 [title=img]::before {content:"\f302";}
 .arrdown::before {content:"\f078" !important;}
-.side h3 b::before {content:"\f077";text-align: center;font-size: 1.1rem;}
+.side h3 b::before,#setting > div b::before {content:"\f077";text-align: center;}
 [name=copybtn]::before {content:"\f0c5"}
 [name=thumbbtn]::before {content:"\f302";}
-/* [name=parts] label:nth-of-type(1)::before {content:"\f0ca";font-family:'Font Awesome 5 Free';font-weight: 900;}
-[name=parts] label:nth-of-type(2)::before {content:"\f075";font-family:'Font Awesome 5 Free';}
-[name=parts] label:nth-of-type(3)::before {content:"\f0c8";font-family:'Font Awesome 5 Free';} */
 [name=tagbtns] i.on::before {content: "\f02b  ";color: var(--text-color);font-size: 1.2rem;}
-
+#setting > .tab > i:first-of-type::before {content: "\f0ac";}
+#setting > .tab > i:last-of-type::before {content: "\f7d9";}
 .exclamation::before {content: "\f071  ";color: var(--orange);}
 ::-webkit-scrollbar {
     width: 12px;
