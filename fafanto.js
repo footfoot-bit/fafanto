@@ -39,18 +39,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   const LINKS = document.getElementById('links');
   const IMAGS = document.getElementById('images');
 
-  //再帰的にファイルハンドルを配列に格納
-  listAll = async (dir) => {
-    const files = [];
-    for await (const entry of dir.values()) {
-      if (entry.kind === 'directory') {
-        files.push(entry);
-        files.push(...await listAll(entry));
-      } else files.push(entry);
-    }
-    return files;
-  }
-
   //正規化
   const normal = {
     url: () => {
@@ -62,6 +50,24 @@ document.addEventListener('DOMContentLoaded', async () => {
     },
     removeAllWhiteLine: (str) => {
       return str.replace(/^\s*[\r\n]/gm, '');
+    }
+  }
+  //見つける
+  const find = {
+    dirBox: (box, dirName) => {
+      for (let i = 0; i < box.length; i++) {
+        if (box[i][0] === dirName) return box[i][1];
+      }
+    },
+    postIndex: (postData, fileName) => {
+      for (let i = 0; i < postData.length; i++) {
+        if (postData[i][0] === fileName) return i;
+      }
+    },
+    numAll: (nestHdls) => {
+      let i = 0;
+      for (const array of nestHdls)  i = i + array[1].length;
+      return i;
     }
   }
 
@@ -293,6 +299,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const meBaseTemplate = monaco.editor.create(BASE.elements['template'], Monaco.opt(await Monaco.defaultText('template.html'), 'html'));
   const meBaseStyle = monaco.editor.create(BASE.elements['style'], Monaco.opt(await Monaco.defaultText('style.css'), 'css'));
   const meBaseMain = monaco.editor.create(BASE.elements['main'], Monaco.opt(await Monaco.defaultText('main.js'), 'javascript'));
+  // const meSettCustom = monaco.editor.create(SETT.elements['custom'], Monaco.opt('<p></p>\n<div></div>', 'html'));
   // instance for add html-tag button
   const meBtnsPosCont = new Monaco('post', mePostContents, Monaco.postPath);
   meBtnsPosCont.addHtmlTag();
@@ -428,47 +435,62 @@ document.addEventListener('DOMContentLoaded', async () => {
     await medHandle.getDirectoryHandle(date.year(),{create:true});
     const singleBox = [];
     singleBox.push(tmpHandle,setHandle,mjsHandle,idxHandle,stlHandle,tagHandle,arsHandle,srhHandle,icoHandle);
-    const postDirNames = {};
-    listAllforPost = async (dir) => {
-      const files = [];
-      for await (const entry of dir.values()) {
-        if (entry.kind === 'directory') {
-          files.push(entry);
-          files.push(...await listAllforPost(entry));
-        } else {
-          files.push(entry);
-          postDirNames[entry.name] = dir.name;
-        }
+    // const postDirNames = {};
+    // listAllforPost = async (dir) => {
+    //   const files = [];
+    //   for await (const entry of dir.values()) {
+    //     if (entry.kind === 'directory') {
+    //       files.push(entry);
+    //       files.push(...await listAllforPost(entry));
+    //     } else {
+    //       files.push(entry);
+    //       postDirNames[entry.name] = dir.name;
+    //     }
+    //   }
+    //   return files;
+    // }
+    const handleListChild = async (rootDirHandle, arrayBox) => {
+      for await (const hdl of rootDirHandle.values()) {
+        if (hdl.kind === 'file') arrayBox.push(hdl);
       }
-      return files;
     }
-    nestListAll = async (rootDirHandle, objBox) => {
-      const rootFileHdls =[];
+    const handleListGrandChild = async (rootDirHandle, arrayBox) => {
+      const rootFileHdls = [];
       for await (const hdl of rootDirHandle.values()) {
         if (hdl.kind === 'directory') {
+          const dirHdls = [hdl.name];
           const fileHdls = [];
           for await (const file of hdl.values()) {
             if (file.kind === 'file') fileHdls.push(file);
           }
-          objBox[hdl.name] = fileHdls;
+          dirHdls.push(fileHdls);
+          arrayBox.push(dirHdls);
         }
         else rootFileHdls.push(hdl);
       }
-      objBox['root'] = rootFileHdls;
+      if (rootFileHdls.length) arrayBox.push(['root', rootFileHdls]);
+      arrayBox.sort((a, b) => b[0] - a[0]);
     }
+    const pageBox = [];
+    const archiveBox = [];
+    const postBox = [];
+    const mediaBox = [];
+    await handleListChild(pagHandle, pageBox);
+    await handleListChild(arcHandle, archiveBox);
+    await handleListGrandChild(posHandle, postBox);
+    await handleListGrandChild(medHandle, mediaBox);
+    console.log(postBox,pageBox,mediaBox)
 
-    const mediaBox = {};
-    await nestListAll(medHandle, mediaBox);
-    const postBox = await listAllforPost(posHandle);
-    const pageBox = await listAll(pagHandle);
-    for (const dir of postBox.values()) {
-      if (dir.kind === 'directory') await arcHandle.getFileHandle(`${dir.name}.html`,{create:true});
-    }
-    const archiveBox = await listAll(arcHandle);
-    console.log(postDirNames)
+    // const postBox = await listAllforPost(posHandle);
+    // const pageBox = await listAll(pagHandle);
+    // for (const dir of postBox.values()) {
+    //   if (dir.kind === 'directory') await arcHandle.getFileHandle(`${dir.name}.html`,{create:true});
+    // }
+    // const archiveBox = await listAll(arcHandle);
+    // console.log(postDirNames)
     //file class
     class EditFile {
-      constructor(fileName,handleBox) {
+      constructor(fileName, handleBox) {
         this.fileName = fileName;
         this.box = handleBox;
       }
@@ -476,8 +498,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         return this.box.find(({name}) => name === this.fileName);
       }
       async txt() {
-        const fileHdl = await this.handle().getFile();
-        return fileHdl.text();
+        const getFile = await this.handle().getFile();
+        return getFile.text();
       }
       async document() {
         const txt = await this.txt();
@@ -501,6 +523,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         super(fileName,handleBox);
         this.fileName = 'setting.html';
         this.box = singleBox;
+        // this.custom = meSettCustom;
         this.setts = [
           'index-title',
           'index-subtitle',
@@ -519,7 +542,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           'search-desc',
           'post-date-type',
           'post-taglist',
-          'custom-editor'
+          'custom'
         ];
       }
       async load() {
@@ -537,6 +560,12 @@ document.addEventListener('DOMContentLoaded', async () => {
           const tagTextArr = convert.strNewLineToArr(str);
           for (const tagText of tagTextArr) POST.elements['tagbtns'].insertAdjacentHTML('beforeend',`<i data-tag="${tagText}">${tagText}</i>`);
         }
+      }
+      addCustomBtns() {
+        const btnHtml = SETT.elements['custom'].value;
+        const doc = DOMP.parseFromString(btnHtml,'text/html');
+        const all = doc.querySelector('*');
+        console.log(all)
       }
       // addCustomListPath() {
       //   SETT.elements['add-post-path'].onclick = () => {
@@ -557,19 +586,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     const setting = new EditSetting();
     await setting.load();
+    setting.addCustomBtns();
 
     //bases
     class EditBases extends EditTextFile {
-      constructor(fileName,handleBox,monacoEditor) {
+      constructor(fileName, handleBox, monacoEditor) {
         super(fileName,handleBox);
         this.fileName = fileName;
         this.box = singleBox;
         this.url = `default-${fileName}`;
         this.me = monacoEditor;
-      };
+      }
       document() {
         return DOMP.parseFromString(this.me.getValue(),'text/html');
-      };
+      }
       async load() {
         const text = await this.txt();
         if (text) this.me.setValue(text);
@@ -579,16 +609,16 @@ document.addEventListener('DOMContentLoaded', async () => {
           this.me.setValue(def);
           await this.write(def);
         }
-      };
+      }
       async save() {
         await this.write(this.me.getValue());
-      };
-    };
-    const template = new EditBases('template.html',null,meBaseTemplate);
-    const style = new EditBases('style.css',null,meBaseStyle);
-    const main = new EditBases('main.js',null,meBaseMain);
+      }
+    }
+    const template = new EditBases('template.html', null, meBaseTemplate);
+    const style = new EditBases('style.css', null, meBaseStyle);
+    const main = new EditBases('main.js', null, meBaseMain);
     for (const baseFile of [template,style,main]) await baseFile.load();
-    const favicon = new EditBases('favicon.svg',null);
+    const favicon = new EditBases('favicon.svg', null);
     for (const file of [favicon]) {
       const txt = await file.txt();
       if (!txt) await file.writeURLToFile();
@@ -596,7 +626,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     //HTML
     class EditHTML extends EditFile {
       constructor(fileName, handleBox, className, titleElem, descriptionElem, thumbnailPath, RequireArray, relativePath, middlePath) {
-        super(fileName,handleBox);
+        super(fileName, handleBox);
         this.fileName = fileName;
         this.box = handleBox;
         this.class = className;
@@ -655,7 +685,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           c.remove();
         }
         return doc;
-      };
+      }
       existsRequiredElems(doc) {
         const reqElems = ['html','head','body','title','[rel=stylesheet]','script','.header','.main','.footer'];
         if (this.req) for (const word of this.req) reqElems.push(word);
@@ -663,7 +693,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         for (const elem of reqElems) {
           if (!doc.querySelector(elem)) dialog.notTag(elem);
         }
-      };
+      }
       insertFafantoHeadVal(doc, vals) {
         const elems = doc.head.querySelectorAll('[f-val]');
         if (elems.length) for (const elem of elems) {
@@ -678,7 +708,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           elem.insertAdjacentHTML('afterbegin', valArr.join(''));
           elem.removeAttribute('f-val');
         }
-      };
+      }
       insertFafantoBodyVal(doc, vals) {
         const elems = doc.body.querySelectorAll('f-val');
         if (elems.length) for (const elem of elems) {
@@ -691,7 +721,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (val) elem.insertAdjacentHTML('beforebegin',val);
           }
         }
-      };
+      }
       insertFafantoAttr(doc, vals) {
         const elems = doc.querySelectorAll('[f-attr]');
         if (elems.length) for (const elem of elems) {
@@ -963,11 +993,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     // post and page common class
     class EditArticle extends EditHTML {
-      checkNewFileName() {
-        if (this.fileName === '.html') dialog.nameEmpty();
-        const result = this.box.findIndex(({name}) => name === this.fileName);
-        if (result !== -1) dialog.nameExists();
-      }
       loadDescription(doc) {
         return doc.head.querySelector('[name="description"]')?.getAttribute('content')?? '';
       }
@@ -1071,7 +1096,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           'description': this.desc.value,
           'thumbpath': this.thumb.value,
           'published-date': this.time.value
-        };
+        }
         return vals;
       }
       fafantoValsVariableTrans(beforeDoc) {
@@ -1082,7 +1107,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           'thumbpath': this.loadImage(beforeDoc),
           // 'thumburl': normal.url() + this.loadImage(beforeDoc),
           'published-date': this.loadTime(beforeDoc)
-        };
+        }
         return vals;
       }
       transHTMLCommon(doc,beforeDoc) {
@@ -1107,19 +1132,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         this.removeFafantoTag(doc);
         await this.write(convert.docToHTMLStr(doc));
       }
-      clickEditBackBtn() {
-        this.form.querySelector('.artlist').onclick = async (e) => {
-          if (e.target.tagName === 'BUTTON') {
-            this.form.querySelector('.bench').classList.toggle('hide');
-            e.target.classList.toggle('btn-close');
-            // this.form.elements['new'].classList.toggle('hide');
-            const fileName = e.target.parentNode.dataset.name;
-            const fs = this.form.querySelectorAll(`.artlist fieldset:not([data-name="${fileName}"])`);
-            for (const f of fs) f.classList.toggle('hide');
-            if (!this.form.querySelector('.bench').classList.contains('hide')) await new this.name(fileName).loadElements();
-          }
-        }
-      }
       // async existElements() {
       //   const article = new this.name();
       //   const tmpDoc = await article.templateToDoc();
@@ -1129,27 +1141,26 @@ document.addEventListener('DOMContentLoaded', async () => {
       //       this.form.elements[part].parentNode.setAttribute('title','This class does not exist in the template');
       //     }
       //   }
-      // };
+      // }
     }
     // post class
     class EditPost extends EditArticle {
-      constructor(fileName) {
+      constructor(fileName, dirName) {
         super(fileName);
-        this.box = postBox;
+        this.box = find.dirBox(postBox, dirName);
         this.class = 'post';
         this.title = POST.querySelector(`.artlist > [data-name="${this.fileName}"] > input`);
         this.desc = POST.elements['description'];
         this.thumb = POST.elements['thumbpath'];
         this.req = ['f-elm[title]','f-elm[contents]','meta[name="date"]'];
         this.relpath = '../../';
-        this.midpath = `post/${postDirNames[this.fileName]}/`;
+        this.midpath = `post/${dirName}/`;
         this.ct = mePostContents;
         this.public = POST.querySelector(`.artlist > [data-name="${this.fileName}"] label > input`);
         this.time = POST.querySelectorAll(`.artlist > [data-name="${this.fileName}"] > input`)[1];
         this.parts = ['table-of-contents','comment','freespace1','freespace2'];
         this.form = POST;
         this.tagbtns = POST.elements['tagbtns'];
-        this.name = EditPost;
         this.prevNextNum = [+2,+1,-1,-2];
       }
       loadContents(doc) {
@@ -1187,27 +1198,13 @@ document.addEventListener('DOMContentLoaded', async () => {
           elem.previousElementSibling.insertAdjacentHTML('afterbegin',`<a href="${this.relpath}tags.html?q=${tagText}">${tagText}</a>`);
         }
       }
-      // async setSnsShareLinks(doc,title) {
-      //   const twitter = doc.querySelector('.share-twitter');
-      //   const facebook = doc.querySelector('.share-facebook');
-      //   const line = doc.querySelector('.share-line');
-      //   const url = await this.fullURL();
-      //   const encodeUrl = encodeURIComponent(url);
-      //   const encodeTitle = encodeURIComponent(title);
-      //   if (twitter) twitter.setAttribute('href',`https://twitter.com/share?url=${encodeUrl}&text=${encodeTitle}`);
-      //   if (facebook) facebook.setAttribute('href',`https://www.facebook.com/sharer/sharer.php?u=${encodeUrl}`);
-      //   if (line) line.setAttribute('href',`https://line.me/R/msg/text/?${encodeTitle}%20${encodeUrl}`);
-      // };
-      findIndex(allLatestData) {
-        for (let i = 0; i < allLatestData.length; i++) {
-          if (allLatestData[i][0] === this.fileName) return i;
-        }
-      }
+
+
       insertPostLinksPrevNext(doc) {
         const elems = doc.querySelectorAll('f-elm[post-links=prev-next]');
         if (elems.length) for (const elem of elems) {
           elem.insertAdjacentHTML('beforebegin','<ul class="post-links"></ul>');
-          const index = this.findIndex(allPostData);
+          const index = find.postIndex(allPostData, this.fileName);
           for (const pnNum of this.prevNextNum) {
             if (allPostData[index + pnNum]) this.insertPostCard(elem.previousElementSibling, allPostData[index + pnNum]);
           }
@@ -1245,22 +1242,26 @@ document.addEventListener('DOMContentLoaded', async () => {
         this.insertTagsLink(doc,convert.elemsToTextArr(this.loadTagAElems(beforeDoc)));
         this.insertPostLinksPrevNext(doc);
       }
-      static latestDirs()  {
-        const postDirs = [];
-        for (const dir of postBox.values()) {
-          if (dir.kind === 'directory') postDirs.push(dir.name);
+      static clickEditBackBtn() {
+        POST.querySelector('.artlist').onclick = async (e) => {
+          if (e.target.tagName === 'BUTTON') {
+            POST.querySelector('.bench').classList.toggle('hide');
+            e.target.classList.toggle('btn-close');
+            const fileName = e.target.parentNode.dataset.name;
+            const fs = POST.querySelectorAll(`.artlist fieldset:not([data-name="${fileName}"])`);
+            for (const f of fs) f.classList.toggle('hide');
+            if (!POST.querySelector('.bench').classList.contains('hide')) await new EditPost(fileName, POST.elements['dirs'].value).loadElements();
+          }
         }
-        return postDirs.sort((a, b) => b - a);
       }
       static addDirsList(form)  {
-        const dirs = this.latestDirs();
-        for (const dir of dirs) {
-          form.elements['dirs'].insertAdjacentHTML('beforeend',`<option value="${dir}">${dir}</option>`);
+        for (const dir of postBox) {
+          form.elements['dirs'].insertAdjacentHTML('beforeend',`<option value="${dir[0]}">${dir[0]}</option>`);
         }
         form.elements['dirs'].value = date.year();
       }
-      static async getPostData(fileName,dirName) {
-        const post = new EditPost(fileName);
+      static async getPostData(fileName, dirName) {
+        const post = new EditPost(fileName, dirName);
         const doc = await post.document();
         const tit = post.loadTitle(doc);
         const dti = post.loadTime(doc);
@@ -1272,9 +1273,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         return [fileName,tit,dirName,dti,rti,img,tgs,dsc,dft]; //0:filename, 1:title, 2:dirctory name, 3:datetime, 4:datetime(num), 5:image path 6:tags text array 7:description 8.public boolean
       }
       static async latestDataInDir(dirName, publicBool) {
-        const dHandle = postBox.find(({name}) => name === dirName);
+        // const dHandle = this.box.find(({name}) => name === dirName);
+        const fileHdls = find.dirBox(postBox, dirName);
         const data = [];
-        for await (const file of dHandle.values()) {
+        for await (const file of fileHdls.values()) {
           if (file.kind === 'file') {
             const array = await this.getPostData(file.name, dirName);
             if (publicBool) {
@@ -1285,15 +1287,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         return data.sort((a, b) => b[4] - a[4]);
       }
       static async allLatestData(publicBool) {
-        const dirs = this.latestDirs();
+        // const dirs = this.latestDirs();
         const allData = [];
         const dirsData = {};
         let i = 0;
-        for (const dir of dirs) {
-          const data = await this.latestDataInDir(dir, publicBool);
+        for (const dir of postBox) {
+          const data = await this.latestDataInDir(dir[0], publicBool);
           allData.push(...data);
           i = i + data.length;
-          dirsData[dir] = {start: i - data.length, length: data.length};
+          dirsData[dir[0]] = {start: i - data.length, length: data.length};
         }
         console.log('make all post data', dirsData);
         return [allData, dirsData];
@@ -1337,7 +1339,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
       }
     }
-    new EditPost().clickEditBackBtn();
+    EditPost.clickEditBackBtn();
     EditPost.addDirsList(POST);
     EditPost.addDirsList(LINKS);
     EditPost.dirSelect();
@@ -1363,8 +1365,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         this.links = ['header','footer'];
         this.form = PAGE;
         this.ct = mePageContents;
-        this.name = EditPage;
-      };
+      }
       async loadElements() {
         const doc = await this.document();
         this.setPublicCheck(this.loadPublicData(doc));
@@ -1373,21 +1374,20 @@ document.addEventListener('DOMContentLoaded', async () => {
         this.thumb.value = this.loadImage(doc);
         this.loadPartsCheck(doc);
         this.checkDisplayLinks(this.loadDataAttrLinks(doc));
-      };
+      }
       loadDataAttrLinks(doc) {
-        // for (const link of this.links) if (doc.head.hasAttribute('data-links')) linkArr.push(link);
         const value = doc.head.getAttribute('data-links');
         const linkArr = convert.strToArr(value,',');
         return linkArr;
-      };
+      }
       checkDisplayLinks(linkArr) {
         for (const link of this.links) this.form.elements[link].checked = false;
         if (linkArr.length)
         for (const link of linkArr) this.form.elements[link].checked = true;
-      };
+      }
       insertDispalyDataToHead(doc, linkArr) {
         if (linkArr.length) doc.head.dataset.links = linkArr;
-      };
+      }
       makeHTMLSpecial(doc) {
         this.insertPublicData(doc, this.public.checked);
         this.insertFafantoElmVariable(doc);
@@ -1416,6 +1416,18 @@ document.addEventListener('DOMContentLoaded', async () => {
         allPageData = await EditPage.allData(true);
         await this.saveElems();
       }
+      static clickEditBackBtn() {
+        PAGE.querySelector('.artlist').onclick = async (e) => {
+          if (e.target.tagName === 'BUTTON') {
+            PAGE.querySelector('.bench').classList.toggle('hide');
+            e.target.classList.toggle('btn-close');
+            const fileName = e.target.parentNode.dataset.name;
+            const fs = PAGE.querySelectorAll(`.artlist fieldset:not([data-name="${fileName}"])`);
+            for (const f of fs) f.classList.toggle('hide');
+            if (!PAGE.querySelector('.bench').classList.contains('hide')) await new EditPage(fileName).loadElements();
+          }
+        }
+      }
       static async allData(publicBool) {
         const data = [];
         for (const file of pageBox.values()) {
@@ -1440,7 +1452,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       static async addPageList() {
         PAGBE.classList.add('hide');
         PAGLI.textContent = '';
-        // PAGNW.elements['btn'].classList.remove('btn-close');
         const data = await this.allData(false);
         for (const d of data) {
           let checked = '';
@@ -1457,7 +1468,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
       }
     }
-    new EditPage().clickEditBackBtn();
+    EditPage.clickEditBackBtn();
     await EditPage.addPageList();
 
     const media = {
@@ -1466,11 +1477,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         return URL.createObjectURL(getFile);
       },
       addDirsList: () => {
-        for (const dir in mediaBox) IMAGS.elements['dirs'].insertAdjacentHTML('afterbegin',`<option value="${dir}">${dir}</option>`);
+        for (const dir of mediaBox) IMAGS.elements['dirs'].insertAdjacentHTML('beforeend',`<option value="${dir[0]}">${dir[0]}</option>`);
         IMAGS.elements['dirs'].value = date.year();
       },
       addListInDir: async (elem, dirName) => {
-        const hdles = mediaBox[dirName];
+        const hdles = find.dirBox(mediaBox, dirName);
           for await (const med of hdles) {
             if (med.name.match(/(.jpg|.jpeg|.png|.gif|.apng|.svg|.jfif|.pjpeg|.pjp|.ico|.cur)/i)) {
               const url = await media.localUrl(med);
@@ -1501,8 +1512,10 @@ document.addEventListener('DOMContentLoaded', async () => {
           IMAGS.classList.toggle('hide');
           IMAGS.elements['dirbox'].onclick = (e) => {
             if (e.target.tagName === 'IMG') {
+              let dir = '';
               const dirName = IMAGS.elements['dirs'].value;
-              form.elements['thumbpath'].value = `media/${dirName}/${e.target.title}`;
+              if (dirName !== 'root') dir = `${dirName}/`
+              form.elements['thumbpath'].value = `media/${dir}${e.target.title}`;
             }
           }
         }
@@ -1512,7 +1525,225 @@ document.addEventListener('DOMContentLoaded', async () => {
     media.dirSelect();
     media.thumbSelect(POST);
     media.thumbSelect(PAGE);
-    // media class
+
+    //セーブ
+    const save = {
+      form: () => {
+        return H2SE.dataset.form;
+      },
+      fileName: () => {
+        return SAVE.dataset.file;
+      },
+      prevNextPosts: async () => {
+        const index = find.postIndex(allPostData, save.fileName());
+        const prevNextNum = new EditPost().prevNextNum;
+        for (const num of prevNextNum) {
+          if (allPostData[index + num]) await new EditPost(allPostData[index + num][0]).saveTransfer();
+        }
+      },
+      singles: async () => {
+        await index.save();
+        await tags.save();
+        await archives.save();
+        await new EditArchive(`${postDirNames[save.fileName()]}.html`).save();
+      },
+      postSaveFileNames: ['index.html','archives.html','tags.html','前後のポスト'],
+      clickBtn: () => {
+        SAVE.onclick = async () => {
+          const saveName = [];
+          saveName.push(save.fileName());
+          if (save.form() === 'bases') {
+            dialog.confirmSave(saveName);
+            for (const base of [['template.html',template],['style.css',style],['main.js',main]])
+            if (save.fileName() === base[0]) await base[1].save();
+          }
+          else if (save.form() === 'setting') await setting.save();
+          else if (save.form() === 'post') {
+            for (const name of save.postSaveFileNames) saveName.push(name);
+            dialog.confirmSave(saveName);
+            allPostData = '';
+            dirsData = '';
+            allPageData = await EditPage.allData(true);
+            console.log(save.fileName())
+            await new EditPost(save.fileName(), POST.elements['dirs'].value).save();
+            // await save.prevNextPosts();
+            // await save.singles();
+            // saveName.push(`${await save.postYear()}.html`);
+          }
+          else if (save.form() === 'page') {
+            dialog.confirmSave(saveName);
+            allPageData = '';
+            const data = await EditPost.allLatestData(true);
+            allPostData = data[0];
+            dirsData = data[1];
+            await new EditPage(save.fileName()).save();
+          }
+          dialog.successSave(saveName);
+        }
+      }
+    }
+    save.clickBtn();
+
+  /// event ///
+    //click Preview button
+    PREV.onclick = () => {
+      const fileName = SAVE.dataset.file;
+      const form = H2SE.dataset.form;
+      if (form === 'post') new EditPost(fileName, POST.elements['dirs'].value).preview();
+      else if (form === 'page') new EditPage(fileName).preview();
+    }
+    document.getElementById('index').onclick = () => index.preview();
+    document.getElementById('tags').onclick = () => tags.preview();
+
+  // まとめてセーブ
+    // ファイル数を挿入
+    ALLS.elements['archive'].parentNode.insertAdjacentHTML('beforeend', `(${archiveBox.length})`);
+    ALLS.elements['post'].parentNode.insertAdjacentHTML('beforeend', `(${find.numAll(postBox)})`);
+    ALLS.elements['page'].parentNode.insertAdjacentHTML('beforeend', `(${pageBox.length})`);
+    //click start saving
+    ALLS.elements['save'].onclick = async () => {
+      const log = ALLS.querySelector('.log');
+      log.textContent = '';
+      dialog.confirmSave('checked files');
+      const data = await EditPost.allLatestData(true);
+      allPostData = data[0];
+      dirsData = data[1];
+      allPageData = await EditPage.allData(true);
+      for (const file of [['index',index],['archives',archives],['tags',tags],['search',search]]) {
+        if (ALLS.elements[file[0]].checked) {
+          await file[1].save();
+          log.insertAdjacentHTML('beforeend', `<p>Succeeded in saving ${file[1].fileName}</p>`);
+        }
+      }
+      if (ALLS.elements['archive'].checked) {
+        for (const file of archiveBox.values()) {
+          if (file.kind === 'file') {
+            await new EditArchive(file.name).save();
+            log.insertAdjacentHTML('beforeend', `<p>Succeeded in saving ${file.name}</p>`);
+          }
+        }
+      }
+      for (const art of [['post', postBox, EditPost],['page', pageBox, EditPage]]) {
+        if (ALLS.elements[art[0]].checked) {
+          for (const file of art[1].values()) {
+            if (file.kind === 'file') {
+              await new art[2](file.name).saveTransfer();
+              log.insertAdjacentHTML('beforeend', `<p>Succeeded in saving ${file.name}</p>`);
+            }
+          }
+        }
+      }
+      log.insertAdjacentHTML('beforeend', `<p>Saving is complete.</p>`);
+      dialog.completeSave();
+    }
+
+    document.getElementById('guide').classList.add('hide');
+
+  /// Mutation Observer ///
+    obsForm = () => {
+      SAVE.removeAttribute('data-file');
+      ACTF.textContent = '';
+      SAVE.classList.add('disable');
+      PREV.classList.add('disable');
+      const form = H2SE.dataset.form;
+      if (form === 'post' || form === 'page') {
+        if(document.querySelector(`#${form} .bench`).className !== 'hide') {
+          const fileName = document.getElementById(form).querySelector('.portal fieldset:not(.hide)').dataset.name;
+          SAVE.dataset.file = fileName;
+          ACTF.textContent = fileName;
+          SAVE.classList.remove('disable');
+          PREV.classList.remove('disable');
+        }
+      }
+      else if (form === 'bases') {
+        const filename = BASE.elements['paneltab'].dataset.currenttab;
+        SAVE.dataset.file = filename;
+        ACTF.textContent = filename;
+        SAVE.classList.remove('disable');
+      }
+      else if (form === 'setting') {
+        SAVE.dataset.file = `${form}.html`;
+        ACTF.textContent = `${form}.html`;
+        SAVE.classList.remove('disable');
+      }
+    }
+    obsPost = () => {
+      if (POSBE.classList.contains('hide')) {
+        SAVE.removeAttribute('data-file');
+        SAVE.classList.add('disable');
+        PREV.classList.add('disable');
+        POST.elements['dirs'].classList.remove('hide');
+        ACTF.textContent = '';
+        const inputs = POST.querySelectorAll('.artlist > fieldset > input');
+        for (const input of inputs) input.setAttribute('readonly','readonly');
+        for (const span of POST.elements['tagbtns'].querySelectorAll('i')) span.removeAttribute('class');
+        return;
+      }
+      const fileName = POST.querySelector('.artlist > fieldset:not(.hide)').dataset.name;
+      SAVE.dataset.file = fileName;
+      ACTF.textContent = fileName;
+      SAVE.classList.remove('disable');
+      PREV.classList.remove('disable');
+      POST.elements['dirs'].classList.add('hide');
+      const inputs = POST.querySelectorAll(`.artlist > [data-name="${fileName}"] > input`);
+      for (const input of inputs) input.removeAttribute('readonly');
+    }
+    obsPage = () => {
+      if (PAGBE.classList.contains('hide')) {
+        SAVE.removeAttribute('data-file');
+        SAVE.classList.add('disable');
+        PREV.classList.add('disable');
+        ACTF.textContent = '';
+        const inputs = PAGE.querySelectorAll('.artlist > fieldset > input');
+        for (const input of inputs) input.setAttribute('readonly','readonly');
+        return;
+      }
+      const fileName = PAGE.querySelector('.artlist > fieldset:not(.hide)').dataset.name;
+      SAVE.dataset.file = fileName;
+      ACTF.textContent = fileName;
+      SAVE.classList.remove('disable');
+      PREV.classList.remove('disable');
+      const inputs = PAGE.querySelectorAll(`.artlist > [data-name="${fileName}"] > input`);
+      for (const input of inputs) input.removeAttribute('readonly');
+    }
+    obsBasesTab = () => {
+      const filename = BASE.elements['paneltab'].dataset.currenttab;
+      SAVE.dataset.file = filename;
+      ACTF.textContent = filename;
+      // SAVE.classList.remove('disable');
+    }
+    const currentForm = new MutationObserver(obsForm);
+    const currentPostFile = new MutationObserver(obsPost);
+    const currentPageFile = new MutationObserver(obsPage);
+    const currentThemaFile = new MutationObserver(obsBasesTab);
+    const obsConfig = (attr) => {
+      return {attributes: true, attributeFilter: [attr]};
+    }
+    currentForm.observe(H2SE, obsConfig('data-form'));
+    currentPostFile.observe(POSBE, obsConfig('class'));
+    currentPageFile.observe(PAGBE, obsConfig('class'));
+    currentThemaFile.observe(BASE.elements['paneltab'], obsConfig('data-currenttab'));
+  }
+  LOAD.classList.add('hide');
+});
+
+      //   if (twitter) twitter.setAttribute('href',`https://twitter.com/share?url=${encodeUrl}&text=${encodeTitle}`);
+      //   if (facebook) facebook.setAttribute('href',`https://www.facebook.com/sharer/sharer.php?u=${encodeUrl}`);
+      //   if (line) line.setAttribute('href',`https://line.me/R/msg/text/?${encodeTitle}%20${encodeUrl}`);
+
+  //再帰的にファイルハンドルを配列に格納
+  // listAll = async (dir) => {
+  //   const files = [];
+  //   for await (const entry of dir.values()) {
+  //     if (entry.kind === 'directory') {
+  //       files.push(entry);
+  //       files.push(...await listAll(entry));
+  //     } else files.push(entry);
+  //   }
+  //   return files;
+  // }
+
+      // media class
     // class EditMedia {
     //   static async localUrl(fileHandle) {
     //     const getFile = await fileHandle.getFile();
@@ -1569,206 +1800,3 @@ document.addEventListener('DOMContentLoaded', async () => {
     // await EditMedia.dirSelect();
     // EditMedia.thumbSelect(POST);
     // EditMedia.thumbSelect(PAGE);
-
-    //セーブ
-    const save = {
-      form: () => {
-        return H2SE.dataset.form;
-      },
-      fileName: () => {
-        return SAVE.dataset.file;
-      },
-      oldPost: async () => {
-        await new EditPost(save.fileName()).save();
-        // await save.prevNextPosts();
-      },
-      prevNextPosts: async () => {
-        const index = new EditPost(save.fileName()).findIndex(allPostData);
-        const prevNextNum = new EditPost().prevNextNum;
-        for (const num of prevNextNum) {
-          if (allPostData[index + num]) await new EditPost(allPostData[index + num][0]).saveTransfer();
-        }
-      },
-      singles: async () => {
-        await index.save();
-        await tags.save();
-        await archives.save();
-        await new EditArchive(`${postDirNames[save.fileName()]}.html`).save();
-      },
-      postSaveFileNames: ['index.html','archives.html','tags.html','前後のポスト'],
-      clickBtn: () => {
-        SAVE.onclick = async () => {
-          const saveName = [];
-          saveName.push(save.fileName());
-          if (save.form() === 'bases') {
-            dialog.confirmSave(saveName);
-            for (const base of [['template.html',template],['style.css',style],['main.js',main]])
-            if (save.fileName() === base[0]) await base[1].save();
-          }
-          else if (save.form() === 'setting') await setting.save();
-          else if (save.form() === 'post') {
-            for (const name of save.postSaveFileNames) saveName.push(name);
-            dialog.confirmSave(saveName);
-            allPostData = '';
-            dirsData = '';
-            allPageData = await EditPage.allData(true);
-            await save.oldPost();
-            // await save.singles();
-            // saveName.push(`${await save.postYear()}.html`);
-          }
-          else if (save.form() === 'page') {
-            dialog.confirmSave(saveName);
-            allPageData = '';
-            const data = await EditPost.allLatestData(true);
-            allPostData = data[0];
-            dirsData = data[1];
-            await new EditPage(save.fileName()).save();
-          }
-          dialog.successSave(saveName);
-        }
-      }
-    }
-    save.clickBtn();
-
-  /// event ///
-    //click Preview button
-    PREV.onclick = async () => {
-      const fileName = SAVE.dataset.file;
-      const form = H2SE.dataset.form;
-      if (form === 'post') await new EditPost(fileName).preview();
-      else if (form === 'page') await new EditPage(fileName).preview();
-    };
-    document.getElementById('index').onclick = async () => await index.preview();
-    document.getElementById('tags').onclick = async () => await tags.preview();
-
-  // まとめてセーブ
-    // ファイル数を挿入
-    ALLS.elements['archive'].parentNode.insertAdjacentHTML('beforeend', `(${EditPost.latestDirs().length})`);
-    ALLS.elements['post'].parentNode.insertAdjacentHTML('beforeend', `(${postBox.length - EditPost.latestDirs().length})`);
-    ALLS.elements['page'].parentNode.insertAdjacentHTML('beforeend', `(${pageBox.length})`);
-    //click start saving
-    ALLS.elements['save'].onclick = async () => {
-      const log = ALLS.querySelector('.log');
-      log.textContent = '';
-      dialog.confirmSave('checked files');
-      const data = await EditPost.allLatestData(true);
-      allPostData = data[0];
-      dirsData = data[1];
-      allPageData = await EditPage.allData(true);
-      for (const file of [['index',index],['archives',archives],['tags',tags],['search',search]]) {
-        if (ALLS.elements[file[0]].checked) {
-          await file[1].save();
-          log.insertAdjacentHTML('beforeend', `<p>Succeeded in saving ${file[1].fileName}</p>`);
-        }
-      }
-      if (ALLS.elements['archive'].checked) {
-        for (const file of archiveBox.values()) {
-          if (file.kind === 'file') {
-            await new EditArchive(file.name).save();
-            log.insertAdjacentHTML('beforeend', `<p>Succeeded in saving ${file.name}</p>`);
-          }
-        }
-      }
-      for (const art of [['post',postBox,EditPost],['page',pageBox,EditPage]]) {
-        if (ALLS.elements[art[0]].checked) {
-          for (const file of art[1].values()) {
-            if (file.kind === 'file') {
-              await new art[2](file.name).saveTransfer();
-              log.insertAdjacentHTML('beforeend', `<p>Succeeded in saving ${file.name}</p>`);
-            }
-          }
-        }
-      }
-      log.insertAdjacentHTML('beforeend', `<p>Saving is complete.</p>`);
-      dialog.completeSave();
-    };
-
-    document.getElementById('guide').classList.add('hide');
-
-  /// Mutation Observer ///
-    obsForm = () => {
-      SAVE.removeAttribute('data-file');
-      ACTF.textContent = '';
-      SAVE.classList.add('disable');
-      PREV.classList.add('disable');
-      const form = H2SE.dataset.form;
-      if (form === 'post' || form === 'page') {
-        if(document.querySelector(`#${form} .bench`).className !== 'hide') {
-          const fileName = document.getElementById(form).querySelector('.portal fieldset:not(.hide)').dataset.name;
-          SAVE.dataset.file = fileName;
-          ACTF.textContent = fileName;
-          SAVE.classList.remove('disable');
-          PREV.classList.remove('disable');
-        }
-      }
-      else if (form === 'bases') {
-        const filename = BASE.elements['paneltab'].dataset.currenttab;
-        SAVE.dataset.file = filename;
-        ACTF.textContent = filename;
-        SAVE.classList.remove('disable');
-      }
-      else if (form === 'setting') {
-        SAVE.dataset.file = `${form}.html`;
-        ACTF.textContent = `${form}.html`;
-        SAVE.classList.remove('disable');
-      }
-    };
-    obsPost = () => {
-      if (POSBE.classList.contains('hide')) {
-        SAVE.removeAttribute('data-file');
-        SAVE.classList.add('disable');
-        PREV.classList.add('disable');
-        POST.elements['dirs'].classList.remove('hide');
-        ACTF.textContent = '';
-        const inputs = POST.querySelectorAll('.artlist > fieldset > input');
-        for (const input of inputs) input.setAttribute('readonly','readonly');
-        for (const span of POST.elements['tagbtns'].querySelectorAll('i')) span.removeAttribute('class');
-        return;
-      }
-      const fileName = POST.querySelector('.artlist > fieldset:not(.hide)').dataset.name;
-      SAVE.dataset.file = fileName;
-      ACTF.textContent = fileName;
-      SAVE.classList.remove('disable');
-      PREV.classList.remove('disable');
-      POST.elements['dirs'].classList.add('hide');
-      const inputs = POST.querySelectorAll(`.artlist > [data-name="${fileName}"] > input`);
-      for (const input of inputs) input.removeAttribute('readonly');
-    };
-    obsPage = () => {
-      if (PAGBE.classList.contains('hide')) {
-        SAVE.removeAttribute('data-file');
-        SAVE.classList.add('disable');
-        PREV.classList.add('disable');
-        ACTF.textContent = '';
-        const inputs = PAGE.querySelectorAll('.artlist > fieldset > input');
-        for (const input of inputs) input.setAttribute('readonly','readonly');
-        return;
-      }
-      const fileName = PAGE.querySelector('.artlist > fieldset:not(.hide)').dataset.name;
-      SAVE.dataset.file = fileName;
-      ACTF.textContent = fileName;
-      SAVE.classList.remove('disable');
-      PREV.classList.remove('disable');
-      const inputs = PAGE.querySelectorAll(`.artlist > [data-name="${fileName}"] > input`);
-      for (const input of inputs) input.removeAttribute('readonly');
-    };
-    obsBasesTab = () => {
-      const filename = BASE.elements['paneltab'].dataset.currenttab;
-      SAVE.dataset.file = filename;
-      ACTF.textContent = filename;
-      // SAVE.classList.remove('disable');
-    };
-    const currentForm = new MutationObserver(obsForm);
-    const currentPostFile = new MutationObserver(obsPost);
-    const currentPageFile = new MutationObserver(obsPage);
-    const currentThemaFile = new MutationObserver(obsBasesTab);
-    const obsConfig = (attr) => {
-      return {attributes: true, attributeFilter: [attr]};
-    };
-    currentForm.observe(H2SE, obsConfig('data-form'));
-    currentPostFile.observe(POSBE, obsConfig('class'));
-    currentPageFile.observe(PAGBE, obsConfig('class'));
-    currentThemaFile.observe(BASE.elements['paneltab'], obsConfig('data-currenttab'));
-  };
-  LOAD.classList.add('hide');
-});

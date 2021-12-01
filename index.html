@@ -120,12 +120,6 @@
     <!-- ページ -->
     <form id="page">
       <div class="portal">
-        <!-- <fieldset name="new">
-          <input name="title" placeholder="Add Title">
-          <input type="datetime-local" name="date">
-          <input name="name" placeholder="Add Filename">
-          <button name="btn" type="button" class="btn-new"></button>
-        </fieldset> -->
         <div class="artlist">
           <fieldset>
             <input placeholder="タイトル"><input type="datetime-local"><input placeholder="ファイル名"><button type="button" class="btn-new"></button>
@@ -139,12 +133,7 @@
             <fieldset name="panelbtns">
               <i>b</i><i>small</i><i>mark</i><i>br</i><i>p</i><i>h2</i><i>h3</i><i>h4</i><i>a</i><i>ul</i><i>table</i><s title="link"></s><s title="img"></s>
             </fieldset>
-            <!-- <fieldset name="paneltab"> -->
-              <!-- <button type="button" data-tab="description" >Description</button> -->
-              <!-- <button type="button" data-tab="contents" class="on">Contents</button> -->
-            <!-- </fieldset> -->
           </div>
-          <!-- <fieldset name="description" class="monacos hide"></fieldset> -->
           <fieldset name="contents" class="monacos"></fieldset>
         </div>
         <div class="side">
@@ -194,7 +183,7 @@
     </form>
     <!-- 設定 -->
     <form id="setting">
-      <p class="tab"><i title="サイトの設定"></i><b class="on">共通</b><b>各タイトルと説明</b><b>Postの日付、タグ</b><b>Postリスト</b><i title="ツールの設定"></i><b>カスタムエディター</b></p>
+      <p class="tab"><i title="サイトの設定"></i><b class="on">共通</b><b>各タイトルと説明</b><b>Postの日付、タグ</b><i title="ツールの設定"></i><b>カスタムエディター</b></p>
       <div class="show">
         <h3>サイト共通</h3>
         <p><span>サイト名*</span><input name="index-title" placeholder="site title" type="text"></p>
@@ -204,8 +193,6 @@
         <p><span>サイトの画像</span><input name="index-thumbpath" placeholder="media/image.png" type="text"></p>
         <p><span>ブランク画像</span><input name="blank-thumbpath" placeholder="media/blank.png" type="text"></p>
         <p><span>あなたの名前</span><input name="author" placeholder="your name" type="text"></p>
-        <div class="alert blue">本文のサイト名を画像にしたい場合はテンプレートに直接HTMLを記入してください。本文のタイトルはテンプレートに入ってる内容が優先されます。</div>
-        
       </div>
       <div>
         <h3>各タイトルと説明</h3>
@@ -236,16 +223,16 @@
 みかん Orange"></textarea><small>改行が区切りになります。スペースで複数の単語を使用可</small></span>
         </p>
       </div>
-      <div>
+      <!-- <div>
         <h3>Postリスト</h3>
         <div>ポストの各リストはテンプレートにul classタグを挿入して使用します。</div>
-        <h4>マニュアル</h4>
+        <h4>マニュアル</h4> -->
         <!-- <p><span>リストのclass名</span><span>custom-post-list-1</span></p>
         <p>
           <span>リストのパス</span><span><textarea name="custom-list-1" placeholder="2019/zzzz.html
 2017/xxxx.html"></textarea><button name="add-path" type="button">add</button><small>改行が区切りになります</small></span>
         </p> -->
-        <p><span>class名</span><span>リストパス <small> ※改行で区切り</small></span></p>
+        <!-- <p><span>class名</span><span>リストパス <small> ※改行で区切り</small></span></p>
         <p><span>custom-post-list-1</span><span><textarea class="show" name="custom-post-list-1" placeholder="2019/zzzz.html
 2017/xxxx.html"></textarea></span><b></b></p>
         <p><span>custom-post-list-2</span><apan><textarea name="custom-post-list-2" placeholder="2019/zzzz.html
@@ -255,16 +242,15 @@
         <p><span>custom-post-list-4</span><apan><textarea name="custom-post-list-4" placeholder="2019/zzzz.html
 2017/xxxx.html"></textarea></apan><b class="arrdown"></b></p>
         <h4>タグ</h4>
-        <div class="alert blue">カスタムリストはテンプレートにul classタグを挿入して使用します。<code>&lt;ul class="custom-post-list-1"&gt;&lt;/ul&gt;</code>（リスト1の例）</div>
-        <div class="alert blue">新着順は<code>&lt;ul class="latest-post-list" data-num="12"&gt;&lt;/ul&gt;</code>のようにして、<code>data-num</code>の値でポスト数を決められます。</div>
-      </div>
+        <div class="alert blue"></div>
+      </div>-->
       <div>
         <h3>カスタムエディター</h3>
-        <p><span>HTMLタグリスト</span>
-          <textarea name="custom-editor" placeholder="&lt;i&gt;small&lt;/i&gt;&lt;i&gt;mark&lt;/i&gt;&lt;i&gt;br&lt;/i&gt;&lt;i&gt;p&lt;/i&gt;&lt;i&gt;h2&lt;/i&gt;&lt;i&gt;h3&lt;/i&gt;&lt;i&gt;h4&lt;/i&gt;
+        <p><span>HTMLタグボタン</span>
+          <!-- <fieldset name="custom" class="monacos"></fieldset> -->
+          <textarea name="custom" placeholder="&lt;i&gt;small&lt;/i&gt;&lt;i&gt;mark&lt;/i&gt;&lt;i&gt;br&lt;/i&gt;&lt;i&gt;p&lt;/i&gt;&lt;i&gt;h2&lt;/i&gt;&lt;i&gt;h3&lt;/i&gt;&lt;i&gt;h4&lt;/i&gt;
 &lt;s title=&quot;link&quot;&gt;&lt;/s&gt;&lt;s title=&quot;img&quot;&gt;&lt;/s&gt;"></textarea>
         </p>
-      
         <p><span>サンプル</span>
           <div>
             <span>基本のHTMLタグ(19)</span><p>&lt;i&gt;b&lt;/i&gt;&lt;i&gt;strong&lt;/i&gt;&lt;i&gt;i&lt;/i&gt;&lt;i&gt;s&lt;/i&gt;&lt;i&gt;small&lt;/i&gt;&lt;i&gt;big&lt;/i&gt;&lt;i&gt;mark&lt;/i&gt;&lt;i&gt;br&lt;/i&gt;&lt;i&gt;p&lt;/i&gt;&lt;i&gt;h2&lt;/i&gt;&lt;i&gt;h3&lt;/i&gt;&lt;i&gt;h4&lt;/i&gt;&lt;i&gt;h5&lt;/i&gt;&lt;i&gt;h6&lt;/i&gt;&lt;i&gt;a&lt;/i&gt;&lt;i&gt;ul&lt;/i&gt;&lt;i&gt;ol&lt;/i&gt;&lt;i&gt;table&lt;/i&gt;</p>
@@ -274,10 +260,6 @@
         </p>
       </div>
       <p class="alert yellow" style="margin: var(--short-gap) 20% var(--short-gap) var(--long-gap);">設定を変更したらアプリをリロードしてください。</p>
-        <!-- <div>
-          <span>Color</span>
-          <label><input type="range" name="hue" min="0" max="36"><input name="hsl" placeholder="(360, 50%, 80%)"></label>
-        </div> -->
     </form>
     <!-- まとめてセーブ -->
     <form id="allsave">

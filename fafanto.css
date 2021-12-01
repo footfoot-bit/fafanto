@@ -499,24 +499,12 @@ fieldset[name=panelbtns] i,fieldset[name=panelbtns] u {
 #setting h3 {
     padding: var(--long-gap) 0 var(--medium-gap) 0;
 }
-#setting > div:nth-of-type(4) > p {
-    grid-template-columns: 22rem 1fr var(--btnWidth);
-    column-gap: var(--shorter-gap);
-}
-/* #setting > div:nth-of-type(4) > p:first-of-type > * {
-    border-bottom: 1px solid var(--nav-color);
-    padding: 1rem 0;
-} */
-#setting > div:nth-of-type(4) textarea {
-    display: none;
-}
 #setting h4 {
     padding: 4rem 0 1rem 0;
     font-size: 1.4rem;
 }
-
 #setting textarea {
-    min-height: 12vh;
+    min-height: 25vh;
     resize: vertical;
     border: 1px solid var(--nav-color);
     padding: 1rem;
