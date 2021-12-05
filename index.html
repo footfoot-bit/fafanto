@@ -37,14 +37,6 @@
     </div>
     <div>
       <div id="actfile">demo.html</div>
-      <!-- <div>
-        <input type="radio" name="statuss" value="public" checked>公開
-        <input type="radio" name="statuss" value="draft">下書き
-      </div> -->
-      <!-- <select id="status">
-        <option value="public" selected>公開</option>
-        <option value="draft">下書き</option>
-      </select> -->
       <button class="disable" type="button" id="save"> セーブ</button>
       <button class="disable" type="button" id="preview"> 見る</button>
     </div>
@@ -69,9 +61,7 @@
         <div class="text">
           <div class="panel">
             <span>Contents</span>
-            <fieldset name="panelbtns">
-              <i>b</i><i>small</i><i>mark</i><i>br</i><i>p</i><i>h2</i><i>h3</i><i>h4</i><i>a</i><i>ul</i><i>table</i><s title="link"></s><s title="img"></s>
-            </fieldset>
+            <fieldset name="panelbtns"><i data-tag="h2" data-newline>h2</i><i data-tag="h3" data-newline>h3</i><i data-tag="h4" data-newline>h4</i><i data-tag="b">b</i><i data-tag="mark">mark</i><i data-tag="ul" data-child="%0A%E3%80%80%3Cli%3E%3C/li%3E%0A%E3%80%80%3Cli%3E%3C/li%3E%0A%E3%80%80%3Cli%3E%3C/li%3E%0A" data-newline="">ul</i><s title="link"></s><s title="img"></s></fieldset>
           </div>
           <fieldset name="contents" class="monacos"></fieldset>
         </div>
@@ -122,7 +112,7 @@
       <div class="portal">
         <div class="artlist">
           <fieldset>
-            <input placeholder="タイトル"><input type="datetime-local"><input placeholder="ファイル名"><button type="button" class="btn-new"></button>
+            <label title="公開"><input type="checkbox" checked></label><input placeholder="タイトル"><input type="datetime-local"><input placeholder="ファイル名"><button type="button" class="btn-new"></button>
           </fieldset>
         </div>
       </div>
@@ -220,44 +210,23 @@
           <span title="ポストのタグリンク、posttag.htmlのタグリストに使用します">タグリスト</span>
           <span><textarea name="post-taglist" placeholder="りんご
 メロン スイカ
-みかん Orange"></textarea><small>改行が区切りになります。スペースで複数の単語を使用可</small></span>
+みかん Orange"></textarea><small class="alert blue">改行が区切りになります。スペースで複数の単語を使用可。</small></span>
         </p>
       </div>
-      <!-- <div>
-        <h3>Postリスト</h3>
-        <div>ポストの各リストはテンプレートにul classタグを挿入して使用します。</div>
-        <h4>マニュアル</h4> -->
-        <!-- <p><span>リストのclass名</span><span>custom-post-list-1</span></p>
-        <p>
-          <span>リストのパス</span><span><textarea name="custom-list-1" placeholder="2019/zzzz.html
-2017/xxxx.html"></textarea><button name="add-path" type="button">add</button><small>改行が区切りになります</small></span>
-        </p> -->
-        <!-- <p><span>class名</span><span>リストパス <small> ※改行で区切り</small></span></p>
-        <p><span>custom-post-list-1</span><span><textarea class="show" name="custom-post-list-1" placeholder="2019/zzzz.html
-2017/xxxx.html"></textarea></span><b></b></p>
-        <p><span>custom-post-list-2</span><apan><textarea name="custom-post-list-2" placeholder="2019/zzzz.html
-2017/xxxx.html"></textarea></apan><b class="arrdown"></b></p>
-        <p><span>custom-post-list-3</span><apan><textarea name="custom-post-list-3" placeholder="2019/zzzz.html
-2017/xxxx.html"></textarea></apan><b class="arrdown"></b></p>
-        <p><span>custom-post-list-4</span><apan><textarea name="custom-post-list-4" placeholder="2019/zzzz.html
-2017/xxxx.html"></textarea></apan><b class="arrdown"></b></p>
-        <h4>タグ</h4>
-        <div class="alert blue"></div>
-      </div>-->
       <div>
         <h3>カスタムエディター</h3>
-        <p><span>HTMLタグボタン</span>
-          <!-- <fieldset name="custom" class="monacos"></fieldset> -->
-          <textarea name="custom" placeholder="&lt;i&gt;small&lt;/i&gt;&lt;i&gt;mark&lt;/i&gt;&lt;i&gt;br&lt;/i&gt;&lt;i&gt;p&lt;/i&gt;&lt;i&gt;h2&lt;/i&gt;&lt;i&gt;h3&lt;/i&gt;&lt;i&gt;h4&lt;/i&gt;
-&lt;s title=&quot;link&quot;&gt;&lt;/s&gt;&lt;s title=&quot;img&quot;&gt;&lt;/s&gt;"></textarea>
-        </p>
-        <p><span>サンプル</span>
-          <div>
-            <span>基本のHTMLタグ(19)</span><p>&lt;i&gt;b&lt;/i&gt;&lt;i&gt;strong&lt;/i&gt;&lt;i&gt;i&lt;/i&gt;&lt;i&gt;s&lt;/i&gt;&lt;i&gt;small&lt;/i&gt;&lt;i&gt;big&lt;/i&gt;&lt;i&gt;mark&lt;/i&gt;&lt;i&gt;br&lt;/i&gt;&lt;i&gt;p&lt;/i&gt;&lt;i&gt;h2&lt;/i&gt;&lt;i&gt;h3&lt;/i&gt;&lt;i&gt;h4&lt;/i&gt;&lt;i&gt;h5&lt;/i&gt;&lt;i&gt;h6&lt;/i&gt;&lt;i&gt;a&lt;/i&gt;&lt;i&gt;ul&lt;/i&gt;&lt;i&gt;ol&lt;/i&gt;&lt;i&gt;table&lt;/i&gt;</p>
-            <span>選択タグ(2)</span><p>&lt;s title=&quot;link&quot;&gt;&lt;/s&gt;&lt;s title=&quot;img&quot;&gt;&lt;/s&gt;</p>
-            <span>ユーザータグ(∞)</span><p>&lt;u title='&lt;div class=&quot;example&quot;&gt;&lt;/div&gt;'&gt;button&lt;/u&gt;</p>
-          </div>
-        </p>
+        <p><span>HTMLタグリスト</span>
+          <span><textarea name="custom" placeholder="&lt;p&gt;&lt;/p&gt;
+&lt;small&gt;&lt;/small&gt;
+&lt;h2&gt;&lt;/h2&gt;
+&lt;h3&gt;&lt;/h3&gt;
+&lt;div class='' &gt;&lt;/div&gt;"></textarea>
+          <small class="alert blue"><code>btn="ボタン名"</code>属性で任意のボタン名、<code>newline</code>属性（値は不要）で挿入時に改行できます。</small>
+        </span>
+        <div>
+          <p class="alert blue">Contentsに挿入する任意のHTMLタグのリストです。</p>
+          
+        </div>
       </div>
       <p class="alert yellow" style="margin: var(--short-gap) 20% var(--short-gap) var(--long-gap);">設定を変更したらアプリをリロードしてください。</p>
     </form>
@@ -290,7 +259,7 @@
   <form id="links" class="hide">
     <select name="dirs"></select>
     <button type="button" name="btn"></button>
-    <div name="box"></div>
+    <fieldset name="dirbox"></fieldset>
   </form>
   <form id="images" class="hide">
     <select name="dirs"></select>

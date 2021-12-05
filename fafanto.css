@@ -332,13 +332,7 @@ main {
 .panel i, .panel u {
     font-weight: normal;
 }
-fieldset[name=panelbtns] {
-    padding: 0 var(--shorter-gap);
-    background-color: #fff;
-    border-bottom: 1px solid var(--nav-color);
-    border-right: 1px solid var(--nav-color);
-}
-fieldset[name=panelbtns] i,fieldset[name=panelbtns] u {
+fieldset[name=panelbtns] i, fieldset[name=panelbtns] u {
     font-family: var(--code-font);
 }
 [name=panelbtns] * {
@@ -472,9 +466,7 @@ fieldset[name=panelbtns] i,fieldset[name=panelbtns] u {
     display: inline-block;
     font-weight: normal;
 }
-#setting > div b {
-    width: var(--btnWidth);
-}
+
 #setting > .tab > i {
     font-style: normal;
 }
@@ -493,8 +485,8 @@ fieldset[name=panelbtns] i,fieldset[name=panelbtns] u {
 #setting > div > p:last-of-type {
     padding-bottom: var(--long-gap);
 }
-#setting > div > p > b {
-    text-align: center;
+#setting > div > p > span {
+    padding-top: 1.2rem;
 }
 #setting h3 {
     padding: var(--long-gap) 0 var(--medium-gap) 0;
@@ -504,7 +496,7 @@ fieldset[name=panelbtns] i,fieldset[name=panelbtns] u {
     font-size: 1.4rem;
 }
 #setting textarea {
-    min-height: 25vh;
+    min-height: 60vh;
     resize: vertical;
     border: 1px solid var(--nav-color);
     padding: 1rem;
@@ -572,11 +564,11 @@ fieldset[name=panelbtns] i,fieldset[name=panelbtns] u {
     background-color: var(--text-color);
     border: none;
 }
-#links div, #images > fieldset {
+#links  > fieldset, #images > fieldset {
     grid-area: box;
     overflow-x: scroll;
 }
-#links > div p {
+#links > fieldset > p {
     word-wrap: break-word;
     font-size: 1.2rem;
     padding: 1rem;
@@ -602,7 +594,7 @@ fieldset[name=panelbtns] i,fieldset[name=panelbtns] u {
     padding: 1rem;
 }
 
-#links > div p:hover,#images > fieldset > *:hover {
+#links  > fieldset > p:hover,#images > fieldset > *:hover {
     background-color: rgba(0, 0, 0, 0.6);
     color: #fff;
 }
@@ -672,7 +664,7 @@ nav [data-nav=page]::before {content:"\f15c";font-weight: 900;}
 nav [data-nav=bases]::before {content:"\f5c3";font-weight: 900;}
 nav [data-nav=setting]::before {content:"\f013";font-weight: 900;}
 nav [data-nav=allsave]::before {content:"\f019";font-weight: 900;}
-[name=new] button::before {content:"\f067";}
+/* [name=new] button::before {content:"\f067";} */
 .artlist button::before {content:"\f304";}
 .btn-close::before,#links button::before,#images button::before, #preview-block button::before {content:"\f00d" !important;}
 [title=link]::before {content:"\f0c1";}
@@ -701,6 +693,3 @@ nav [data-nav=allsave]::before {content:"\f019";font-weight: 900;}
     color: #aaa;
     opacity: 1;
 }
-/* ::-ms-input-placeholder {
-    color: var(--nav--color);
-} */

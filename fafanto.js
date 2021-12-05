@@ -226,15 +226,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         // overviewRulerLanes: 0
       }
     }
-    static tag = {
-      block: ['p','h2','h3','h4','h5','h6','pre','div','blockquote'],
-      inline: ['small','i','b','strong','mark','code','span','q',],
-      attr: [['a','href="" target="_blank"']],
-      child: [['ul','li'],['ol','li'],['table','td']],
-      single: ['br','hr','img src="" alt=""']
-    }
-    static postPath = '../..';
-    static pagePath = '..';
+    static postPath = '../../';
+    static pagePath = '../';
     insert (startTag, closeTag) {
       const sel = this.editor.getSelection();
       const val = this.editor.getModel().getValueInRange(sel);
@@ -249,45 +242,44 @@ document.addEventListener('DOMContentLoaded', async () => {
     addHtmlTag () {
       document.forms[this.form].querySelector('[name=panelbtns]').onclick = (e) => {
         if (e.target.tagName === 'I') {
-          for (const t of Monaco.tag.attr) {
-            if (e.target.textContent === t[0]) return this.insert(`<${t[0]} ${t[1]}>`,`</${t[0]}>`);
-          }
-          for (const t of Monaco.tag.child) {
-            if (e.target.textContent === t[0]) return this.insert(`<${t[0]}>\n  <${t[1]}>`,`</${t[1]}>\n  <${t[1]}></${t[1]}>\n  <${t[1]}></${t[1]}>\n</${t[0]}>`);
-          }
-          for (const t of Monaco.tag.block) {
-            if (e.target.textContent === t) return this.insert(`<${t}>`,`</${t}>\n`);
-          }
-          for (const t of Monaco.tag.inline) {
-            if (e.target.textContent === t) return this.insert(`<${t}>`,`</${t}>`);
-          }
-          for (const t of Monaco.tag.single) {
-            if (e.target.textContent === t) return this.insert(`<${t}>\n`, '');
-          }
+          const tag = e.target.dataset.tag;
+          const attrEsc = e.target.dataset.attr;
+          let attr = '';
+          if (attrEsc) attr = ` ${decodeURI(attrEsc)}`;
+          const childEsc = e.target.dataset.child;
+          let child = '';
+          if (childEsc) child = `${decodeURI(childEsc)}`;
+          let newline = '';
+          if (e.target.hasAttribute('data-newline')) newline = '\n';
+          if ('br' === tag || 'hr' === tag || 'img' === tag) {
+            this.insert(`<${tag}${attr}>${newline}`, '');
+          } else this.insert(`<${tag}${attr}>`,`${child}</${tag}>${newline}`);
+          return;
         }
-        if (e.target.tagName === 'U') return this.insert(`${e.target.title}\n`, '');
         if (e.target.title === 'link') {
           this.viewSwitch(LINKS, IMAGS);
-          LINKS.querySelector('div').onclick = (e) => {
+          LINKS.querySelector('fieldset').onclick = (e) => {
             if (e.target.tagName === 'P') {
               const dirName = LINKS.elements['dirs'].value;
-              this.insert(`<a href="${this.relpath}/${this.form}/${dirName}/${e.target.dataset.name}" target="_blank">`, `${e.target.dataset.title}</a>`);
+              this.insert(`<a href="${this.relpath}${this.form}/${dirName}/${e.target.dataset.name}">`, `${e.target.dataset.title}</a>`);
             }
           }
           return;
         }
         if (e.target.title === 'img') {
           this.viewSwitch(IMAGS, LINKS);
-          IMAGS.querySelector('div').onclick = (e) => {
+          IMAGS.querySelector('fieldset').onclick = (e) => {
+            let dir = '';
             const dirName = IMAGS.elements['dirs'].value;
+            if (dirName !== 'root') dir = `${dirName}/`
             if (e.target.tagName === 'IMG')
-            this.insert(`<img src="${this.relpath}/media/${dirName}/${e.target.title}" alt="" loading="lazy">\n`, '');
+            this.insert(`<img src="${this.relpath}media/${dir}${e.target.title}" alt="" loading="lazy">\n`, '');
             else if (e.target.tagName === 'FIGURE')
-            this.insert(`<audio src="${this.relpath}/media/${dirName}/${e.target.title}" controls>オーディオ再生に非対応のブラウザです。</audio>\n`, '');
+            this.insert(`<audio src="${this.relpath}media/${dir}${e.target.title}" controls>オーディオ再生に非対応のブラウザです。</audio>\n`, '');
             else if (e.target.tagName === 'VIDEO')
-            this.insert(`<video src="${this.relpath}/media/${dirName}/${e.target.title}" controls>ビデオ再生に非対応のブラウザです。</video>\n`, '');
-            else
-            this.insert(`<a href="${this.relpath}/media/${dirName}/${e.target.title}">`, `${e.target.title}</a>\n`);
+            this.insert(`<video src="${this.relpath}media/${dir}${e.target.title}" controls>ビデオ再生に非対応のブラウザです。</video>\n`, '');
+            else if (e.target.tagName !== 'FIELDSET')
+            this.insert(`<a href="${this.relpath}media/${dir}${e.target.title}">`, `${e.target.title}</a>\n`);
           }
         }
       }
@@ -299,7 +291,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   const meBaseTemplate = monaco.editor.create(BASE.elements['template'], Monaco.opt(await Monaco.defaultText('template.html'), 'html'));
   const meBaseStyle = monaco.editor.create(BASE.elements['style'], Monaco.opt(await Monaco.defaultText('style.css'), 'css'));
   const meBaseMain = monaco.editor.create(BASE.elements['main'], Monaco.opt(await Monaco.defaultText('main.js'), 'javascript'));
-  // const meSettCustom = monaco.editor.create(SETT.elements['custom'], Monaco.opt('<p></p>\n<div></div>', 'html'));
   // instance for add html-tag button
   const meBtnsPosCont = new Monaco('post', mePostContents, Monaco.postPath);
   meBtnsPosCont.addHtmlTag();
@@ -350,13 +341,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     arrowBtn.onclick = (e) => {
       e.target.classList.toggle('arrdown');
       e.target.parentNode.nextElementSibling.classList.toggle('hide');
-    }
-  }
-  // 設定　カスタムリストの開閉
-  for (const arrowBtn of document.querySelectorAll('#setting > div:nth-of-type(4) > p > b')) {
-    arrowBtn.onclick = (e) => {
-      e.target.classList.toggle('arrdown');
-      e.target.previousElementSibling.querySelector('textarea').classList.toggle('show');
     }
   }
   //タグのON/OFF (Post)
@@ -418,7 +402,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const dirHandle = await window.showDirectoryPicker(); //dialog accept for load
     //create and get Handle of file/folder
     const tmpHandle = await dirHandle.getFileHandle('template.html',{create:true}); //dialog accept for save
-    const setHandle = await dirHandle.getFileHandle('setting.html',{create:true});
+    const setHandle = await dirHandle.getFileHandle('setting.json',{create:true});
     const webHandle = await dirHandle.getDirectoryHandle('webfiles',{create:true});
     const idxHandle = await webHandle.getFileHandle('index.html',{create:true});
     const stlHandle = await webHandle.getFileHandle('style.css',{create:true});
@@ -435,26 +419,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     await medHandle.getDirectoryHandle(date.year(),{create:true});
     const singleBox = [];
     singleBox.push(tmpHandle,setHandle,mjsHandle,idxHandle,stlHandle,tagHandle,arsHandle,srhHandle,icoHandle);
-    // const postDirNames = {};
-    // listAllforPost = async (dir) => {
-    //   const files = [];
-    //   for await (const entry of dir.values()) {
-    //     if (entry.kind === 'directory') {
-    //       files.push(entry);
-    //       files.push(...await listAllforPost(entry));
-    //     } else {
-    //       files.push(entry);
-    //       postDirNames[entry.name] = dir.name;
-    //     }
-    //   }
-    //   return files;
-    // }
-    const handleListChild = async (rootDirHandle, arrayBox) => {
+
+    const listChild = async (rootDirHandle, arrayBox) => {
       for await (const hdl of rootDirHandle.values()) {
         if (hdl.kind === 'file') arrayBox.push(hdl);
       }
     }
-    const handleListGrandChild = async (rootDirHandle, arrayBox) => {
+    const listGrandChild = async (rootDirHandle, arrayBox) => {
       const rootFileHdls = [];
       for await (const hdl of rootDirHandle.values()) {
         if (hdl.kind === 'directory') {
@@ -475,19 +446,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     const archiveBox = [];
     const postBox = [];
     const mediaBox = [];
-    await handleListChild(pagHandle, pageBox);
-    await handleListChild(arcHandle, archiveBox);
-    await handleListGrandChild(posHandle, postBox);
-    await handleListGrandChild(medHandle, mediaBox);
+    await listChild(pagHandle, pageBox);
+    await listChild(arcHandle, archiveBox);
+    await listGrandChild(posHandle, postBox);
+    await listGrandChild(medHandle, mediaBox);
     console.log(postBox,pageBox,mediaBox)
 
-    // const postBox = await listAllforPost(posHandle);
-    // const pageBox = await listAll(pagHandle);
-    // for (const dir of postBox.values()) {
-    //   if (dir.kind === 'directory') await arcHandle.getFileHandle(`${dir.name}.html`,{create:true});
-    // }
-    // const archiveBox = await listAll(arcHandle);
-    // console.log(postDirNames)
     //file class
     class EditFile {
       constructor(fileName, handleBox) {
@@ -519,11 +483,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     }
     class EditSetting extends EditTextFile {
-      constructor(fileName,handleBox) {
-        super(fileName,handleBox);
-        this.fileName = 'setting.html';
+      constructor(fileName) {
+        super(fileName);
+        this.fileName = 'setting.json';
         this.box = singleBox;
-        // this.custom = meSettCustom;
         this.setts = [
           'index-title',
           'index-subtitle',
@@ -546,10 +509,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         ];
       }
       async load() {
-        const doc = await this.document();
+        const text = await this.txt();
+        const json = JSON.parse(text);
         for (const sett of this.setts) {
-          const text = doc.getElementById(sett)?.innerHTML?? '';
-          if (text) SETT.elements[sett].value = text;
+          const val = json[sett];
+          if (val) SETT.elements[sett].value = val;
         }
         this.loadTagBtnsForPostEditor();
       }
@@ -558,30 +522,47 @@ document.addEventListener('DOMContentLoaded', async () => {
         const str = SETT.elements['post-taglist'].value;
         if (str) {
           const tagTextArr = convert.strNewLineToArr(str);
-          for (const tagText of tagTextArr) POST.elements['tagbtns'].insertAdjacentHTML('beforeend',`<i data-tag="${tagText}">${tagText}</i>`);
+          for (const tagText of tagTextArr) POST.elements['tagbtns'].insertAdjacentHTML('beforeend', `<i data-tag="${tagText}">${tagText}</i>`);
         }
       }
       addCustomBtns() {
         const btnHtml = SETT.elements['custom'].value;
         const doc = DOMP.parseFromString(btnHtml,'text/html');
-        const all = doc.querySelector('*');
-        console.log(all)
-      }
-      // addCustomListPath() {
-      //   SETT.elements['add-post-path'].onclick = () => {
-      //     new Monaco().viewSwitch(LINKS, IMAGS);
-      //     const dirName = LINKS.elements['dirs'].value;
-      //     console.log(`<a href="${this.relpath}/${this.form}/${dirName}/${e.target.dataset.name}" target="_blank">`, `${e.target.dataset.title}</a>`);
- 
-      //   }
-      // }
-      async save() {
-        let str = [];
-        for (const sett of this.setts) {
-          const text = SETT.elements[sett].value;
-          if (text) str += `<p id="${sett}">${text}</p>\n`
+        const elems = doc.querySelectorAll('body > *');
+        const panel = POST.elements['panelbtns'];
+        for (const i of panel.querySelectorAll('i')) i.remove();
+        for (const elem of elems) {
+          const tag = elem.tagName.toLowerCase();
+          let btn = elem.getAttribute('btn');
+          elem.removeAttribute('btn');
+          let newline = '';
+          if (elem.hasAttribute('newline')) {
+            newline = ' data-newline';
+            elem.removeAttribute('newline');
+          }
+          let child = '';
+          const innerHTML = elem.innerHTML;
+          if (innerHTML) child = ` data-child="${encodeURI(innerHTML)}"`;
+          let attribute = '';
+          const attrs = elem.attributes;
+          if (attrs.length) {
+            let attr = '';
+            for (let i = 0; i < attrs.length; i++) {
+              attr += `${attrs[i].name}="${attrs[i].value}" `;
+            }
+            attribute = ` data-attr="${encodeURI(attr.trim())}"`;
+          }
+          if (!btn) btn = tag;
+          panel.insertAdjacentHTML('beforeend', `<i data-tag="${tag}"${attribute}${child}${newline}>${btn}</i>`);
         }
-        await this.write(str);
+      }
+      async save() {
+        const json = {};
+        for (const sett of this.setts) {
+          const val = SETT.elements[sett].value;
+          if (val) json[sett] = val;
+        }
+        await this.write(JSON.stringify(json));
       }
     }
     const setting = new EditSetting();
@@ -1726,7 +1707,31 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
   LOAD.classList.add('hide');
 });
+              // static tag = {
+    //   block: ['p','h2','h3','h4','h5','h6','pre','div','blockquote'],
+    //   inline: ['small','i','b','strong','mark','code','span','q',],
+    //   attr: [['a','href="" target="_blank"']],
+    //   child: [['ul','li'],['ol','li'],['table','td']],
+    //   single: ['br','hr','img src="" alt=""']
+    // }
+          // for (const t of Monaco.tag.attr) {
+          //   if (e.target.textContent === t[0]) return this.insert(`<${t[0]} ${t[1]}>`,`</${t[0]}>`);
+          // }
+          // for (const t of Monaco.tag.child) {
+          //   if (e.target.textContent === t[0]) return this.insert(`<${t[0]}>\n  <${t[1]}>`,`</${t[1]}>\n  <${t[1]}></${t[1]}>\n  <${t[1]}></${t[1]}>\n</${t[0]}>`);
+          // }
+          // for (const t of Monaco.tag.block) {
+          //   if (e.target.textContent === t) return this.insert(`<${t}>`,`</${t}>\n`);
+          // }
+          // for (const t of Monaco.tag.inline) {
+          //   if (e.target.textContent === t) return this.insert(`<${t}>`,`</${t}>`);
+          // }
+          // for (const t of Monaco.tag.single) {
+          //   if (e.target.textContent === t) return this.insert(`<${t}>\n`, '');
+          // }
+        // }
 
+        // if (e.target.tagName === 'U') return this.insert(`${e.target.title}\n`, '');
       //   if (twitter) twitter.setAttribute('href',`https://twitter.com/share?url=${encodeUrl}&text=${encodeTitle}`);
       //   if (facebook) facebook.setAttribute('href',`https://www.facebook.com/sharer/sharer.php?u=${encodeUrl}`);
       //   if (line) line.setAttribute('href',`https://line.me/R/msg/text/?${encodeTitle}%20${encodeUrl}`);
