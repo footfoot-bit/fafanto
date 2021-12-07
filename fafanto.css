@@ -345,21 +345,6 @@ fieldset[name=panelbtns] i, fieldset[name=panelbtns] u {
     color: #fff;
 }
 
-[name=paneltab] button {
-    background-color: var(--header-color);
-    font-family: initial;
-    font-size: 1.3rem;
-    margin: 0;
-    border-top: 1px solid var(--nav-color);
-    border-right: 1px solid var(--nav-color);
-}
-[name=paneltab] button:hover {
-    color: var(--text-color);
-}
-[name=paneltab] button.on {
-    border-bottom-color: #fff;
-    background-color: #fff;
-}
 .side h3 {
     display: grid;
     grid-template-columns: 1fr var(--btnWidth);
@@ -434,16 +419,31 @@ fieldset[name=panelbtns] i, fieldset[name=panelbtns] u {
 /* bases */
 #bases .panel {
     height: var(--topbar-height);
-    padding-top: .8rem;
-    background-color: #fff;
 }
 #bases .panel > div {
     padding: 0;
     border-bottom: 1px solid var(--nav-color);
     border-right: 1px solid var(--nav-color);
 }
-#bases button {
-    vertical-align: bottom;
+
+#bases [name=paneltab] {
+    display: grid;
+    grid-template-columns: 7fr  1fr 1fr 1fr;
+}
+#bases [name=paneltab] span {
+    padding-top: 1.3rem;
+    border-bottom: 1px solid var(--nav-color);
+}
+[name=paneltab] button {
+    background-color: var(--header-color);
+    border-left: 1px solid var(--nav-color);
+}
+[name=paneltab] button:hover {
+    color: var(--text-color);
+}
+[name=paneltab] button.on {
+    border-bottom-color: #fff;
+    background-color: #fff;
 }
 [data-tab="template.html"]::before {content: "<>  ";font-family: var(--code-font);font-weight: bold;}
 [data-tab="style.css"]::before {content: "#  ";font-family: var(--code-font);font-weight: bold;}

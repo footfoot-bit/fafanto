@@ -210,7 +210,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       this.relpath = path;
     }
     static async defaultText (filename) {
-      const def = await fetch(`default-${filename}`);
+      const def = await fetch(`./thema/default/${filename}`);
       return await def.text();
     }
     static opt (value, language) {
@@ -401,7 +401,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   OPEN.onclick = async () => {
     const dirHandle = await window.showDirectoryPicker(); //dialog accept for load
     //create and get Handle of file/folder
-    const tmpHandle = await dirHandle.getFileHandle('template.html',{create:true}); //dialog accept for save
+     //dialog accept for save
     const setHandle = await dirHandle.getFileHandle('setting.json',{create:true});
     const webHandle = await dirHandle.getDirectoryHandle('webfiles',{create:true});
     const idxHandle = await webHandle.getFileHandle('index.html',{create:true});
@@ -411,6 +411,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     const arsHandle = await webHandle.getFileHandle('archives.html',{create:true});
     const srhHandle = await webHandle.getFileHandle('search.html',{create:true});
     const icoHandle = await webHandle.getFileHandle('favicon.svg',{create:true});
+    const theHandle = await dirHandle.getDirectoryHandle('thema',{create:true});
+    // const defHandle = await theHandle.getDirectoryHandle('default',{create:true});
+    // await defHandle.getFileHandle('template.html',{create:true});
+    // await defHandle.getFileHandle('style.css',{create:true});
+    // await defHandle.getFileHandle('main.js',{create:true});
     const posHandle = await webHandle.getDirectoryHandle('post',{create:true});
     const pagHandle = await webHandle.getDirectoryHandle('page',{create:true});
     const arcHandle = await webHandle.getDirectoryHandle('archive',{create:true});
@@ -418,7 +423,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     await posHandle.getDirectoryHandle(date.year(),{create:true});
     await medHandle.getDirectoryHandle(date.year(),{create:true});
     const singleBox = [];
-    singleBox.push(tmpHandle,setHandle,mjsHandle,idxHandle,stlHandle,tagHandle,arsHandle,srhHandle,icoHandle);
+    singleBox.push(setHandle,mjsHandle,idxHandle,stlHandle,tagHandle,arsHandle,srhHandle,icoHandle);
 
     const listChild = async (rootDirHandle, arrayBox) => {
       for await (const hdl of rootDirHandle.values()) {
@@ -444,13 +449,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     const pageBox = [];
     const archiveBox = [];
+    const themaBox = [];
     const postBox = [];
     const mediaBox = [];
     await listChild(pagHandle, pageBox);
     await listChild(arcHandle, archiveBox);
+    await listGrandChild(theHandle, themaBox);
     await listGrandChild(posHandle, postBox);
     await listGrandChild(medHandle, mediaBox);
-    console.log(postBox,pageBox,mediaBox)
+    console.log(themaBox,postBox,pageBox,mediaBox)
 
     //file class
     class EditFile {
@@ -482,6 +489,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         await response.body.pipeTo(writable);
       }
     }
+    {
+      const favicon = new EditTextFile('favicon.svg', singleBox);
+      const txt = await favicon.txt();
+      if (!txt) await favicon.writeURLToFile();
+    }
     class EditSetting extends EditTextFile {
       constructor(fileName) {
         super(fileName);
@@ -495,6 +507,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           'index-thumbpath',
           'blank-thumbpath',
           'author',
+          'thema',
           'tags-title',
           'tags-desc',
           'archives-title',
@@ -509,6 +522,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         ];
       }
       async load() {
+        this.loadThemaList();
         const text = await this.txt();
         const json = JSON.parse(text);
         for (const sett of this.setts) {
@@ -516,6 +530,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           if (val) SETT.elements[sett].value = val;
         }
         this.loadTagBtnsForPostEditor();
+        this.loadThemaText();
       }
       loadTagBtnsForPostEditor() {
         POST.elements['tagbtns'].textContent = '';
@@ -523,6 +538,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (str) {
           const tagTextArr = convert.strNewLineToArr(str);
           for (const tagText of tagTextArr) POST.elements['tagbtns'].insertAdjacentHTML('beforeend', `<i data-tag="${tagText}">${tagText}</i>`);
+        }
+      }
+      loadThemaText() {
+        BASE.querySelector('[name=paneltab] > span').textContent = SETT.elements['thema'].value;
+      }
+      loadThemaList() {
+        const elem = SETT.elements['thema'];
+        elem.textContent = '';
+        for (const dir of themaBox) {
+          elem.insertAdjacentHTML('beforeend',`<option value="${dir[0]}">${dir[0]}</option>`);
         }
       }
       addCustomBtns() {
@@ -571,11 +596,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     //bases
     class EditBases extends EditTextFile {
-      constructor(fileName, handleBox, monacoEditor) {
-        super(fileName,handleBox);
+      constructor(fileName, monacoEditor) {
+        super(fileName);
         this.fileName = fileName;
-        this.box = singleBox;
-        this.url = `default-${fileName}`;
+        this.box = find.dirBox(themaBox, SETT.elements['thema'].value);
+        console.log(this.box)
+        // this.url = `default-${fileName}`;
         this.me = monacoEditor;
       }
       document() {
@@ -593,17 +619,17 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
       async save() {
         await this.write(this.me.getValue());
+        if (this.fileName === 'style.css' || this.fileName === 'main.js') {
+          await new EditTextFile(this.fileName, singleBox).write(this.me.getValue());
+        }
       }
+
     }
-    const template = new EditBases('template.html', null, meBaseTemplate);
-    const style = new EditBases('style.css', null, meBaseStyle);
-    const main = new EditBases('main.js', null, meBaseMain);
-    for (const baseFile of [template,style,main]) await baseFile.load();
-    const favicon = new EditBases('favicon.svg', null);
-    for (const file of [favicon]) {
-      const txt = await file.txt();
-      if (!txt) await file.writeURLToFile();
-    }
+    const template = new EditBases('template.html', meBaseTemplate);
+    const style = new EditBases('style.css', meBaseStyle);
+    const main = new EditBases('main.js', meBaseMain);
+    for (const baseFile of [template, style, main]) await baseFile.load();
+
     //HTML
     class EditHTML extends EditFile {
       constructor(fileName, handleBox, className, titleElem, descriptionElem, thumbnailPath, RequireArray, relativePath, middlePath) {
@@ -1302,9 +1328,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
       }
       static async addListInDirForLinks(dirName) {
-        LINKS.querySelector('div').textContent ='';
+        const fld = LINKS.querySelector('fieldset');
+        fld.textContent ='';
         const data = await this.latestDataInDir(dirName);
-        for (const d of data) LINKS.querySelector('div').insertAdjacentHTML('beforeend',`<p data-name="${d[0]}" data-title="${d[1]}">${d[3]}<br>${d[1]}<br>${d[0]}</p>`);
+        for (const d of data) fld.insertAdjacentHTML('beforeend',`<p data-name="${d[0]}" data-title="${d[1]}">${d[3]}<br>${d[1]}<br>${d[0]}</p>`);
         LINKS.elements['dirs'].value = dirName; 
       }
       static dirSelect() {

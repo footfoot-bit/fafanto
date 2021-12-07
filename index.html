@@ -160,10 +160,8 @@
     <form id="bases">
       <div class="text">
         <div class="panel">
-          <div>
-          </div>
           <fieldset name="paneltab" data-currenttab="template.html">
-            <button type="button" data-tab="template.html" class="on">Template</button><button type="button" data-tab="style.css">Style</button><button type="button" data-tab="main.js">Main</button>
+            <span>default</span><button type="button" data-tab="template.html" class="on">Template</button><button type="button" data-tab="style.css">Style</button><button type="button" data-tab="main.js">Main</button>
           </fieldset>
         </div>
         <fieldset name="template" class="monacos"></fieldset>
@@ -173,7 +171,7 @@
     </form>
     <!-- 設定 -->
     <form id="setting">
-      <p class="tab"><i title="サイトの設定"></i><b class="on">共通</b><b>各タイトルと説明</b><b>Postの日付、タグ</b><i title="ツールの設定"></i><b>カスタムエディター</b></p>
+      <p class="tab"><i title="サイトの設定"></i><b class="on">共通</b><b>テーマ</b><b>各タイトルと説明</b><b>Postの日付、タグ</b><i title="ツールの設定"></i><b>カスタムエディター</b></p>
       <div class="show">
         <h3>サイト共通</h3>
         <p><span>サイト名*</span><input name="index-title" placeholder="site title" type="text"></p>
@@ -183,6 +181,15 @@
         <p><span>サイトの画像</span><input name="index-thumbpath" placeholder="media/image.png" type="text"></p>
         <p><span>ブランク画像</span><input name="blank-thumbpath" placeholder="media/blank.png" type="text"></p>
         <p><span>あなたの名前</span><input name="author" placeholder="your name" type="text"></p>
+      </div>
+      <div>
+        <h3>テーマ</h3>
+        <p>
+          <span>テーマ選択</span>
+          <select name="thema">
+            <option value="default" selected>default</option>
+          </select>
+        </p>
       </div>
       <div>
         <h3>各タイトルと説明</h3>
