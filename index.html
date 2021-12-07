@@ -177,7 +177,7 @@
         <p><span>サイト名*</span><input name="index-title" placeholder="site title" type="text"></p>
         <p><span>サイトのサブタイトル</span><input name="index-subtitle" placeholder="site subtitle" type="text"></p>
         <p><span>サイトURL*</span><input name="index-url" placeholder="https://www.example.com/" type="text"></p>
-        <p><span title="index.htmlのmeta descriptionとog:description、各ページにdescriptionがない場合に使用します"。>サイトの説明</span><input name="index-desc" placeholder="index.htmlのdescription" type="text"></p>
+        <p><span title="site-description(f-elm, f-val)で使用します"。>サイトの説明</span><input name="index-desc" placeholder="index.htmlのdescription" type="text"></p>
         <p><span>サイトの画像</span><input name="index-thumbpath" placeholder="media/image.png" type="text"></p>
         <p><span>ブランク画像</span><input name="blank-thumbpath" placeholder="media/blank.png" type="text"></p>
         <p><span>あなたの名前</span><input name="author" placeholder="your name" type="text"></p>
@@ -193,15 +193,14 @@
       </div>
       <div>
         <h3>各タイトルと説明</h3>
-        <p><span title="archives.htmlのtitle、og:title、本文のタイトルで使用します">アーカイブスのタイトル</span><input name="archives-title" placeholder="archives.htmlのtitle" type="text"></p>
-        <p><span title="archives.htmlのmeta description、og:descriptionで使用します">アーカイブスの説明</span><input name="archives-desc" placeholder="archives.htmlのdescription" type="text"></p>
-        <p><span title="archive/xxxx.htmlのtitle、og:title、本文のタイトルで使用します">アーカイブのタイトル</span><input name="archive-title" placeholder="archive/xxxx.htmlのtitle" type="text"></p>
-        <p><span title="archive/xxxx.htmlのmeta description、og:descriptionで使用します">アーカイブの説明</span><input name="archive-desc" placeholder="archive/xxxx.htmlのdescription" type="text"></p>
-        <p><span title="postags.htmlのtitle、OGP title、本文のタイトルで使用します">タグページのタイトル</span><input name="tags-title" placeholder="tags.htmlのtitle" type="text"></p>
-        <p><span title="postags.htmlのmeta description、og:descriptionで使用します">タグページーの説明</span><input name="tags-desc" placeholder="tags.htmlのdescription" type="text"></p>
-        <p><span title="search.htmlのtitle、og:title、本文のタイトルで使用します">検索ページのタイトル</span><input name="search-title" placeholder="search.htmlのtitle" type="text"></p>
-        <p><span title="search.htmlのmeta description、og:descriptionで使用します">検索ページの説明</span><input name="search-desc" placeholder="search.htmlのdescription" type="text"></p>
-        <div class="alert blue">本文のタイトルを画像にしたい場合はテンプレートに直接HTMLを記入してください。タイトルはテンプレートに入ってる内容が優先されます。（アーカイブ、Post、Pageは例外）</div>
+        <p><span title="archives.htmlのtitle(f-elm, f-val)で使用します">アーカイブスのタイトル</span><input name="archives-title" placeholder="archives.htmlのtitle" type="text"></p>
+        <p><span title="archives.htmlのdescription(f-elm, f-val)で使用します">アーカイブスの説明</span><input name="archives-desc" placeholder="archives.htmlのdescription" type="text"></p>
+        <p><span title="archive/xxxx.htmlのtitle(f-elm, f-val)で使用しますで使用します">アーカイブのタイトル</span><input name="archive-title" placeholder="archive/xxxx.htmlのtitle" type="text"></p>
+        <p><span title="archive/xxxx.htmlのdescription(f-elm, f-val)で使用します">アーカイブの説明</span><input name="archive-desc" placeholder="archive/xxxx.htmlのdescription" type="text"></p>
+        <p><span title="tags.htmlのtitle(f-elm, f-val)で使用します">タグページのタイトル</span><input name="tags-title" placeholder="tags.htmlのtitle" type="text"></p>
+        <p><span title="tags.htmlのdescription(f-elm, f-val)で使用します">タグページーの説明</span><input name="tags-desc" placeholder="tags.htmlのdescription" type="text"></p>
+        <p><span title="search.htmlのtitle(f-elm, f-val)で使用します">検索ページのタイトル</span><input name="search-title" placeholder="search.htmlのtitle" type="text"></p>
+        <p><span title="search.htmlのdescription(f-elm, f-val)で使用します">検索ページの説明</span><input name="search-desc" placeholder="search.htmlのdescription" type="text"></p>
       </div>
       <div>
         <h3>Postの日付、タグ</h3>
