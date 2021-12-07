@@ -412,10 +412,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     const srhHandle = await webHandle.getFileHandle('search.html',{create:true});
     const icoHandle = await webHandle.getFileHandle('favicon.svg',{create:true});
     const theHandle = await dirHandle.getDirectoryHandle('thema',{create:true});
-    // const defHandle = await theHandle.getDirectoryHandle('default',{create:true});
-    // await defHandle.getFileHandle('template.html',{create:true});
-    // await defHandle.getFileHandle('style.css',{create:true});
-    // await defHandle.getFileHandle('main.js',{create:true});
+    const defHandle = await theHandle.getDirectoryHandle('default',{create:true});
+    await defHandle.getFileHandle('template.html',{create:true});
+    await defHandle.getFileHandle('style.css',{create:true});
+    await defHandle.getFileHandle('main.js',{create:true});
     const posHandle = await webHandle.getDirectoryHandle('post',{create:true});
     const pagHandle = await webHandle.getDirectoryHandle('page',{create:true});
     const arcHandle = await webHandle.getDirectoryHandle('archive',{create:true});
@@ -1565,7 +1565,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             for (const base of [['template.html',template],['style.css',style],['main.js',main]])
             if (save.fileName() === base[0]) await base[1].save();
           }
-          else if (save.form() === 'setting') await setting.save();
+          else if (save.form() === 'setting') {
+            dialog.confirmSave(saveName);
+            await setting.save();
+          }
           else if (save.form() === 'post') {
             for (const name of save.postSaveFileNames) saveName.push(name);
             dialog.confirmSave(saveName);
