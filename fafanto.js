@@ -59,6 +59,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (box[i][0] === dirName) return box[i][1];
       }
     },
+    exsist: (dirBox, fileName) => {
+      for (const hdl of dirBox) {
+        if (hdl.name === fileName) return true;
+        else false;
+      }
+    },
     postIndex: (postData, fileName) => {
       for (let i = 0; i < postData.length; i++) {
         if (postData[i][0] === fileName) return i;
@@ -87,11 +93,11 @@ document.addEventListener('DOMContentLoaded', async () => {
       alert('全てのファイルのセーブが完了しました。');
     },
     nameEmpty: () => {
-      alert('👎 セーブできませんでした。ファイル名が空です。');
+      alert('⚠ ファイル名が空です。');
       throw new Error('Failed to save.File name is empty.');
     },
     nameExists: () => {
-      alert('👎 セーブできませんでした。同じファイル名が存在します。');
+      alert('⚠ フォルダに同じファイル名が存在します。');
       throw new Error('Failed to save.Same file name exists.');
     },
     notTag: (tag) => {
@@ -402,26 +408,26 @@ document.addEventListener('DOMContentLoaded', async () => {
     const dirHandle = await window.showDirectoryPicker(); //dialog accept for load
     //create and get Handle of file/folder
      //dialog accept for save
-    const setHandle = await dirHandle.getFileHandle('setting.json',{create:true});
-    const webHandle = await dirHandle.getDirectoryHandle('webfiles',{create:true});
-    const idxHandle = await webHandle.getFileHandle('index.html',{create:true});
-    const stlHandle = await webHandle.getFileHandle('style.css',{create:true});
-    const mjsHandle = await webHandle.getFileHandle('main.js',{create:true});
+    const setHandle = await dirHandle.getFileHandle('setting.json', {create:true});
+    const webHandle = await dirHandle.getDirectoryHandle('webfiles', {create:true});
+    const idxHandle = await webHandle.getFileHandle('index.html', {create:true});
+    const stlHandle = await webHandle.getFileHandle('style.css', {create:true});
+    const mjsHandle = await webHandle.getFileHandle('main.js', {create:true});
     const tagHandle = await webHandle.getFileHandle('tags.html',{create:true});
-    const arsHandle = await webHandle.getFileHandle('archives.html',{create:true});
-    const srhHandle = await webHandle.getFileHandle('search.html',{create:true});
-    const icoHandle = await webHandle.getFileHandle('favicon.svg',{create:true});
-    const theHandle = await dirHandle.getDirectoryHandle('thema',{create:true});
-    const defHandle = await theHandle.getDirectoryHandle('default',{create:true});
-    await defHandle.getFileHandle('template.html',{create:true});
-    await defHandle.getFileHandle('style.css',{create:true});
-    await defHandle.getFileHandle('main.js',{create:true});
-    const posHandle = await webHandle.getDirectoryHandle('post',{create:true});
-    const pagHandle = await webHandle.getDirectoryHandle('page',{create:true});
-    const arcHandle = await webHandle.getDirectoryHandle('archive',{create:true});
-    const medHandle = await webHandle.getDirectoryHandle('media',{create:true});
-    await posHandle.getDirectoryHandle(date.year(),{create:true});
-    await medHandle.getDirectoryHandle(date.year(),{create:true});
+    const arsHandle = await webHandle.getFileHandle('archives.html', {create:true});
+    const srhHandle = await webHandle.getFileHandle('search.html', {create:true});
+    const icoHandle = await webHandle.getFileHandle('favicon.svg', {create:true});
+    const theHandle = await dirHandle.getDirectoryHandle('thema', {create:true});
+    const defHandle = await theHandle.getDirectoryHandle('default', {create:true});
+    await defHandle.getFileHandle('template.html', {create:true});
+    await defHandle.getFileHandle('style.css', {create:true});
+    await defHandle.getFileHandle('main.js', {create:true});
+    const posHandle = await webHandle.getDirectoryHandle('post', {create:true});
+    const pagHandle = await webHandle.getDirectoryHandle('page', {create:true});
+    const arcHandle = await webHandle.getDirectoryHandle('archive', {create:true});
+    const medHandle = await webHandle.getDirectoryHandle('media', {create:true});
+    await posHandle.getDirectoryHandle(date.year(), {create:true});
+    await medHandle.getDirectoryHandle(date.year(), {create:true});
     const singleBox = [];
     singleBox.push(setHandle,mjsHandle,idxHandle,stlHandle,tagHandle,arsHandle,srhHandle,icoHandle);
 
@@ -524,10 +530,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       async load() {
         this.loadThemaList();
         const text = await this.txt();
-        const json = JSON.parse(text);
-        for (const sett of this.setts) {
-          const val = json[sett];
-          if (val) SETT.elements[sett].value = val;
+        if (text) {
+          const json = JSON.parse(text);
+          for (const sett of this.setts) {
+            const val = json[sett];
+            if (val) SETT.elements[sett].value = val;
+          }
         }
         this.loadTagBtnsForPostEditor();
         this.loadThemaText();
@@ -819,7 +827,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           for (const elem of elems) {
             elem.insertAdjacentHTML('beforebegin','<ul class="post-links"></ul>');
             const dNum = elem.getAttribute('num');
-            if (dNum) num = dNum;
+            if (dNum) if (dNum < num) num = dNum;
             const addClass = elem.getAttribute('addclass');
             if (addClass) elem.previousElementSibling.classList.add(addClass);
             for (let i = 0; i < num; i++) this.insertPostCard(elem.previousElementSibling, allPostData[i]);
@@ -935,11 +943,22 @@ document.addEventListener('DOMContentLoaded', async () => {
         this.removeFafantoTag(doc);
         await this.write(convert.docToHTMLStr(doc));
       }
-      preview() {
-        window.open(`webfiles/${this.midpath + this.fileName}`);
+      async preview() {
+        const view = document.getElementById('view');
+        const iframe = view.querySelector('iframe');
+        const doc = await this.document();
+        doc.head.insertAdjacentHTML('beforeend',`<style>${await style.txt()}</style><script>${await main.txt()}</script>`);
+        const str = convert.docToHTMLStr(doc);
+        iframe.setAttribute('srcdoc', str);
+        view.classList.remove('hide');
+        view.querySelector('button').onclick = () => {
+          view.classList.add('hide');
+        }
+        view.onclick = () => {
+          view.classList.add('hide');
+        }
       }
     }
-
     const index = new EditHTML(
       'index.html',
       singleBox,
@@ -1139,6 +1158,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         this.removeFafantoTag(doc);
         await this.write(convert.docToHTMLStr(doc));
       }
+      static inputFNewFileName(form) {
+        const input = form.elements['top'].querySelector('input');
+        input.addEventListener('change', (e) => {
+          const name = e.target.value.split('.')[0];
+          input.value = `${name}.html`;
+        });
+      }
       // async existElements() {
       //   const article = new this.name();
       //   const tmpDoc = await article.templateToDoc();
@@ -1172,9 +1198,11 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
       loadContents(doc) {
         const cnt = doc.querySelector('.contents');
-        const h23 = cnt.querySelectorAll('h2,h3');
-        if (h23.length) for (const h of h23) h.removeAttribute('id');
-        return doc.querySelector('.contents').innerHTML?? '';
+        if (cnt) {
+          const h23 = cnt.querySelectorAll('h2,h3');
+          if (h23.length) for (const h of h23) h.removeAttribute('id');
+          return cnt.innerHTML;
+        } else return '';
       }
       loadTagAElems(doc) {
         const tagas = doc.querySelectorAll('.tags-link a');
@@ -1205,8 +1233,6 @@ document.addEventListener('DOMContentLoaded', async () => {
           elem.previousElementSibling.insertAdjacentHTML('afterbegin',`<a href="${this.relpath}tags.html?q=${tagText}">${tagText}</a>`);
         }
       }
-
-
       insertPostLinksPrevNext(doc) {
         const elems = doc.querySelectorAll('f-elm[post-links=prev-next]');
         if (elems.length) for (const elem of elems) {
@@ -1311,7 +1337,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       static async addListInDir(dirName) {
         POSLI.textContent = '';
         POSBE.classList.add('hide');
-        POST.elements['dirs'].classList.remove('hide');
+        POST.elements['top'].classList.remove('hide');
         const data = await this.latestDataInDir(dirName);
         for (const d of data) {
           let checked = '';
@@ -1319,8 +1345,8 @@ document.addEventListener('DOMContentLoaded', async () => {
           POSLI.insertAdjacentHTML('beforeend',
           `<fieldset data-name="${d[0]}">
           <label title="公開"><input type="checkbox"${checked}></label>
-          <input value="${d[1]}" readonly="readonly">
-          <input type="datetime-local" value="${d[3]}" readonly="readonly">
+          <input value="${d[1]}" placeholder="タイトル" readonly="readonly">
+          <input title="公開日" type="datetime-local" value="${d[3]}" readonly="readonly">
           <u>${d[0]}</u>
           <button type="button"></button>
           </fieldset>`
@@ -1346,14 +1372,32 @@ document.addEventListener('DOMContentLoaded', async () => {
           await this.addListInDirForLinks(dirName);
         });
       }
+      static addNewFile() {
+        POST.elements['top'].querySelector('button').onclick = async (e) => {
+          const fileName = e.target.previousElementSibling.value;
+          const dirName = POST.elements['dirs'].value;
+          const box = find.dirBox(postBox, dirName);
+          if (!fileName) return dialog.nameEmpty();
+          if (find.exsist(box, fileName)) return dialog.nameExists();
+          for await (const hdl of posHandle.values()) {
+            if (hdl.name === dirName) {
+              const fileHdl = await hdl.getFileHandle(fileName, {create:true});
+              box.push(fileHdl);
+            }
+          }
+          await EditPost.addListInDir(dirName);
+        }
+      }
     }
     EditPost.clickEditBackBtn();
     EditPost.addDirsList(POST);
     EditPost.addDirsList(LINKS);
     EditPost.dirSelect();
     EditPost.selectDirForLinks();
-    EditPost.addListInDir(date.year());
-    EditPost.addListInDirForLinks(date.year());
+    await EditPost.addListInDir(date.year());
+    await EditPost.addListInDirForLinks(date.year());
+    EditPost.inputFNewFileName(POST);
+    EditPost.addNewFile();
 
     // page class
     class EditPage extends EditArticle {
@@ -1473,6 +1517,16 @@ document.addEventListener('DOMContentLoaded', async () => {
           <button type="button"></button>
           </fieldset>`
           );
+        }
+      }
+      static addNewFile() {
+        PAGE.elements['top'].querySelector('button').onclick = async (e) => {
+          const fileName = e.target.previousElementSibling.value;
+          if (!fileName) return dialog.nameEmpty();
+          if (find.exsist(pageBox, fileName)) return dialog.nameExists();
+          const fileHdl = await pagHandle.getFileHandle(fileName, {create:true});
+          pageBox.push(fileHdl);
+          await EditPage.addPageList();
         }
       }
     }
@@ -1615,7 +1669,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     ALLS.elements['save'].onclick = async () => {
       const log = ALLS.querySelector('.log');
       log.textContent = '';
-      dialog.confirmSave('checked files');
+      dialog.confirmSave('チェックしたファイル');
       const data = await EditPost.allLatestData(true);
       allPostData = data[0];
       dirsData = data[1];
@@ -1659,7 +1713,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       const form = H2SE.dataset.form;
       if (form === 'post' || form === 'page') {
         if(document.querySelector(`#${form} .bench`).className !== 'hide') {
-          const fileName = document.getElementById(form).querySelector('.portal fieldset:not(.hide)').dataset.name;
+          const fileName = document.getElementById(form).querySelector('.artlist fieldset:not(.hide)')?.dataset.name;
           SAVE.dataset.file = fileName;
           ACTF.textContent = fileName;
           SAVE.classList.remove('disable');
@@ -1673,8 +1727,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         SAVE.classList.remove('disable');
       }
       else if (form === 'setting') {
-        SAVE.dataset.file = `${form}.html`;
-        ACTF.textContent = `${form}.html`;
+        SAVE.dataset.file = `${form}.json`;
+        ACTF.textContent = `${form}.json`;
         SAVE.classList.remove('disable');
       }
     }
@@ -1683,7 +1737,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         SAVE.removeAttribute('data-file');
         SAVE.classList.add('disable');
         PREV.classList.add('disable');
-        POST.elements['dirs'].classList.remove('hide');
+        POST.elements['top'].classList.remove('hide');
+        // POST.elements['new'].classList.remove('hide');
         ACTF.textContent = '';
         const inputs = POST.querySelectorAll('.artlist > fieldset > input');
         for (const input of inputs) input.setAttribute('readonly','readonly');
@@ -1695,7 +1750,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       ACTF.textContent = fileName;
       SAVE.classList.remove('disable');
       PREV.classList.remove('disable');
-      POST.elements['dirs'].classList.add('hide');
+      POST.elements['top'].classList.add('hide');
+      // POST.elements['new'].classList.add('hide');
       const inputs = POST.querySelectorAll(`.artlist > [data-name="${fileName}"] > input`);
       for (const input of inputs) input.removeAttribute('readonly');
     }

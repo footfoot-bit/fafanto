@@ -50,7 +50,7 @@
     <!-- ポスト -->
     <form id="post" class="show">
       <div class="portal">
-        <select name="dirs" class="hide"></select>
+        <fieldset name="top" class="hide"><select name="dirs"></select><input placeholder="ファイル名を入力"><button title="ファイルを追加" type="button"></button></fieldset>
         <div class="artlist">
           <fieldset>
             <label title="公開"><input type="checkbox" checked></label><input placeholder="タイトル"><input type="datetime-local"><input placeholder="ファイル名"><button type="button" class="btn-new"></button>
@@ -110,6 +110,7 @@
     <!-- ページ -->
     <form id="page">
       <div class="portal">
+        <fieldset name="top" class="hide"><span></span><input placeholder="ファイル名を入力"><button title="ファイルを追加" type="button"></button></fieldset>
         <div class="artlist">
           <fieldset>
             <label title="公開"><input type="checkbox" checked></label><input placeholder="タイトル"><input type="datetime-local"><input placeholder="ファイル名"><button type="button" class="btn-new"></button>
@@ -276,6 +277,10 @@
     <p><img src="favicon.svg">ようこそfafantoへ</p>
     <div><button type="button" id="open-dir">フォルダを選択</button></div>
     <a href="docs.html" target="_blank" class="disable">fafantoガイド</a>
+  </div>
+  <div id="view" class="hide" >
+    <button type="button"></button>
+    <iframe></iframe>
   </div>
 </body>
 </html>
