@@ -1651,20 +1651,25 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   /// event ///
     //click Preview button
-    PREV.onclick = () => {
+    PREV.onclick = async () => {
       const fileName = SAVE.dataset.file;
       const form = H2SE.dataset.form;
-      if (form === 'post') new EditPost(fileName, POST.elements['dirs'].value).preview();
-      else if (form === 'page') new EditPage(fileName).preview();
+      if (form === 'post') await new EditPost(fileName, POST.elements['dirs'].value).preview();
+      else if (form === 'page') await new EditPage(fileName).preview();
     }
-    document.getElementById('index').onclick = () => index.preview();
-    document.getElementById('tags').onclick = () => tags.preview();
+    document.getElementById('index').onclick = async () => await index.preview();
 
   // まとめてセーブ
+    // プレビュー
+    ALLS.elements['index'].parentNode.nextElementSibling.onclick = async () => await index.preview();
+    ALLS.elements['tags'].parentNode.nextElementSibling.onclick = async () => await tags.preview();
+    ALLS.elements['archives'].parentNode.nextElementSibling.onclick = async () => await archives.preview();
+    ALLS.elements['search'].parentNode.nextElementSibling.onclick = async () => await search.preview();
     // ファイル数を挿入
-    ALLS.elements['archive'].parentNode.insertAdjacentHTML('beforeend', `(${archiveBox.length})`);
-    ALLS.elements['post'].parentNode.insertAdjacentHTML('beforeend', `(${find.numAll(postBox)})`);
-    ALLS.elements['page'].parentNode.insertAdjacentHTML('beforeend', `(${pageBox.length})`);
+    ALLS.elements['archive'].parentNode.nextElementSibling.nextElementSibling.textContent = archiveBox.length;
+    ALLS.elements['post'].parentNode.nextElementSibling.nextElementSibling.textContent = find.numAll(postBox);
+    ALLS.elements['page'].parentNode.nextElementSibling.nextElementSibling.textContent = pageBox.length;
+
     //click start saving
     ALLS.elements['save'].onclick = async () => {
       const log = ALLS.querySelector('.log');

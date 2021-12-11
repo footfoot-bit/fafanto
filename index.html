@@ -8,8 +8,6 @@
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" data-name="vs/editor/editor.main" href="monaco-editor/min/vs/editor/editor.main.css" />
 <script id="fafanto-func">
-  // class FVal extends HTMLBRElement {};
-  // customElements.define("f-val", FVal, { extends: "br" });
 </script>
 </head>
 <body>
@@ -29,7 +27,6 @@
       <p data-nav="info">Info</p>
     </div>
     <button title="Spellcheck on/off" id="spellcheck"></button>
-    <!-- <button title="Light/Dark" id="lightness"></button> -->
   </nav>
   <header>
     <div>
@@ -37,13 +34,12 @@
     </div>
     <div>
       <div id="actfile">demo.html</div>
-      <button class="disable" type="button" id="save"> セーブ</button>
-      <button class="disable" type="button" id="preview"> 見る</button>
+      <button class="disable" type="button" id="save"> Save</button>
+      <button class="disable" type="button" id="preview"> Preview</button>
     </div>
     <div>
       <div>Preview</div>
       <button type="button" id="index" title="Preview Index.html">index</button>
-      <button type="button" id="tags" title="Preview tags.html">tags</button>
     </div>
   </header>
   <main>
@@ -172,7 +168,7 @@
     </form>
     <!-- 設定 -->
     <form id="setting">
-      <p class="tab"><i title="サイトの設定"></i><b class="on">共通</b><b>テーマ</b><b>各タイトルと説明</b><b>Postの日付、タグ</b><i title="ツールの設定"></i><b>カスタムエディター</b></p>
+      <p class="tab"><i title="サイトの設定"></i><b class="on">共通</b><b>テーマ</b><b>各タイトルと説明</b><b>Postの日付、タグ</b><i title="ツールの設定"></i><b>カスタムエディター</b><span></span></p>
       <div class="show">
         <h3>サイト共通</h3>
         <p><span>サイト名*</span><input name="index-title" placeholder="site title" type="text"></p>
@@ -191,6 +187,7 @@
             <option value="default" selected>default</option>
           </select>
         </p>
+        <div class="alert yellow">テーマの追加はローカル環境で行ってください。</div>
       </div>
       <div>
         <h3>各タイトルと説明</h3>
@@ -232,27 +229,26 @@
         </span>
         <div>
           <p class="alert blue">Contentsに挿入する任意のHTMLタグのリストです。</p>
-          
         </div>
       </div>
       <p class="alert yellow" style="margin: var(--short-gap) 20% var(--short-gap) var(--long-gap);">設定を変更したらアプリをリロードしてください。</p>
     </form>
     <!-- まとめてセーブ -->
     <form id="allsave">
-      <p class="alert yellow">選んだファイルをまとめてセーブできます。テンプレートの変更や共通要素を変更した時等にお使いください。</p>
-      <h3>Save Files</h3>
+      <p class="tab"></p>
       <div>
-        <label><input type="checkbox" name="index" checked>index.html</label>
-        <label><input type="checkbox" name="archives" checked>archives.html</label>
-        <label><input type="checkbox" name="tags" checked>tags.html</label>
-        <label><input type="checkbox" name="search" checked>search.html</label>
-        <label><input type="checkbox" name="archive" checked>archive</label>
-        <label><input type="checkbox" name="post" checked>Post</label>
-        <label><input type="checkbox" name="page" checked>Page</label>
+        <div class="alert blue">選んだファイルをまとめてセーブします。テンプレートの変更や共通項目を変更した場合に便利です。</div>
+        <p><label><input type="checkbox" name="index" checked>index.html</label><i title="プレビュー"></i><span title="ファイル数">1</span></p>
+        <p><label><input type="checkbox" name="archives" checked>archives.html</label><i title="プレビュー"></i><span title="ファイル数">1</span></p>
+        <p><label><input type="checkbox" name="tags" checked>tags.html</label><i title="プレビュー"></i><span title="ファイル数">1</span></p>
+        <p><label><input type="checkbox" name="search" checked>search.html</label><i title="プレビュー"></i><span title="ファイル数">1</span></p>
+        <p><label><input type="checkbox" name="archive" checked>archive</label><i class="disable"></i><span title="ファイル数"></span></p>
+        <p><label><input type="checkbox" name="post" checked>Post</label><i class="disable"></i><span title="ファイル数"></span></p>
+        <p><label><input type="checkbox" name="page" checked>Page</label><i class="disable"></i><span title="ファイル数"></span></p>
+        <button type="button" name="save">セーブ開始</button>
+        <h3>Log</h3>
+        <div class="log"></div>
       </div>
-      <button type="button" name="save">Start Saving</button>
-      <h3>Log</h3>
-      <div class="log"></div>
     </form>
     <form id="info">
       <h3>What's this</h3>
