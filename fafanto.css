@@ -286,12 +286,13 @@ main {
     text-decoration: none;
     padding: 1.4rem 1rem;
 }
-#post [name=top] {
+[name=top] {
     display: grid;
     grid-template-columns: var(--center-width) 1fr var(--btnWidth);
     border-bottom: 1px solid var(--nav-color);
+    height: var(--topbar-height);
 }
-#post [name=dirs] {
+[name=top] > select, [name=top] > span {
     font-size: 1.6rem;
     font-weight: bold;
     border-right: 1px solid var(--nav-color);
@@ -534,9 +535,14 @@ fieldset[name=panelbtns] i, fieldset[name=panelbtns] u {
 }
 .log {
     background-color: var(--header-color);
+    padding: 1.2rem 2rem;
+}
+.log p {
+    padding: .4rem 0;
 }
 #info {
     padding: 8%;
+    line-height: 1.6;
 }
 /** Link, Img Selector **/
 #links, #images {

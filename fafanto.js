@@ -80,14 +80,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   //ダイアログとエラー
   const dialog = {
     confirmSave: (fileName) => {
-      const result = confirm(`"${fileName}" をセーブしてもいいですか？`);
+      const result = confirm(`${fileName}をセーブしてもいいですか？`);
       if (!result) {
         alert('セーブを中止しました。');
         throw new Error('Stopped saving');
       }
     },
     successSave: (fileName) => {
-      alert(`👍 "${fileName}" のセーブは成功しました。`);
+      alert(`${fileName}のセーブは成功しました。`);
     },
     completeSave: () => {
       alert('全てのファイルのセーブが完了しました。');
@@ -508,36 +508,37 @@ document.addEventListener('DOMContentLoaded', async () => {
         super(fileName);
         this.fileName = 'setting.json';
         this.box = singleBox;
-        this.setts = [
-          'index-title',
-          'index-subtitle',
-          'index-url',
-          'index-desc',
-          'index-thumbpath',
-          'blank-thumbpath',
-          'author',
-          'thema',
-          'tags-title',
-          'tags-desc',
-          'archives-title',
-          'archives-desc',
-          'archive-title',
-          'archive-desc',
-          'search-title',
-          'search-desc',
-          'post-date-type',
-          'post-taglist',
-          'custom'
-        ];
+        this.setts = {
+          'index-title':'サイト名',
+          'index-subtitle':'サブタイトル',
+          'index-url':'https://xxxxx.com/',
+          'index-desc':'サイトの要約、説明文',
+          'index-thumbpath':'site-image.png',
+          'blank-thumbpath':'blank.png',
+          'author':'名前',
+          'thema':'default',
+          'tags-title':'タグ',
+          'tags-desc':'Post記事の全リストをタグでフィルタリングできるページです。',
+          'archives-title':'アーカイブス',
+          'archives-desc':'全Postの年別のアーカイブリンクと全Pageリンクの一覧ページです。',
+          'archive-title':'アーカイブ',
+          'archive-desc':'年別の全Postリンクをーカイブしているページです',
+          'search-title':'検索',
+          'search-desc':'全PostとPageの記事を検索するページです。',
+          'post-date-type':'yyyy-mm-dd',
+          'post-taglist':'日記\nお知らせ\nfafanto CMS',
+          'custom':'<mark></mark>\n<small></small>\n<b></b>\n<a href=\"\" target=\"_blank\"></a>\n\n<p newline></p>\n<h2 newline></h2>\n<h3 newline></h3>\n<h4 newline></h4>\n<blockquote btn=\"bq\" newline></blockquote>\n<pre newline><code>\n</code></pre>\n\n<br newline>\n\n<div class=\"iframe-container\" btn=\"yt\" newline>\n</div>\n<div class=\"alert yellow\" btn=\"ay\" newline>\n</div>\n<div class=\"alert blue\" btn=\"ab\" newline>\n</div>\n\n<ul newline>\n　<li></li>\n　<li></li>\n　<li></li>\n</ul>\n<ol newline>\n　<li></li>\n　<li></li>\n　<li></li>\n</ol>\n<table newline>\n  <thead>\n    <tr>\n      <th></th>\n      <th></th>\n      <th></th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <td></td>\n      <td></td>\n      <td></td>\n    </tr>\n    <tr>\n      <td></td>\n      <td></td>\n      <td></td>\n    </tr>\n    <tr>\n      <td></td>\n      <td></td>\n      <td></td>\n    </tr>\n  </tbody>\n</table>\n\n<span btn=\"(；´д｀)\">(；´д｀)</span>'
+        };
       }
       async load() {
         this.loadThemaList();
         const text = await this.txt();
         if (text) {
           const json = JSON.parse(text);
-          for (const sett of this.setts) {
+          for (const sett in this.setts) {
             const val = json[sett];
             if (val) SETT.elements[sett].value = val;
+            else SETT.elements[sett].value = this.setts[sett];
           }
         }
         this.loadTagBtnsForPostEditor();
@@ -594,7 +595,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
       async save() {
         const json = {};
-        for (const sett of this.setts) {
+        for (const sett in this.setts) {
           const val = SETT.elements[sett].value;
           if (val) json[sett] = val;
         }
@@ -733,7 +734,6 @@ document.addEventListener('DOMContentLoaded', async () => {
           const attrs = elem.attributes;
           if (!attrs.length) return;
           for (let i = 0; i < attrs.length; i++) {
-            console.log(attrs,attrs[i].name)
             let val = '';
             if (vals[attrs[i].name]) val = vals[attrs[i].name];
             if (val) elem.insertAdjacentHTML('beforebegin',val);
@@ -752,7 +752,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             const arr = attrSpl.split('[');
             for (var i = 1; i < arr.length; i++) {
               const tagTxt = arr[i].split(']')[0];
-              console.log(tagTxt,vals[tagTxt])
               if (vals[tagTxt]) attrVal = attrVal.replace(`[${tagTxt}]`,vals[tagTxt]);
               else continue label;
             }
@@ -1017,7 +1016,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         this.req = [];
         this.relpath = '../';
         this.midpath = 'archive/';
-        this.year = this.fileName.slice(0,4);
+        this.year = this.fileName.split('.')[0];
       }
     }
     // post and page common class
@@ -1505,6 +1504,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
       static async addPageList() {
         PAGBE.classList.add('hide');
+        PAGE.elements['top'].classList.remove('hide');
         PAGLI.textContent = '';
         const data = await this.allData(false);
         for (const d of data) {
@@ -1534,6 +1534,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     EditPage.clickEditBackBtn();
     await EditPage.addPageList();
+    EditPost.inputFNewFileName(PAGE);
+    EditPage.addNewFile();
 
     const media = {
       localUrl: async (fileHandle) => {
@@ -1602,14 +1604,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         const index = find.postIndex(allPostData, save.fileName());
         const prevNextNum = new EditPost().prevNextNum;
         for (const num of prevNextNum) {
-          if (allPostData[index + num]) await new EditPost(allPostData[index + num][0]).saveTransfer();
+          const d = allPostData[index + num];
+          if (d) await new EditPost(d[0], d[2]).saveTransfer();
         }
       },
       singles: async () => {
         await index.save();
         await tags.save();
         await archives.save();
-        await new EditArchive(`${postDirNames[save.fileName()]}.html`).save();
+        await new EditArchive(`${POST.elements['dirs'].value}.html`).save();
       },
       postSaveFileNames: ['index.html','archives.html','tags.html','前後のポスト'],
       clickBtn: () => {
@@ -1633,9 +1636,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             allPageData = await EditPage.allData(true);
             console.log(save.fileName())
             await new EditPost(save.fileName(), POST.elements['dirs'].value).save();
-            // await save.prevNextPosts();
-            // await save.singles();
-            // saveName.push(`${await save.postYear()}.html`);
+            await save.prevNextPosts();
+            await save.singles();
+            saveName.push(`${await save.postYear()}.html`);
           }
           else if (save.form() === 'page') {
             dialog.confirmSave(saveName);
@@ -1679,7 +1682,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       dialog.confirmSave('チェックしたファイル');
       const data = await EditPost.allLatestData(true);
       allPostData = data[0];
-      // dirsData = data[1];
+      dirsData = data[1];
       allPageData = await EditPage.allData(true);
       for (const file of [['index',index],['archives',archives],['tags',tags],['search',search]]) {
         if (ALLS.elements[file[0]].checked) {
@@ -1747,7 +1750,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         SAVE.classList.add('disable');
         PREV.classList.add('disable');
         POST.elements['top'].classList.remove('hide');
-        // POST.elements['new'].classList.remove('hide');
         ACTF.textContent = '';
         const inputs = POST.querySelectorAll('.artlist > fieldset > input');
         for (const input of inputs) input.setAttribute('readonly','readonly');
@@ -1760,7 +1762,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       SAVE.classList.remove('disable');
       PREV.classList.remove('disable');
       POST.elements['top'].classList.add('hide');
-      // POST.elements['new'].classList.add('hide');
       const inputs = POST.querySelectorAll(`.artlist > [data-name="${fileName}"] > input`);
       for (const input of inputs) input.removeAttribute('readonly');
     }
@@ -1769,6 +1770,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         SAVE.removeAttribute('data-file');
         SAVE.classList.add('disable');
         PREV.classList.add('disable');
+        PAGE.elements['top'].classList.remove('hide');
         ACTF.textContent = '';
         const inputs = PAGE.querySelectorAll('.artlist > fieldset > input');
         for (const input of inputs) input.setAttribute('readonly','readonly');
@@ -1779,6 +1781,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       ACTF.textContent = fileName;
       SAVE.classList.remove('disable');
       PREV.classList.remove('disable');
+      PAGE.elements['top'].classList.add('hide');
       const inputs = PAGE.querySelectorAll(`.artlist > [data-name="${fileName}"] > input`);
       for (const input of inputs) input.removeAttribute('readonly');
     }
@@ -1786,7 +1789,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       const filename = BASE.elements['paneltab'].dataset.currenttab;
       SAVE.dataset.file = filename;
       ACTF.textContent = filename;
-      // SAVE.classList.remove('disable');
     }
     const currentForm = new MutationObserver(obsForm);
     const currentPostFile = new MutationObserver(obsPost);
