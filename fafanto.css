@@ -637,7 +637,7 @@ nav p::before,
 #spellcheck,#lightness,
 [name=top] button,.artlist button,.btn-close,
 .panel,.side h3 b,.side button,[name=tagbtns] i.on::before,
-#setting > .tab > i,#setting > div b,
+#setting > .tab > i,
 #allseve p > i,
 #links button,#images button,
 #view button
@@ -649,7 +649,7 @@ nav p::before,
 #save,#preview,#lightness,#spellcheck,
 [name=top] button,.artlist button,.btn-close,
 .panel,.side button,[name=tagbtns] i.on::before,
-#setting > .tab > i,#setting > div b,
+#setting > .tab > i,
 #allseve p > i, #links button,
 #images button,
 #view button { 
@@ -673,7 +673,7 @@ nav [data-nav=allsave]::before {content:"\f019";font-weight: 900;}
 [title=link]::before {content:"\f0c1";}
 [title=img]::before {content:"\f302";}
 .arrdown::before {content:"\f078" !important;}
-.side h3 b::before,#setting > div b::before {content:"\f077";text-align: center;}
+.side h3 b::before {content:"\f077";text-align: center;}
 [name=copybtn]::before {content:"\f0c5"}
 [name=thumbbtn]::before {content:"\f302";}
 [name=tagbtns] i.on::before {content: "\f02b  ";color: var(--text-color);font-size: 1.2rem;}

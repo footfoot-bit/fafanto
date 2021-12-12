@@ -204,6 +204,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         for (const text of sArr) arr.push(text);
       }
       return arr;
+    },
+    ymdTimeToNum: (ymdTime) => {
+      return ymdTime.replace('T', '.').replace(/[^0-9\.]/g,'');
     }
   }
 
@@ -1298,7 +1301,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const doc = await post.document();
         const tit = post.loadTitle(doc);
         const dti = post.loadTime(doc);
-        const rti = dti.replace('T','.').replace(/[^0-9\.]/g,'');
+        const rti = convert.ymdTimeToNum(dti);
         const img = post.loadImage(doc);
         const tgs = convert.elemsToTextArr(post.loadTagAElems(doc));
         const dsc = post.loadDescription(doc);
@@ -1320,7 +1323,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         return data.sort((a, b) => b[4] - a[4]);
       }
       static async allLatestData(publicBool) {
-        // const dirs = this.latestDirs();
         const allData = [];
         const dirsData = {};
         let i = 0;
@@ -1489,7 +1491,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const lkc = page.loadDataAttrLinks(doc);
             const tit = page.loadTitle(doc);
             const dti = page.loadTime(doc);
-            const rti = dti.replace('T','.').replace(/[^0-9\.]/g,'');
+            const rti = convert.ymdTimeToNum(dti);
             const img = page.loadImage(doc);
             const dsc = page.loadDescription(doc);
             const dft = page.loadPublicData(doc);
@@ -1677,7 +1679,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       dialog.confirmSave('チェックしたファイル');
       const data = await EditPost.allLatestData(true);
       allPostData = data[0];
-      dirsData = data[1];
+      // dirsData = data[1];
       allPageData = await EditPage.allData(true);
       for (const file of [['index',index],['archives',archives],['tags',tags],['search',search]]) {
         if (ALLS.elements[file[0]].checked) {
@@ -1693,14 +1695,16 @@ document.addEventListener('DOMContentLoaded', async () => {
           }
         }
       }
-      for (const art of [['post', postBox, EditPost],['page', pageBox, EditPage]]) {
-        if (ALLS.elements[art[0]].checked) {
-          for (const file of art[1].values()) {
-            if (file.kind === 'file') {
-              await new art[2](file.name).saveTransfer();
-              log.insertAdjacentHTML('beforeend', `<p>Succeeded in saving ${file.name}</p>`);
-            }
-          }
+      if (ALLS.elements['post'].checked) {
+        for (const d of allPostData) {
+          await new EditPost(d[0], d[2]).saveTransfer();
+          log.insertAdjacentHTML('beforeend', `<p>Succeeded in saving ${d[0]}</p>`);
+        }
+      }
+      if (ALLS.elements['page'].checked) {
+        for (const d of allPageData) {
+          await new EditPage(d[0]).saveTransfer();
+          log.insertAdjacentHTML('beforeend', `<p>Succeeded in saving ${d[0]}</p>`);
         }
       }
       log.insertAdjacentHTML('beforeend', `<p>Saving is complete.</p>`);
