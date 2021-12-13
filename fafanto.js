@@ -327,22 +327,22 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   //click spellcheck to on/off
-  document.getElementById('spellcheck').onclick = () => {
-    const sc = e.target;
-    sc.classList.toggle('off');
-    const forms = ['input','textarea'];
-    if (sc.classList.contains('off')) {
-      for (const form of forms) {
-        const inps = document.querySelectorAll(form);
-        for (const inp of inps) inp.setAttribute('spellcheck','false');
-      }
-    } else {
-      for (const form of forms) {
-        const inps = document.querySelectorAll(form);
-        for (const inp of inps) inp.setAttribute('spellcheck','true');
-      }
-    }
-  }
+  // document.getElementById('spellcheck').onclick = () => {
+  //   const sc = e.target;
+  //   sc.classList.toggle('off');
+  //   const forms = ['input','textarea'];
+  //   if (sc.classList.contains('off')) {
+  //     for (const form of forms) {
+  //       const inps = document.querySelectorAll(form);
+  //       for (const inp of inps) inp.setAttribute('spellcheck','false');
+  //     }
+  //   } else {
+  //     for (const form of forms) {
+  //       const inps = document.querySelectorAll(form);
+  //       for (const inp of inps) inp.setAttribute('spellcheck','true');
+  //     }
+  //   }
+  // }
 
   //エディター右の開閉（PostとPage)
   for (const arrowBtn of document.querySelectorAll('.side h3 > b')) {
@@ -527,7 +527,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           'search-desc':'全PostとPageの記事を検索するページです。',
           'post-date-type':'yyyy-mm-dd',
           'post-taglist':'日記\nお知らせ\nfafanto CMS',
-          'custom':'<mark></mark>\n<small></small>\n<b></b>\n<a href=\"\" target=\"_blank\"></a>\n\n<p newline></p>\n<h2 newline></h2>\n<h3 newline></h3>\n<h4 newline></h4>\n<blockquote btn=\"bq\" newline></blockquote>\n<pre newline><code>\n</code></pre>\n\n<br newline>\n\n<div class=\"iframe-container\" btn=\"yt\" newline>\n</div>\n<div class=\"alert yellow\" btn=\"ay\" newline>\n</div>\n<div class=\"alert blue\" btn=\"ab\" newline>\n</div>\n\n<ul newline>\n　<li></li>\n　<li></li>\n　<li></li>\n</ul>\n<ol newline>\n　<li></li>\n　<li></li>\n　<li></li>\n</ol>\n<table newline>\n  <thead>\n    <tr>\n      <th></th>\n      <th></th>\n      <th></th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <td></td>\n      <td></td>\n      <td></td>\n    </tr>\n    <tr>\n      <td></td>\n      <td></td>\n      <td></td>\n    </tr>\n    <tr>\n      <td></td>\n      <td></td>\n      <td></td>\n    </tr>\n  </tbody>\n</table>\n\n<span btn=\"(；´д｀)\">(；´д｀)</span>'
+          'custom':'<mark></mark>\n<small></small>\n<b></b>\n<a href=\"\" target=\"_blank\"></a>\n\n<p newline></p>\n<h2 newline></h2>\n<h3 newline></h3>\n<h4 newline></h4>\n<blockquote btn=\"bq\" newline>\n<br newline>\n\n<div class=\"iframe-container\" btn=\"yt\" newline>\n</div>\n<div class=\"alert yellow\" btn=\"ay\" newline>\n</div>\n<div class=\"alert blue\" btn=\"ab\" newline>\n</div>\n\n<ul newline>\n　<li></li>\n　<li></li>\n　<li></li>\n</ul>\n<ol newline>\n　<li></li>\n　<li></li>\n　<li></li>\n</ol>\n<table newline>\n  <thead>\n    <tr>\n      <th></th>\n      <th></th>\n      <th></th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <td></td>\n      <td></td>\n      <td></td>\n    </tr>\n    <tr>\n      <td></td>\n      <td></td>\n      <td></td>\n    </tr>\n    <tr>\n      <td></td>\n      <td></td>\n      <td></td>\n    </tr>\n  </tbody>\n</table>\n\n<span btn=\"(；´д｀)\">(；´д｀)</span>'
         };
       }
       async load() {
@@ -952,6 +952,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         const view = document.getElementById('view');
         const iframe = view.querySelector('iframe');
         const doc = await this.document();
+        doc.head.querySelector('[rel=stylesheet]').remove();
+        doc.head.querySelector('script').remove();
         doc.head.insertAdjacentHTML('beforeend',`<style>${await style.txt()}</style><script>${await main.txt()}</script>`);
         const str = convert.docToHTMLStr(doc);
         iframe.setAttribute('srcdoc', str);
@@ -1729,7 +1731,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       PREV.classList.add('disable');
       const form = H2SE.dataset.form;
       if (form === 'post' || form === 'page') {
-        if(document.querySelector(`#${form} .bench`).className !== 'hide') {
+        if (!document.querySelector(`#${form} .bench`).classList.contains('hide')) {
           const fileName = document.getElementById(form).querySelector('.artlist fieldset:not(.hide)')?.dataset.name;
           SAVE.dataset.file = fileName;
           ACTF.textContent = fileName;
@@ -1748,6 +1750,27 @@ document.addEventListener('DOMContentLoaded', async () => {
         ACTF.textContent = `${form}.json`;
         SAVE.classList.remove('disable');
       }
+    }
+    obsArticle = (form) => {
+      if (form.querySelector('.bench').classList.contains('hide')) {
+        SAVE.removeAttribute('data-file');
+        SAVE.classList.add('disable');
+        PREV.classList.add('disable');
+        form.elements['top'].classList.remove('hide');
+        ACTF.textContent = '';
+        const inputs = form.querySelectorAll('.artlist > fieldset > input');
+        for (const input of inputs) input.setAttribute('readonly','readonly');
+        for (const span of form.elements['tagbtns'].querySelectorAll('i')) span.removeAttribute('class');
+        return;
+      }
+      const fileName = form.querySelector('.artlist > fieldset:not(.hide)').dataset.name;
+      SAVE.dataset.file = fileName;
+      ACTF.textContent = fileName;
+      SAVE.classList.remove('disable');
+      PREV.classList.remove('disable');
+      form.elements['top'].classList.add('hide');
+      const inputs = form.querySelectorAll(`.artlist > [data-name="${fileName}"] > input`);
+      for (const input of inputs) input.removeAttribute('readonly');
     }
     obsPost = () => {
       if (POSBE.classList.contains('hide')) {
