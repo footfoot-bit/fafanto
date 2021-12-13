@@ -430,6 +430,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const medHandle = await webHandle.getDirectoryHandle('media', {create:true});
     await posHandle.getDirectoryHandle(date.year(), {create:true});
     await medHandle.getDirectoryHandle(date.year(), {create:true});
+    await arcHandle.getFileHandle(`${date.year()}.html`, {create:true});
     const singleBox = [];
     singleBox.push(setHandle,mjsHandle,idxHandle,stlHandle,tagHandle,arsHandle,srhHandle,icoHandle);
 
@@ -611,7 +612,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         super(fileName);
         this.fileName = fileName;
         this.box = find.dirBox(themaBox, SETT.elements['thema'].value);
-        console.log(this.box)
         // this.url = `default-${fileName}`;
         this.me = monacoEditor;
       }
@@ -628,18 +628,22 @@ document.addEventListener('DOMContentLoaded', async () => {
           await this.write(def);
         }
       }
-      async save() {
-        await this.write(this.me.getValue());
+      async webfilesSave() {
         if (this.fileName === 'style.css' || this.fileName === 'main.js') {
           await new EditTextFile(this.fileName, singleBox).write(this.me.getValue());
         }
       }
-
+      async save() {
+        await this.write(this.me.getValue());
+        await this.webfilesSave();
+      }
     }
     const template = new EditThema('template.html', meThemaTemplate);
     const style = new EditThema('style.css', meThemaStyle);
     const main = new EditThema('main.js', meThemaMain);
     for (const themaFile of [template, style, main]) await themaFile.load();
+    await style.webfilesSave();
+    await main.webfilesSave();
 
     //HTML
     class EditHTML extends EditFile {
@@ -1611,6 +1615,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         await index.save();
         await tags.save();
         await archives.save();
+        console.log(`${POST.elements['dirs'].value}.html`)
         await new EditArchive(`${POST.elements['dirs'].value}.html`).save();
       },
       postSaveFileNames: ['index.html','archives.html','tags.html','前後のポスト'],
@@ -1630,14 +1635,15 @@ document.addEventListener('DOMContentLoaded', async () => {
           else if (save.form() === 'post') {
             for (const name of save.postSaveFileNames) saveName.push(name);
             dialog.confirmSave(saveName);
+            const year = POST.elements['dirs'].value;
             allPostData = '';
             dirsData = '';
             allPageData = await EditPage.allData(true);
             console.log(save.fileName())
-            await new EditPost(save.fileName(), POST.elements['dirs'].value).save();
+            await new EditPost(save.fileName(), year).save();
             await save.prevNextPosts();
             await save.singles();
-            saveName.push(`${await save.postYear()}.html`);
+            saveName.push(`${await year}.html`);
           }
           else if (save.form() === 'page') {
             dialog.confirmSave(saveName);
@@ -1676,8 +1682,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     //click start saving
     ALLS.elements['save'].onclick = async () => {
-      const log = ALLS.querySelector('.log');
-      log.textContent = '';
+      const ol = ALLS.querySelector('ol');
+      ol.textContent = '';
       dialog.confirmSave('チェックしたファイル');
       const data = await EditPost.allLatestData(true);
       allPostData = data[0];
@@ -1686,30 +1692,30 @@ document.addEventListener('DOMContentLoaded', async () => {
       for (const file of [['index',index],['archives',archives],['tags',tags],['search',search]]) {
         if (ALLS.elements[file[0]].checked) {
           await file[1].save();
-          log.insertAdjacentHTML('beforeend', `<p>Succeeded in saving ${file[1].fileName}</p>`);
+          ol.insertAdjacentHTML('beforeend', `<li>Succeeded in saving ${file[1].fileName}</li>`);
         }
       }
       if (ALLS.elements['archive'].checked) {
         for (const file of archiveBox.values()) {
           if (file.kind === 'file') {
             await new EditArchive(file.name).save();
-            log.insertAdjacentHTML('beforeend', `<p>Succeeded in saving ${file.name}</p>`);
+            ol.insertAdjacentHTML('beforeend', `<li>Succeeded in saving ${file.name}</li>`);
           }
         }
       }
       if (ALLS.elements['post'].checked) {
         for (const d of allPostData) {
           await new EditPost(d[0], d[2]).saveTransfer();
-          log.insertAdjacentHTML('beforeend', `<p>Succeeded in saving ${d[0]}</p>`);
+          ol.insertAdjacentHTML('beforeend', `<li>Succeeded in saving ${d[0]}</li>`);
         }
       }
       if (ALLS.elements['page'].checked) {
         for (const d of allPageData) {
           await new EditPage(d[0]).saveTransfer();
-          log.insertAdjacentHTML('beforeend', `<p>Succeeded in saving ${d[0]}</p>`);
+          ol.insertAdjacentHTML('beforeend', `<li>Succeeded in saving ${d[0]}</li>`);
         }
       }
-      log.insertAdjacentHTML('beforeend', `<p>Saving is complete.</p>`);
+      ol.insertAdjacentHTML('beforeend', `<p>Saving is complete.</p>`);
       dialog.completeSave();
     }
 

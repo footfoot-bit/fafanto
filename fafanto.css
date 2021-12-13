@@ -485,7 +485,7 @@ fieldset[name=panelbtns] i, fieldset[name=panelbtns] u {
     font-size: 1.4rem;
 }
 #setting textarea {
-    min-height: 60vh;
+    min-height: 50vh;
     resize: vertical;
     border: 1px solid var(--nav-color);
     padding: 1rem;
@@ -532,11 +532,11 @@ fieldset[name=panelbtns] i, fieldset[name=panelbtns] u {
     margin: 0;
     border: none;
 }
-.log {
+#allsave ol {
     background-color: var(--header-color);
-    padding: 1.2rem 2rem;
+    padding: 1.2rem 3.6rem;
 }
-.log p {
+#allsave ol > li {
     padding: .4rem 0;
 }
 #info {
