@@ -316,7 +316,6 @@ main {
 .panel {
     display: grid;
     grid-template-columns: 1fr auto;
-    /* align-items: baseline; */
 }
 .panel fieldset {
     padding: 0;
@@ -400,21 +399,21 @@ fieldset[name=panelbtns] i, fieldset[name=panelbtns] u {
     color: var(--text-color);
 }
 
-/* bases */
-#bases .panel {
+/* thema */
+#thema .panel {
     height: var(--topbar-height);
 }
-#bases .panel > div {
+#thema .panel > div {
     padding: 0;
     border-bottom: 1px solid var(--nav-color);
     border-right: 1px solid var(--nav-color);
 }
 
-#bases [name=paneltab] {
+#thema [name=paneltab] {
     display: grid;
     grid-template-columns: 7fr  1fr 1fr 1fr;
 }
-#bases [name=paneltab] span {
+#thema [name=paneltab] span {
     padding-top: 1.3rem;
     border-bottom: 1px solid var(--nav-color);
 }
@@ -432,7 +431,7 @@ fieldset[name=panelbtns] i, fieldset[name=panelbtns] u {
 [data-tab="template.html"]::before {content: "<>  ";font-family: var(--code-font);font-weight: bold;}
 [data-tab="style.css"]::before {content: "#  ";font-family: var(--code-font);font-weight: bold;}
 [data-tab="main.js"]::before {content: "JS  ";font-family: var(--code-font);font-weight: bold;}
-#bases .text {
+#thema .text {
     height: calc(100vh - var(--topbar-height));
 }
 
@@ -670,7 +669,7 @@ nav p::before,
 #spellcheck::before {content:"\f891";}
 nav [data-nav=post]::before {content:"\f304";font-weight: 900;}
 nav [data-nav=page]::before {content:"\f15c";font-weight: 900;}
-nav [data-nav=bases]::before {content:"\f5c3";font-weight: 900;}
+nav [data-nav=thema]::before {content:"\f5c3";font-weight: 900;}
 nav [data-nav=setting]::before {content:"\f013";font-weight: 900;}
 nav [data-nav=allsave]::before {content:"\f019";font-weight: 900;}
 [name=top] button::before {content:"\f067";}

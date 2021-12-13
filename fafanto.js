@@ -20,7 +20,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   //グローバル定数
   const LOAD = document.getElementById('loading');
   const DOMP = new DOMParser();
-  const STAT = document.getElementById('status');
   const SAVE = document.getElementById('save');
   const PREV = document.getElementById('preview');
   const ACTF = document.getElementById('actfile');
@@ -28,7 +27,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const H2SE = document.querySelector('h2');
   const POST = document.forms['post'];
   const PAGE = document.forms['page'];
-  const BASE = document.forms['bases']
+  const THEM = document.forms['thema']
   const SETT = document.forms['setting'];
   const ALLS = document.forms['allsave'];
   const POSLI = POST.querySelector('.artlist');
@@ -133,7 +132,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       return `${date.year()}-${date.month()}-${date.day()}T${date.hours()}:${date.minutes()}`; //2021-05-26T14:00
     },
     changeFormat: (ymdTime) => {
-      if(!ymdTime) return '';
+      if (!ymdTime) return '';
       const year = ymdTime.slice(0,4);
       const month = ymdTime.slice(5,7);
       const day = ymdTime.slice(8,10);
@@ -178,7 +177,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         return htmlStr;
       }
     },
-    toShortString: (str,num,lastStr) => {
+    toShortString: (str,num, lastStr) => {
       if (str.length > num) return str.substr(0, num) + lastStr;
       else return str;
     },
@@ -190,14 +189,14 @@ document.addEventListener('DOMContentLoaded', async () => {
       const arr = [];
       const checkboxes = elem.querySelectorAll('[type="checkbox"]');
       for (const checkbox of checkboxes) {
-        if(checkbox.checked == true) {
+        if (checkbox.checked == true) {
           const name = checkbox.getAttribute('name');
           arr.push(name);
         }
       }
       return arr;
     },
-    strToArr: (str,separatText) => {
+    strToArr: (str, separatText) => {
       const arr = [];
       if (str) {
         const sArr = str.split(separatText);
@@ -206,7 +205,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       return arr;
     },
     ymdTimeToNum: (ymdTime) => {
-      return ymdTime.replace('T', '.').replace(/[^0-9\.]/g,'');
+      return ymdTime.replace('T', '.').replace(/[^0-9\.]/g, '');
     }
   }
 
@@ -297,9 +296,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   // monaco editorを作成
   const mePostContents = monaco.editor.create(POST.elements['contents'], Monaco.opt('Add Contents\n', 'html'));
   const mePageContents = monaco.editor.create(PAGE.elements['contents'], Monaco.opt('Add Contents\n', 'html'));
-  const meBaseTemplate = monaco.editor.create(BASE.elements['template'], Monaco.opt(await Monaco.defaultText('template.html'), 'html'));
-  const meBaseStyle = monaco.editor.create(BASE.elements['style'], Monaco.opt(await Monaco.defaultText('style.css'), 'css'));
-  const meBaseMain = monaco.editor.create(BASE.elements['main'], Monaco.opt(await Monaco.defaultText('main.js'), 'javascript'));
+  const meThemaTemplate = monaco.editor.create(THEM.elements['template'], Monaco.opt(await Monaco.defaultText('template.html'), 'html'));
+  const meThemaStyle = monaco.editor.create(THEM.elements['style'], Monaco.opt(await Monaco.defaultText('style.css'), 'css'));
+  const meThemaMain = monaco.editor.create(THEM.elements['main'], Monaco.opt(await Monaco.defaultText('main.js'), 'javascript'));
   // instance for add html-tag button
   const meBtnsPosCont = new Monaco('post', mePostContents, Monaco.postPath);
   meBtnsPosCont.addHtmlTag();
@@ -312,8 +311,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 //event
 
   //　左アイコンメニュー
-  document.querySelector('nav').onclick = (e) => {
-    if (e.target.tagName === 'P') {
+  for (const navp of document.querySelectorAll('nav > div > p')) {
+    navp.onclick = (e) => {
       const form = e.target.dataset.nav;
       H2SE.innerHTML = form.charAt(0).toUpperCase() + form.slice(1);
       H2SE.dataset.form = form;
@@ -368,9 +367,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       const on = form.elements['paneltab'].querySelector('button.on');
       form.elements['paneltab'].dataset.currenttab = on.dataset.tab;
     }
-    BASE.elements['paneltab'].onclick = (e) => {
-      paneltab(BASE,e);
-      BASE.elements[e.target.dataset.tab.split('.')[0]].classList.remove('hide');
+    THEM.elements['paneltab'].onclick = (e) => {
+      paneltab(THEM,e);
+      THEM.elements[e.target.dataset.tab.split('.')[0]].classList.remove('hide');
     }
     const tabs = document.querySelectorAll('#setting > .tab > b');
     const divs = document.querySelectorAll('#setting > div');
@@ -553,7 +552,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
       }
       loadThemaText() {
-        BASE.querySelector('[name=paneltab] > span').textContent = SETT.elements['thema'].value;
+        THEM.querySelector('[name=paneltab] > span').textContent = SETT.elements['thema'].value;
       }
       loadThemaList() {
         const elem = SETT.elements['thema'];
@@ -606,8 +605,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     await setting.load();
     setting.addCustomBtns();
 
-    //bases
-    class EditBases extends EditTextFile {
+    //thema
+    class EditThema extends EditTextFile {
       constructor(fileName, monacoEditor) {
         super(fileName);
         this.fileName = fileName;
@@ -637,10 +636,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
 
     }
-    const template = new EditBases('template.html', meBaseTemplate);
-    const style = new EditBases('style.css', meBaseStyle);
-    const main = new EditBases('main.js', meBaseMain);
-    for (const baseFile of [template, style, main]) await baseFile.load();
+    const template = new EditThema('template.html', meThemaTemplate);
+    const style = new EditThema('style.css', meThemaStyle);
+    const main = new EditThema('main.js', meThemaMain);
+    for (const themaFile of [template, style, main]) await themaFile.load();
 
     //HTML
     class EditHTML extends EditFile {
@@ -1619,10 +1618,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         SAVE.onclick = async () => {
           const saveName = [];
           saveName.push(save.fileName());
-          if (save.form() === 'bases') {
+          if (save.form() === 'thema') {
             dialog.confirmSave(saveName);
-            for (const base of [['template.html',template],['style.css',style],['main.js',main]])
-            if (save.fileName() === base[0]) await base[1].save();
+            for (const thema of [['template.html',template],['style.css',style],['main.js',main]])
+            if (save.fileName() === thema[0]) await thema[1].save();
           }
           else if (save.form() === 'setting') {
             dialog.confirmSave(saveName);
@@ -1732,8 +1731,8 @@ document.addEventListener('DOMContentLoaded', async () => {
           PREV.classList.remove('disable');
         }
       }
-      else if (form === 'bases') {
-        const filename = BASE.elements['paneltab'].dataset.currenttab;
+      else if (form === 'thema') {
+        const filename = THEM.elements['paneltab'].dataset.currenttab;
         SAVE.dataset.file = filename;
         ACTF.textContent = filename;
         SAVE.classList.remove('disable');
@@ -1785,22 +1784,22 @@ document.addEventListener('DOMContentLoaded', async () => {
       const inputs = PAGE.querySelectorAll(`.artlist > [data-name="${fileName}"] > input`);
       for (const input of inputs) input.removeAttribute('readonly');
     }
-    obsBasesTab = () => {
-      const filename = BASE.elements['paneltab'].dataset.currenttab;
+    obsThemaTab = () => {
+      const filename = THEM.elements['paneltab'].dataset.currenttab;
       SAVE.dataset.file = filename;
       ACTF.textContent = filename;
     }
     const currentForm = new MutationObserver(obsForm);
     const currentPostFile = new MutationObserver(obsPost);
     const currentPageFile = new MutationObserver(obsPage);
-    const currentThemaFile = new MutationObserver(obsBasesTab);
+    const currentThemaFile = new MutationObserver(obsThemaTab);
     const obsConfig = (attr) => {
       return {attributes: true, attributeFilter: [attr]};
     }
     currentForm.observe(H2SE, obsConfig('data-form'));
     currentPostFile.observe(POSBE, obsConfig('class'));
     currentPageFile.observe(PAGBE, obsConfig('class'));
-    currentThemaFile.observe(BASE.elements['paneltab'], obsConfig('data-currenttab'));
+    currentThemaFile.observe(THEM.elements['paneltab'], obsConfig('data-currenttab'));
   }
   LOAD.classList.add('hide');
 });
