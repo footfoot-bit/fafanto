@@ -1040,7 +1040,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         return doc.head.querySelector('meta[name="date"]')?.getAttribute('content')?? '';
       }
       loadContents(doc) {
-        return doc.body.querySelector('.contents')?.innerHTML?? '';
+        const cnt = doc.querySelector('.contents');
+        if (cnt) {
+          const h23 = cnt.querySelectorAll('h2,h3');
+          if (h23.length) for (const h of h23) h.removeAttribute('id');
+          return cnt.innerHTML;
+        } else return '';
       }
       loadImage(doc) {
         const url = doc.body.querySelector('.thumbnail img')?.getAttribute('src')?? '';
@@ -1206,14 +1211,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         this.form = POST;
         this.tagbtns = POST.elements['tagbtns'];
         this.prevNextNum = [+2,+1,-1,-2];
-      }
-      loadContents(doc) {
-        const cnt = doc.querySelector('.contents');
-        if (cnt) {
-          const h23 = cnt.querySelectorAll('h2,h3');
-          if (h23.length) for (const h of h23) h.removeAttribute('id');
-          return cnt.innerHTML;
-        } else return '';
       }
       loadTagAElems(doc) {
         const tagas = doc.querySelectorAll('.tags-link a');
