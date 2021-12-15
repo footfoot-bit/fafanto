@@ -5,6 +5,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   else document.querySelector('#guide div').innerHTML = 
   '<span class="exclamation">お使いのブラウザはこのアプリに対応していません。<b>PC版</b>の<b>Google Chrome</b>や<b>Microsoft Edge</b>(Chromium系のブラウザ)でアクセスしてください。</span>';
 
+  // const ver = await fetch('https://api.github.com/repos/footfoot-bit/fafanto/releases');
+  // console.log(ver)
+  
   // Registering Service Worker
   // if ('serviceWorker' in navigator) {
   //   navigator.serviceWorker.register('sw.js')
@@ -566,8 +569,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         const btnHtml = SETT.elements['custom'].value;
         const doc = DOMP.parseFromString(btnHtml,'text/html');
         const elems = doc.querySelectorAll('body > *');
-        const panel = POST.elements['panelbtns'];
-        for (const i of panel.querySelectorAll('i')) i.remove();
+        const posPanel = POST.elements['panelbtns'];
+        const pagPanel = PAGE.elements['panelbtns'];
+        for (const panel of [posPanel, pagPanel]) for (const i of panel.querySelectorAll('i')) i.remove();
         for (const elem of elems) {
           const tag = elem.tagName.toLowerCase();
           let btn = elem.getAttribute('btn');
@@ -590,6 +594,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             attribute = ` data-attr="${encodeURI(attr.trim())}"`;
           }
           if (!btn) btn = tag;
+          for (const panel of [posPanel, pagPanel])
           panel.insertAdjacentHTML('beforeend', `<i data-tag="${tag}"${attribute}${child}${newline}>${btn}</i>`);
         }
       }
@@ -612,7 +617,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         super(fileName);
         this.fileName = fileName;
         this.box = find.dirBox(themaBox, SETT.elements['thema'].value);
-        // this.url = `default-${fileName}`;
         this.me = monacoEditor;
       }
       document() {
