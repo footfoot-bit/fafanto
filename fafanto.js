@@ -95,16 +95,19 @@ document.addEventListener('DOMContentLoaded', async () => {
       alert('全てのファイルのセーブが完了しました。');
     },
     nameEmpty: () => {
-      alert('⚠ ファイル名が空です。');
-      throw new Error('Failed to save.File name is empty.');
+      const text = '⚠ ファイル名が空です。';
+      alert(text);
+      throw new Error(text);
     },
     nameExists: () => {
-      alert('⚠ フォルダに同じファイル名が存在します。');
-      throw new Error('Failed to save.Same file name exists.');
+      const text = '⚠ フォルダに同じファイル名が存在します。';
+      alert(text);
+      throw new Error(text);
     },
     notTag: (tag) => {
-      alert(`⚠ テンプレートに "${tag}" が存在していません。`);
-      throw new Error(`"${tag}" does not exist in the template.`);
+      const text = `⚠ テンプレートに "${tag}" が存在していません。`;
+      alert(text);
+      throw new Error(text);
     }
   }
 
@@ -328,25 +331,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       e.target.setAttribute('class','on');
     }
   }
-
-  //click spellcheck to on/off
-  // document.getElementById('spellcheck').onclick = () => {
-  //   const sc = e.target;
-  //   sc.classList.toggle('off');
-  //   const forms = ['input','textarea'];
-  //   if (sc.classList.contains('off')) {
-  //     for (const form of forms) {
-  //       const inps = document.querySelectorAll(form);
-  //       for (const inp of inps) inp.setAttribute('spellcheck','false');
-  //     }
-  //   } else {
-  //     for (const form of forms) {
-  //       const inps = document.querySelectorAll(form);
-  //       for (const inp of inps) inp.setAttribute('spellcheck','true');
-  //     }
-  //   }
-  // }
-
   //エディター右の開閉（PostとPage)
   for (const arrowBtn of document.querySelectorAll('.side h3 > b')) {
     arrowBtn.onclick = (e) => {
@@ -408,12 +392,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.addEventListener("mouseup", () => inDrag = false);
   }
 
-//// click select folder ////
+//// フォルダを選択 ////
   OPEN.onclick = async () => {
-    const dirHandle = await window.showDirectoryPicker(); //dialog accept for load
-    //create and get Handle of file/folder
-     //dialog accept for save
-    const setHandle = await dirHandle.getFileHandle('setting.json', {create:true});
+    const dirHandle = await window.showDirectoryPicker(); //ダイアログでロードの許可
+    //必要なフォルダとファイルを作成
+    const setHandle = await dirHandle.getFileHandle('setting.json', {create:true}); //ダイアログでセーブの許可
+    document.getElementById('guide').classList.add('hide');//ガイド非表示
+    LOAD.classList.remove('hide'); //ローディング表示
     const webHandle = await dirHandle.getDirectoryHandle('webfiles', {create:true});
     const idxHandle = await webHandle.getFileHandle('index.html', {create:true});
     const stlHandle = await webHandle.getFileHandle('style.css', {create:true});
@@ -648,7 +633,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     for (const themaFile of [template, style, main]) await themaFile.load();
     await style.webfilesSave();
     await main.webfilesSave();
-
+    
     //HTML
     class EditHTML extends EditFile {
       constructor(fileName, handleBox, className, titleElem, descriptionElem, thumbnailPath, RequireArray, relativePath, middlePath) {
@@ -672,6 +657,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           'url-relative': this.relpath + this.midpath + this.fileName,
           'url': normal.url() + this.midpath + this.fileName,
           'url-encode' : encodeURIComponent(normal.url() + this.midpath + this.fileName),
+          'this-ymd':`${date.year()}-${date.month()}-${date.day()}`,
           'this-year': date.year(),
           'this-month': date.month(),
           'this-day': date.day(),
@@ -696,9 +682,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         return vals;
       }
-      templateToDoc() {
+      async templateToDoc() {
         const doc = template.document();
-        //remove not class
+        // remove not class
         const hnc = doc.head.querySelectorAll(`[class]:not(.${this.class})`);
         for (const c of hnc) c.remove();
         const htc = doc.head.querySelectorAll(`.${this.class}`);
@@ -707,7 +693,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         for (const c of inc) c.remove();
         const itc = doc.body.querySelectorAll(`if.${this.class}`);
         for (const c of itc) {
-          c.insertAdjacentHTML('afterend',c.innerHTML);
+          c.insertAdjacentHTML('afterend', c.innerHTML);
           c.remove();
         }
         return doc;
@@ -804,19 +790,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         const elem = doc.body.querySelector('f-elm[description]');
         if (elem) elem.insertAdjacentHTML('beforebegin',`<div class="description">${value}</div>`);
       }
-      // insertPostCardDesc(elem,postData) {
-      //   const d = postData;
-      //   let img = '';
-      //   let description = '';
-      //   if (d[5]) img = `<img src="${this.relpath}${d[5]}" alt="${d[1]}" loading="lazy">`;
-      //   else if (d[7]) description = `<small>${d[7]}</small>`;
-      //   let tags = '';
-      //   if (d[6]) tags = `<span>${convert.textArrToHTMLStr(d[6],'i')}</span>`;
-      //   let time = '';
-      //   if (d[3]) time = `<time>${date.changeFormat(d[3])}</time>`;
-      //   elem.insertAdjacentHTML('beforebegin',
-      //   `<li><a href="${this.relpath}post/${d[2]}/${d[0]}">${img}<p>${d[1]}</p>${description}<div>${tags}${time}</div></a></li>\n`);
-      // }
       insertPostCard(elem, postData) {
         const d = postData;
         let imgPath = SETT.elements['blank-thumbpath'].value;
@@ -943,7 +916,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         for (const elem of elems) elem.remove();
       }
       async save() {
-        const doc = this.templateToDoc();
+        const doc = await this.templateToDoc();
         this.existsRequiredElems(doc);
         const vals = Object.assign(this.fafantoVals(), this.fafantoValsVariable());
         this.makeHTMLCommon(doc, vals);
@@ -1042,8 +1015,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       loadContents(doc) {
         const cnt = doc.querySelector('.contents');
         if (cnt) {
-          const h23 = cnt.querySelectorAll('h2,h3');
-          if (h23.length) for (const h of h23) h.removeAttribute('id');
+          const hs = cnt.querySelectorAll('h1,h2,h3,h4,h5,h6');
+          if (hs.length) for (const h of hs) h.removeAttribute('id');
           return cnt.innerHTML;
         } else return '';
       }
@@ -1083,30 +1056,24 @@ document.addEventListener('DOMContentLoaded', async () => {
         const elem = doc.body.querySelector('f-elm[table-of-contents]');
         const cont = doc.body.querySelector('.contents');
         if (elem && cont) {
-          const h23 = cont.querySelectorAll('h2,h3');
-          if (h23.length) {
+          let headdings = 'h1,h2,h3,h4,h5,h6';
+          const userH = elem.getAttribute('h');
+          if (userH) headdings = userH;
+          const hs = cont.querySelectorAll(headdings);
+          if (hs.length) {
             let tocName = 'Contents';
             const attrName = elem.getAttribute('name');
             if (attrName) tocName = attrName;
             elem.insertAdjacentHTML('beforebegin',`<div class="table-of-contents"><b>${tocName}</b>\n<ul></ul></div>`);
-            const h2Ul = doc.body.querySelector('.table-of-contents ul');
-            for (let i = 0; i < h23.length; i++) {
-              const htx = h23[i].textContent;
-              const tgn = h23[i].tagName;
-              if (tgn === 'H2') h2Ul.innerHTML += `<li><a href="#index${i}">${htx}</a><ul></ul></li>\n`;
-              if (tgn === 'H3') {
-                const lastUl = h2Ul.querySelector('li:last-child > ul');
-                const h3Li = `<li><a href="#index${i}">${htx}</a></li>\n`;
-                if (lastUl) lastUl.innerHTML += h3Li;
-                else h2Ul.innerHTML += h3Li;
-              }
-              h23[i].setAttribute('id',`index${i}`);
+            const toc = doc.body.querySelector('.table-of-contents > ul');
+            for (let i = 0; i < hs.length; i++) {
+              toc.innerHTML += `<li class="toc-${hs[i].tagName.toLowerCase()}"><a href="#index${i}">${hs[i].textContent}</a></li>\n`;
+              hs[i].setAttribute('id',`index${i}`);
             }
-            const h3Uls = h2Ul.querySelectorAll('ul');
-            for (const h3Ul of h3Uls) if (!h3Ul.textContent) h3Ul.remove();
           }
         }
       }
+
       loadPublicData(doc) {
         if (doc.head.dataset.public) return false;
         else return true;
@@ -1164,7 +1131,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         this.existParts(doc,beforeDoc);
       }
       async saveTransfer() {
-        const doc = this.templateToDoc();
+        const doc = await this.templateToDoc();
         const beforeDoc = await this.document();
         const vals = Object.assign(this.fafantoVals(), this.fafantoValsVariableTrans(beforeDoc));
         this.makeHTMLCommon(doc, vals);
@@ -1262,7 +1229,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         this.checkParts(doc);
       }
       async save() {
-        const doc = this.templateToDoc();
+        const doc = await this.templateToDoc();
         const vals = Object.assign(this.fafantoVals(), this.fafantoValsVariable());
         this.makeHTMLCommon(doc, vals);
         this.makeHTMLSpecial(doc);
@@ -1467,7 +1434,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         this.insertDispalyDataToHead(doc, this.loadDataAttrLinks(beforeDoc));
       }
       async save() {
-        const doc = this.templateToDoc();
+        const doc = await this.templateToDoc();
         const vals = Object.assign(this.fafantoVals(), this.fafantoValsVariable());
         this.makeHTMLCommon(doc, vals);
         this.makeHTMLSpecial(doc);
@@ -1555,7 +1522,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       addListInDir: async (elem, dirName) => {
         const hdles = find.dirBox(mediaBox, dirName);
           for await (const med of hdles) {
-            if (med.name.match(/(.jpg|.jpeg|.png|.gif|.apng|.svg|.jfif|.pjpeg|.pjp|.ico|.cur)/i)) {
+            if (med.name.match(/(.jpg|.jpeg|.png|.gif|.webp|.apng|.svg|.jfif|.pjpeg|.pjp|.ico|.cur)/i)) {
               const url = await media.localUrl(med);
               elem.innerHTML += `<img src="${url}" title="${med.name}" loading="lazy">`;
             }
@@ -1722,8 +1689,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       dialog.completeSave();
     }
 
-    document.getElementById('guide').classList.add('hide');
-
   /// Mutation Observer ///
     obsForm = () => {
       SAVE.removeAttribute('data-file');
@@ -1830,9 +1795,69 @@ document.addEventListener('DOMContentLoaded', async () => {
     currentPostFile.observe(POSBE, obsConfig('class'));
     currentPageFile.observe(PAGBE, obsConfig('class'));
     currentThemaFile.observe(THEM.elements['paneltab'], obsConfig('data-currenttab'));
+    //ローディング非表示
+    LOAD.classList.add('hide');
   }
   LOAD.classList.add('hide');
 });
+      // insertPostCardDesc(elem,postData) {
+      //   const d = postData;
+      //   let img = '';
+      //   let description = '';
+      //   if (d[5]) img = `<img src="${this.relpath}${d[5]}" alt="${d[1]}" loading="lazy">`;
+      //   else if (d[7]) description = `<small>${d[7]}</small>`;
+      //   let tags = '';
+      //   if (d[6]) tags = `<span>${convert.textArrToHTMLStr(d[6],'i')}</span>`;
+      //   let time = '';
+      //   if (d[3]) time = `<time>${date.changeFormat(d[3])}</time>`;
+      //   elem.insertAdjacentHTML('beforebegin',
+      //   `<li><a href="${this.relpath}post/${d[2]}/${d[0]}">${img}<p>${d[1]}</p>${description}<div>${tags}${time}</div></a></li>\n`);
+      // }
+  //click spellcheck to on/off
+  // document.getElementById('spellcheck').onclick = () => {
+  //   const sc = e.target;
+  //   sc.classList.toggle('off');
+  //   const forms = ['input','textarea'];
+  //   if (sc.classList.contains('off')) {
+  //     for (const form of forms) {
+  //       const inps = document.querySelectorAll(form);
+  //       for (const inp of inps) inp.setAttribute('spellcheck','false');
+  //     }
+  //   } else {
+  //     for (const form of forms) {
+  //       const inps = document.querySelectorAll(form);
+  //       for (const inp of inps) inp.setAttribute('spellcheck','true');
+  //     }
+  //   }
+  // }
+      // insertTableOfContents(doc) {
+      //   const elem = doc.body.querySelector('f-elm[table-of-contents]');
+      //   const cont = doc.body.querySelector('.contents');
+      //   if (elem && cont) {
+      //     const h23 = cont.querySelectorAll('h2,h3');
+      //     if (h23.length) {
+      //       let tocName = 'Contents';
+      //       const attrName = elem.getAttribute('name');
+      //       if (attrName) tocName = attrName;
+      //       elem.insertAdjacentHTML('beforebegin',`<div class="table-of-contents"><b>${tocName}</b>\n<ul></ul></div>`);
+      //       const h2Ul = doc.body.querySelector('.table-of-contents ul');
+      //       for (let i = 0; i < h23.length; i++) {
+      //         const htx = h23[i].textContent;
+      //         const tgn = h23[i].tagName;
+      //         if (tgn === 'H2') h2Ul.innerHTML += `<li><a href="#index${i}">${htx}</a><ul></ul></li>\n`;
+      //         if (tgn === 'H3') {
+      //           const lastUl = h2Ul.querySelector('li:last-child > ul');
+      //           const h3Li = `<li><a href="#index${i}">${htx}</a></li>\n`;
+      //           if (lastUl) lastUl.innerHTML += h3Li;
+      //           else h2Ul.innerHTML += h3Li;
+      //         }
+      //         h23[i].setAttribute('id',`index${i}`);
+      //       }
+      //       const h3Uls = h2Ul.querySelectorAll('ul');
+      //       for (const h3Ul of h3Uls) if (!h3Ul.textContent) h3Ul.remove();
+      //     }
+      //   }
+      // }
               // static tag = {
     //   block: ['p','h2','h3','h4','h5','h6','pre','div','blockquote'],
     //   inline: ['small','i','b','strong','mark','code','span','q',],
