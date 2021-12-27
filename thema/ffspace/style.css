@@ -484,20 +484,6 @@ ul.post-links {
   margin: var(--short-gap) 0;
 }
 
-.toc-h2 {
-  list-style: disc;
-}
-
-.toc-h3 {
-  margin-left: 3rem;
-  list-style: circle;
-}
-
-.toc-h4 {
-  margin-left: 6rem;
-  list-style: square;
-}
-
 .tags-link {
   margin: var(--short-gap) 0;
 }
@@ -566,6 +552,20 @@ ul.post-links {
 
 .prev-next-link > small > b  {
     font-family: var(--code-font);
+}
+
+.afilink {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  column-gap: var(--short-gap);
+  margin: var(--medium-gap) 0;
+}
+
+.afilink .afi-amazon {
+  color: #FF9900;
+  border: 1px solid #FF9900;
+  display: block;
+  text-align: center;
 }
 
 /* Google material icons | https://fonts.google.com/icons */

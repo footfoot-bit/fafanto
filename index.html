@@ -7,12 +7,9 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" data-name="vs/editor/editor.main" href="monaco-editor/min/vs/editor/editor.main.css" />
-<!-- <script id="fafanto-func">
-</script> -->
 
 </head>
 <body>
-  <img id="loading" src="loading.svg">
 <script src="fafanto.js"></script>
 <script src="monaco-editor/min/vs/loader.js"></script>
 <script src="monaco-editor/min/vs/editor/editor.main.nls.js"></script>
@@ -172,7 +169,7 @@
     </form>
     <!-- 設定 -->
     <form id="setting">
-      <p class="tab"><i title="サイトの設定"></i><b class="on">共通</b><b>テーマ</b><b>各タイトルと説明</b><b>Post</b><i title="ツールの設定"></i><b>カスタムエディター</b><span></span></p>
+      <p class="tab"><i title="サイトの設定"></i><b class="on">共通</b><b>各タイトルと説明</b><b>Post</b><i title="テーマ"></i><b>テーマ</b><i title="ツールの設定"></i><b>カスタムエディター</b><span></span></p>
       <div class="show">
         <h3>サイト共通</h3>
         <p><span>サイト名*</span><input name="index-title" placeholder="site title" type="text"></p>
@@ -181,17 +178,7 @@
         <p><span title="site-description(f-elm, f-val)で使用します"。>サイトの説明</span><input name="index-desc" placeholder="index.htmlのdescription" type="text"></p>
         <p><span>サイトの画像</span><input name="index-thumbpath" placeholder="media/image.png" type="text"></p>
         <p><span>ブランク画像</span><input name="blank-thumbpath" placeholder="media/blank.png" type="text"></p>
-        <p><span>あなたの名前</span><input name="author" placeholder="your name" type="text"></p>
-      </div>
-      <div>
-        <h3>テーマ</h3>
-        <p>
-          <span>テーマ選択</span>
-          <select name="thema">
-            <option value="default" selected>default</option>
-          </select>
-        </p>
-        <div class="alert blue">テーマの追加はローカル環境で<code>thema/</code>フォルダに既存のテーマをコピーしてください。</div>
+        <p><span>著者名</span><input name="author" placeholder="your name" type="text"></p>
       </div>
       <div>
         <h3>各タイトルと説明</h3>
@@ -220,6 +207,16 @@
 メロン スイカ
 みかん Orange"></textarea><small class="alert blue">改行が区切りになります。スペースで複数の単語を使用可。</small></span>
         </p>
+      </div>
+      <div>
+        <h3>テーマ</h3>
+        <p>
+          <span>テーマ選択</span>
+          <select name="thema">
+            <option value="default" selected>default</option>
+          </select>
+        </p>
+        <div class="alert blue">テーマの追加はローカル環境で<code>thema/</code>フォルダに既存のテーマをコピーしてください。</div>
       </div>
       <div>
         <h3>カスタムエディター</h3>
@@ -277,5 +274,6 @@
     <button type="button"></button>
     <iframe></iframe>
   </div>
+  <img id="loading" src="loading.svg">
 </body>
 </html>

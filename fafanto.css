@@ -445,7 +445,7 @@ fieldset[name=panelbtns] i, fieldset[name=panelbtns] u {
 }
 #setting > .tab {
     display: grid;
-    grid-template-columns: auto auto auto auto auto auto auto 1fr;
+    grid-template-columns: auto auto auto auto auto auto auto auto 1fr;
     height: var(--topbar-height);
 }
 #setting > .tab > b, #setting > .tab > i {
@@ -673,7 +673,7 @@ nav p::before,
 #spellcheck::before {content:"\f891";}
 nav [data-nav=post]::before {content:"\f304";font-weight: 900;}
 nav [data-nav=page]::before {content:"\f15c";font-weight: 900;}
-nav [data-nav=thema]::before {content:"\f5c3";font-weight: 900;}
+nav [data-nav=thema]::before, #setting > .tab > i:nth-of-type(2)::before{content:"\f5c3";font-weight: 900;}
 nav [data-nav=setting]::before {content:"\f013";font-weight: 900;}
 nav [data-nav=allsave]::before {content:"\f019";font-weight: 900;}
 [name=top] button::before {content:"\f067";}
