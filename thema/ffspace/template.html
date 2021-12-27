@@ -1,0 +1,207 @@
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title class="index" f-val="[site-title] - [site-subtitle]"></title>
+<title class="archives search tags post page" f-val="[title] - [site-title]"></title>
+<title class="archive" f-val="[title][filename-short] - [site-title]"></title>
+<meta name="description" f-attr="content^[description]">
+<link rel="stylesheet" f-attr="href^[relpath]style.css">
+<link rel="icon" type="image/svg+xml" f-attr="href^[relpath]favicon.svg">
+<script f-attr="src^[relpath]main.js"></script>
+<meta class="post page" name="date" f-attr="content^[published-date]">
+<meta name="author" f-attr="content^[author]">
+<meta property="og:title" f-attr="content^[title]">
+<meta property="og:site_name" f-attr="content^[site-title]">
+<meta property="og:description" f-attr="content^[site-description],content^[description]">
+<meta property="og:url" f-attr="content^[url]">
+<meta property="og:image" f-attr="content^[site-thumburl],content^[site-url][thumbpath]">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:site" content="@foot2mini" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="format-detection" content="telephone=no">
+<link href="https://fonts.googleapis.com/css2?family=Material+Icons" rel="stylesheet">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css" integrity="sha384-DyZ88mC6Up2uqS4h/KRgHuoeGwBcD4Ng9SiP4dIRy0EXTlnuz47vAwmeGwVChigm" crossorigin="anonymous">
+</head>
+<body>
+<div class="header-wrap">
+  <header class="header">
+  <if class="index archives archive search">
+    <f-elm site-title></f-elm>
+  </if>
+  <if class="post page tags">
+    <f-elm site-title tag="div"></f-elm>
+  </if>
+    <f-elm site-subtitle></f-elm>
+    <nav class="head-icons">
+      <a title="アーカイブス" f-attr="href^[relpath]archives.html"><span class="material-icons-outlined">date_range</span></a>
+      <a title="タグ" f-attr="href^[relpath]tags.html"><span class="material-icons-outlined">sell</span></a>
+      <a title="検索" f-attr="href^[relpath]search.html"><span class="material-icons-outlined">search</span></a>
+    </nav>
+    <f-elm page-links></f-elm>
+    <div class="menu-icon"></div>
+  </header>
+</div>
+
+<main class="main">
+
+<if class="index"><!-- index.html -->
+  <h2 class="ih2">Newポスト<a href="./tags.html">All</a></h2>
+  <f-elm post-links="all" num="12" addclass="first-large"></f-elm>
+  <h2 class="ih2">カセットテープ<a href="./tags.html?q=カセットテープ">All</a></h2>
+  <f-elm post-links="tags" name="カセットテープ" num="6"></f-elm>
+  <h2 class="ih2">電子工作<a href="./tags.html?q=電子工作">All</a></h2>
+  <f-elm post-links="tags" name="電子工作" num="3"></f-elm>
+</if>
+
+<if class="tags"><!-- tags.html -->
+  <div class="two-column">
+    <div class="filter-btns">
+      <f-elm title></f-elm>
+      <f-elm tags-word></f-elm>
+      <div>
+        <b class="allclear-btn">全て消す</b>
+        <b class="allview-btn">全て見る</b>
+      </div>
+    </div>
+    <f-elm post-links="all"></f-elm>
+  </div>
+</if>
+
+<if class="archives"><!-- archives.html -->
+  <div class="article contents">
+    <f-elm title tag="h2"></f-elm>
+    <h3>Post</h3>
+    <f-elm post-dirs></f-elm>
+    <h3>Page</h3>
+    <f-elm page-links></f-elm>
+  </div>
+</if>
+
+<if class="archive"><!-- archive/year.html -->
+  <h2 class="title"><f-val title></f-val> <f-val filename-short></f-val></h2>
+  <f-elm post-links="dir"></f-elm>
+  <div class="contents">
+    <h3>アーカイブス</h3>
+    <f-elm post-dirs></f-elm>
+  </div>
+</if>
+
+<if class="search"><!-- search.html -->
+    <div class="article contents">
+      <form id="search-box">
+        <input name="word" placeholder="単語を入力">
+        <button name="btn" type="button">検索</button>
+        <ul>
+          <li>複数の単語には対応していません。</li>
+          <li>詳細な検索をしたい場合は<a f-attr="href^https://www.google.com/search?q=site%3A[site-url-encode]" target="_blank">GoogleのURL検索</a>を利用してください。</li>
+        </ul>
+      </form>
+      <div class="search-result">
+        <h2>検索結果</h2>
+        <ol></ol>
+      </div>
+  </div>
+</if>
+
+<if class="post"><!-- post/dir/filename.html -->
+  <aside class="freespace1">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3151785445849225"
+      crossorigin="anonymous"></script>
+    <!-- wide -->
+    <ins class="adsbygoogle"
+      style="display:block"
+      data-ad-client="ca-pub-3151785445849225"
+      data-ad-slot="4854708686"
+      data-ad-format="auto"
+      data-full-width-responsive="true"></ins>
+    <script>
+        (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
+  </aside>
+    <div class="article">
+      <f-elm title></f-elm>
+      <div class="info">
+        <f-elm author></f-elm> - <f-elm dates></f-elm>
+      </div>
+      <f-elm thumbnail></f-elm>
+      <f-elm description></f-elm>
+      <f-elm table-of-contents name="もくじ"></f-elm>
+      <f-elm contents></f-elm>
+      <f-elm tags-link></f-elm>
+      <div class="share-sns">
+        <a class="share-twitter" f-attr="href^https://twitter.com/share?url=[url-encode]&text=[title-encode]" title="ツイッターでシェア" target="_blank">Twitter</a>
+        <a class="share-facebook"f-attr="href^https://www.facebook.com/sharer/sharer.php?u=[url-encode]" title="フェイスブックでシェア" target="_blank">Facebook</a>
+        <a class="share-line"f-attr="href^https://line.me/R/msg/text/?[title-encode]%20[url-encode]" title="ラインでシェア" target="_blank">LINE</a>
+        <span class="share-copyurl" title="この記事のURLをコピー">Copy URL</span>
+      </div>
+    </div>
+  <aside class="freespace2">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3151785445849225"
+        crossorigin="anonymous"></script>
+    <ins class="adsbygoogle"
+        style="display:block; text-align:center;"
+        data-ad-layout="in-article"
+        data-ad-format="fluid"
+        data-ad-client="ca-pub-3151785445849225"
+        data-ad-slot="5610211565"></ins>
+    <script>
+        (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
+  </aside>
+  <div class="comment">
+    <div class="article">
+      <h3>コメント</h3>
+      <div id="disqus_thread"></div>
+      <script>
+        const ptnm = location.pathname;
+        const arr1 = ptnm.split('/');
+        const arr2 = arr1[arr1.length -1].split('.');
+        const dsID = arr2[arr2.length -2];
+        var disqus_config = function () {
+          this.page.url = location.href;  // Replace PAGE_URL with your page's canonical URL variable
+          this.page.identifier = dsID; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+        };
+          (function() { // DON'T EDIT BELOW THIS LINE
+            var d = document, s = d.createElement('script');
+            s.src = 'https://footfoot-space.disqus.com/embed.js';
+            s.setAttribute('data-timestamp', +new Date());
+            (d.head || d.body).appendChild(s);
+          })();
+        
+      </script>
+      <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    </div>
+  </div>
+  <nav class="prev-next-link">
+    <small><b><< </b>前後のポスト<b> >></b></small>
+    <f-elm post-links="prev-next"></f-elm>
+  </nav>
+</if>
+
+<if class="page"><!-- page/filename.html -->
+  <div class="article">
+    <f-elm title></f-elm>
+    <f-elm table-of-contents name="もくじ"></f-elm>
+    <f-elm contents></f-elm>
+  </div>
+</if>
+
+</main>
+<div class="footer-wrap">
+  <footer class="footer">
+    <nav>
+      <a title="Archives" f-attr="href^[relpath]archives.html">アーカイブス</a>
+      <a title="Tags" f-attr="href^[relpath]tags.html">タグ</a>
+      <a title="Search" f-attr="href^[relpath]search.html">検索</a>
+    </nav>
+    <f-elm page-links></f-elm>
+    <div>
+      ＠<f-val this-year></f-val> <f-elm site-title tag="span"></f-elm> | 
+      <small>made with <a href="https://www.fafanto.app/" target="_blank">fafanto</a></small>
+    </div>
+  </footer>
+</div>
+</body>
+</html>
